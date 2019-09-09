@@ -1,0 +1,10 @@
+flask
+PyYAML
+requests
+parameterized
+python-coveralls
+pytest-cov
+flask_swagger_ui
+requests_toolbelt
+py_eureka_client
+flask_cors

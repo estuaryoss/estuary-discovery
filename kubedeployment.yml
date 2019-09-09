@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    k8s-app: estuary-discovery
+  name: estuary-discovery
+  namespace: default
+spec:
+  replicas: 2
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: estuary-discovery
+  template:
+    metadata:
+      labels:
+        k8s-app: estuary-discovery
+    spec:
+      containers:
+        - name: estuary-discovery
+          image: dinutac/estuary-discovery:latest
+          command: ["/home/dev/bin/start.sh"]
+          volumeMounts:
+            - mountPath: /home/dev/bin/
+              name: flask-volume
+          ports:
+            - containerPort: 8080
+          #      readinessProbe:
+          #        httpGet:
+          #          path: /
+          #          port: 8080
+
+      volumes:
+        - name: flask-volume
+          hostPath:
+            #modify your path here!!!
+            path: "C:\Users\IdeaProjects\estuary-discovery"
+            type: Directory
+
+

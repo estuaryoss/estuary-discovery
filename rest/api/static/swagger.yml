@@ -1,0 +1,297 @@
+"swagger": '2.0'
+info:
+  description: |
+    This is estuary-discovery service.
+  version: "1.0.0"
+  title: estuary-discovery
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: constantin.dinuta@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+# host: localhost:8080
+basePath: /
+tags:
+  - name: estuary-discovery
+    description: Estuary-discovery service which discovers the apps registered with Eureka.
+    externalDocs:
+      description: Find out more on github
+      url: https://github.com/dinuta/estuary-discovery
+schemes:
+  - http
+paths:
+  /env:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Print env vars
+      produces:
+        - application/json
+      responses:
+        200:
+          description: List of env vars in key value pairs
+  /ping:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Ping endpoint which replies with pong
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Ping endpoint which replies with pong. Useful for situations where checking the alive status of the service is needed.
+  /about:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Information about the application.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Prints the name, version of the estuary-discovery application.
+  /rend/{template}/{variables}:
+    get:
+      tags:
+        - estuary-discovery
+      summary: estuary-discovery render wo env vars
+      description: Gets the rendered output from template and variable files with estuary-discovery
+      produces:
+        - application/json
+        - text/plain
+      parameters:
+        - name: template
+          in: path
+          description: The template file mounted in docker
+          required: true
+          type: string
+        - name: variables
+          in: path
+          description: The variables file mounted in docker
+          required: true
+          type: string
+      responses:
+        200:
+          description: estuary-discovery rendered template with jinja2
+        404:
+          description: estuary-discovery failure to rend the template
+  /rendwithenv/{template}/{variables}:
+    post:
+      tags:
+        - estuary-discovery
+      summary: estuary-discovery render with inserted env vars
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - text/plain
+      parameters:
+        - name: template
+          in: path
+          description: Template file mounted in docker
+          required: true
+          type: string
+        - name: variables
+          in: path
+          description: Variables file mounted in docker
+          required: true
+          type: string
+        - name: EnvVars
+          in: body
+          description: List of env vars by key-value pair
+          required: false
+          schema:
+            $ref: '#/components/schemas/envvar'
+      responses:
+        200:
+          description: estuary-discovery rendered template with jinja2
+        404:
+          description: estuary-discovery failure to rend the template
+  /getenv/{env_name}:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets the environment variable value from the estuary-discovery container
+      produces:
+        - application/json
+      parameters:
+      - name: env_name
+        in: path
+        description: The name of the env var wanted
+        required: true
+        type: string
+      responses:
+        200:
+          description: Get env var success
+        404:
+          description: Get env var failure
+  /gettestid:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets the currently running test id. NA in case test not running or it is already finished
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get test id success
+        404:
+          description: Get test id failure
+  /gettestinfo:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets information abot running tests, running processes, test status
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get test info success
+        404:
+          description: Get test info failure
+  /teststart/{id}:
+    post:
+      tags:
+        - estuary-discovery
+      summary: Starts the tests inside the container
+      consumes:
+        - text/plain
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Test id set by the user
+          required: true
+          type: string
+        - name: test_file_content
+          in: body
+          description: List of commands to run. E.g. make/mvn/sh/npm
+          required: true
+          schema:
+            $ref: '#/components/schemas/test_file_content'
+      responses:
+        200:
+          description: test start success
+        404:
+          description: test start failure
+  /teststop:
+    get:
+      tags:
+        - estuary-discovery
+      summary: |
+        Stops one single command from the batch sent initially to /teststart endpoint(alpine).
+        Stops all commands with only one command(ubuntu).
+        Send as many /teststop requests as how many commands you want to stop(on alpine).
+      produces:
+        - application/json
+      responses:
+        200:
+          description: test stop success
+        404:
+          description: test stop failure
+  /getresultsfile:
+    post:
+      tags:
+        - estuary-discovery
+      summary: Gets the test results file
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: file
+          in: body
+          description: Target file path to get
+          required: false
+          schema:
+            $ref: '#/components/schemas/file'
+      responses:
+        200:
+          description: The content of the file in plain text
+        404:
+          description: Failure, the file content could not be read
+  /uploadtestconfig:
+    post:
+      tags:
+        - estuary-discovery
+      summary: Uploads a test configuration file
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: testconfig
+          in: body
+          description: Target file path and file content
+          required: false
+          schema:
+            $ref: '#/components/schemas/testconfig'
+      responses:
+        200:
+          description: The content of the file was uploaded successfully
+        404:
+          description: Failure, the file content could not be uploaded
+  /getresultsfolder:
+    post:
+      tags:
+        - estuary-discovery
+      summary: Gets the test results folder as zip archive
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/zip
+      parameters:
+        - name: folder
+          in: body
+          description: Target folder path to get as zip
+          required: false
+          schema:
+            $ref: '#/components/schemas/folder'
+      responses:
+        200:
+          description: The content of the folder as zip archive
+        404:
+          description: The content of the folder could not be obtained
+components:
+  schemas:
+    file:
+      type: object
+      example: '{"file" : "/etc/hostname"}'
+    folder:
+      type: object
+      example: '{"folder" : "/etc"}'
+    istestfinishedfile:
+      type: object
+      example: '{"file" : "/tmp/is_test_finished"}'
+    testconfig:
+      type: object
+      example: '{"file" : "/home/automation/config.properties", "content" : "ip=10.0.0.1\nrequest_sec=100\nthreads=10\ntype=dual"}'
+    envvar:
+      type: object
+      example: '{"DATABASE" : "mysql56", "IMAGE":"latest"}'
+    template:
+      type: string
+      minLength: 3
+      example: |
+          version: '2.2'
+          services:
+            alpine:
+              restart: always
+              image: alpine:3.9.4
+              hostname: alpine
+              entrypoint: tail -f /etc/hostname
+    test_file_content:
+      type: string
+      minLength: 3
+      example: |
+        mvn test -Dtype=Prepare
+        mvn test -Dtype=ExecuteTests
+externalDocs:
+  description: Find out more on github
+  url: https://github.com/dinuta/estuary-discovery

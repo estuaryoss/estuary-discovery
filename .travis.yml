@@ -1,0 +1,70 @@
+language: python
+
+python:
+  - "3.6"
+
+services:
+  - docker
+
+env:
+  #scripts dir host and docker
+  SCRIPTS_DIR: tests
+  DOCKER_SCRIPTS_DIR: /home/dev/scripts
+
+  #server on host
+  SERVER: "localhost:8080"
+
+  # unit tests env vars and flask app as cli (the last tests)
+  TEMPLATES_DIR: inputs/templates
+  VARS_DIR: inputs/variables
+
+before_install:
+  - docker build -t dinutac/estuary-discovery:latest .
+  - docker run
+    -d
+    -p 8080:8080
+    -v $PWD/inputs/templates:/data
+    -v $PWD/inputs/variables:/variables
+    -v /var/run/docker.sock:/var/run/docker.sock
+    --name estuary-discovery
+    dinutac/estuary-discovery:latest
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - py.test $SCRIPTS_DIR/render_test.py --cov=entities
+
+script:
+  - python3 -m unittest discover $SCRIPTS_DIR "*_test.py"
+  #  - python -m unittest discover tests/rest "*_test.py"
+  - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR "render_test.py"
+  - docker stop estuary-discovery
+  - docker rm estuary-discovery
+
+  #run eureka registration tests
+  - docker-compose up -d
+  - sleep 20
+  - docker ps
+  - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR/tests/rest_eureka "*_test.py"
+  - docker-compose down -v
+
+  #run jinja2 render tests
+  - docker run -i
+    -v $TRAVIS_BUILD_DIR/inputs/templates:/data
+    -v $TRAVIS_BUILD_DIR/inputs/variables:/variables  -e TEMPLATE=standalone.yml
+    -e VARIABLES=variables.yml -e DATABASE=mysql56 -e IMAGE=latest
+    --entrypoint python3 dinutac/estuary-discovery:latest $DOCKER_SCRIPTS_DIR/main.py
+
+  - docker run --entrypoint jinja2
+    -v $TRAVIS_BUILD_DIR/inputs/templates:/data
+    -v $TRAVIS_BUILD_DIR/inputs/variables:/variables
+    dinutac/estuary-discovery:latest
+    /data/json.j2 /variables/json.json --format=json
+
+
+
+after_success:
+  - coveralls
+
+
