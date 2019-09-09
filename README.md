@@ -18,15 +18,6 @@ Estuary discovery service. Reads the apps registered in Eureka.
 ## Postman collection
 https://documenter.getpostman.com/view/2360061/SVmpY31g
 
-## Container support
-- mvn & java jdk  
-- make  
-- npm
-- other: you can use this image as base and install on top your dependencies 
-
-## TestRunner service usage
-1. use the service embedded in this container and mount your testing framework
-2. build your absolute custom framework image and integrate this service as a self-contained application service (cli). Read [doc](https://github.com/dinuta/estuary-discovery/wiki).
 
 Use cases:
 1. Useful for estuary-viewer frontend app.
@@ -37,7 +28,7 @@ Use cases:
     docker-compose up
     
 ##### Using docker run - eureka registration
-Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all estuary apps.
+Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
 
