@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 import os
-import time
 import unittest
-import zipfile
 
 import requests
 import yaml
 from flask import json
 from parameterized import parameterized
-from requests_toolbelt.utils import dump
 
 from tests.rest.constants import Constants
 from tests.rest.error_codes import ErrorCodes
-from tests.rest.utils import Utils
 
 
 class FlaskServerTestCase(unittest.TestCase):
@@ -154,6 +150,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get("services")), 2)
         self.assertEqual(int(body.get("version")), 3)
+
 
 if __name__ == '__main__':
     unittest.main()
