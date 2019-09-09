@@ -120,7 +120,7 @@ def get_eureka_apps():
         for app in eureka_client.get_applications(eureka_server=f"{host}").applications:
             for instance in app.up_instances:
                 # [ip, app, port] = instance.instanceId.split(":")
-                [ip, app, port] = [instance.ipAddr, instance.app, str(instance.port.port)]
+                [ip, app, port] = [instance.ipAddr, str(instance.app).lower(), str(instance.port.port)]
                 if app not in apps_list:
                     apps_list[app] = []
                 apps_list[app].append({"ip": ip, "port": port})
