@@ -1,12 +1,10 @@
 import json
 import os
-import re
-import sys
 import traceback
 
-import flask
 from flask import Response
 from flask import request
+from py_eureka_client import eureka_client
 
 from about import properties
 from entities.render import Render
@@ -15,8 +13,6 @@ from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
 from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import env_vars
-from rest.utils.cmd_utils import CmdUtils
-from rest.utils.io_utils import IOUtils
 
 app = create_app()
 
@@ -113,29 +109,30 @@ def get_env(name):
     return response
 
 
-
-@app.route('/getestuaryapps', methods=['POST'])
-def get_results_file():
-    io_utils = IOUtils()
+@app.route('/geteurekaapps', methods=['GET'])
+def get_eureka_apps():
     http = HttpResponse()
 
     try:
-        input_json = request.get_json(force=True)
-        file = input_json["file"]
-    except:
-        result = "Exception({0})".format(sys.exc_info()[0])
-        return Response(json.dumps(http.failure(Constants.MISSING_PARAMETER_POST,
-                                                ErrorCodes.HTTP_CODE.get(Constants.MISSING_PARAMETER_POST) % "file",
-                                                result,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+        host = os.environ.get('EUREKA_SERVER')
+        apps_list = {}
+        print(f"Getting apps from eureka server {host} ... \n")
+        for app in eureka_client.get_applications(eureka_server=f"{host}").applications:
+            for instance in app.up_instances:
+                # [ip, app, port] = instance.instanceId.split(":")
+                [ip, app, port] = [instance.ipAddr, instance.app, str(instance.port.port)]
+                if app not in apps_list:
+                    apps_list[app] = []
+                apps_list[app].append({"ip": ip, "port": port})
 
-    try:
-        response = io_utils.read_file(file), 200
+        response = Response(json.dumps(
+            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
+            mimetype="application/json")
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.GET_ESTUARY_TESTRUNNER_FILE_FAILURE,
+        response = Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
                                                     ErrorCodes.HTTP_CODE.get(
-                                                        Constants.GET_ESTUARY_TESTRUNNER_FILE_FAILURE),
+                                                        Constants.GET_EUREKA_APPS_FAILED) % host,
                                                     exception,
                                                     str(traceback.format_exc()))), 404, mimetype="application/json")
     return response
