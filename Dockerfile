@@ -35,6 +35,7 @@ RUN pip3 install \
   parameterized \
   flask_swagger_ui \
   requests \
+  requests_toolbelt \
   flask-cors \
   py_eureka_client
 

@@ -5,8 +5,23 @@ import unittest
 import requests
 from py_eureka_client import eureka_client
 
-from tests.rest_eureka.constants import Constants
-from tests.rest_eureka.error_codes import ErrorCodes
+
+class Constants:
+    DOCKER_PATH = "/tmp/"
+
+    SUCCESS = "1000"
+    JINJA2_RENDER_FAILURE = "1001"
+    GET_EUREKA_APPS_FAILED = "1002"
+    GET_CONTAINER_ENV_VAR_FAILURE = "1003"
+
+
+class ErrorCodes:
+    HTTP_CODE = {
+        Constants.SUCCESS: "success",
+        Constants.JINJA2_RENDER_FAILURE: "jinja2 render failed",
+        Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka server_ip '%s'",
+        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'"
+    }
 
 
 class EurekaClient:
@@ -35,7 +50,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(up_services[0], self.server_ip)  # 1 instance registered
 
     def test_geteureka_apps(self):
-        response = requests.get(self.server_ip + f"/geteurekaapps")
+        response = requests.get("http://" + self.server_ip + f"/geteurekaapps")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
