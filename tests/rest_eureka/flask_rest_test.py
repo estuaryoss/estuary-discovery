@@ -50,7 +50,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(up_services[0], self.server_ip)  # 1 instance registered
 
     def test_geteureka_apps(self):
-        response = requests.get("http://" + self.server_ip + f"/geteurekaapps")
+        response = requests.get(f"http://{self.server_ip}:{self.server_port}/geteurekaapps")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
