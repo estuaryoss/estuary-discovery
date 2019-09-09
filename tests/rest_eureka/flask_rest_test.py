@@ -59,8 +59,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('message')), 1)
         self.assertEqual(len(body.get('message').get(self.server_ip)), 1)
-        self.assertEqual(body.get('message').get(self.server_ip).get("ip"), self.server_ip)
-        self.assertEqual(body.get('message').get(self.server_ip).get("port"), self.server_port)
+        self.assertEqual(body.get('message').get(self.server_ip)[0].get("ip"), self.server_ip)
+        self.assertEqual(body.get('message').get(self.server_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
