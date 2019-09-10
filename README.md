@@ -36,18 +36,19 @@ Start Eureka server with docker:
 
 Start your container by specifying the eureka server in order to discover all other apps:
 
-    On Linux/Mac:
-
     docker run \
     -e EUREKA_SERVER=http://10.10.15.25:8080/eureka/v2
     -e APP_IP_PORT=10.10.15.25:8081
     -p 8081:8080
     dinutac/estuary-discovery:<tag>
-
-    On Windows:
-
-    docker run \
-    -e EUREKA_SERVER=http://10.10.15.25:8080/eureka/v2
-    -e APP_IP_PORT=10.10.15.25:8081
-    -p 8081:8080
-    dinutac/estuary-discovery:<tag>
+    
+    Jinja2 templating can be done, just add:
+    Windows:
+    -v %cd%/inputs/templates:/data \ 
+    -v %cd%/inputs/variables:/variables \
+    
+    Linux:
+    -v $PWD/inputs/templates:/data \ 
+    -v $PWD/inputs/variables:/variables \
+    
+    
