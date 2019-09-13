@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import time
 import unittest
 
 import requests
@@ -63,6 +64,15 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message').get(self.server_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
+
+    def test_time_of_100_requests(self):
+        repetitions = 100
+        start = time.time()
+        for i in range(1, repetitions):
+            response = requests.get(f"http://{self.server_ip}:{self.server_port}/geteurekaapps")
+            self.assertEqual(response.status_code, 200)
+        end = time.time()
+        print(f"made {repetitions} geteurekaapps repetitions in {end - start} s")
 
 
 if __name__ == '__main__':
