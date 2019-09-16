@@ -2,13 +2,14 @@
 
 Please donate: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src="https://pbs.twimg.com/profile_images/1145724063106519040/b1L98qh9_400x400.jpg" height="40" width="40" align="center"></a>    
 
-# Testing as a Service with Docker
-## estuary-discovery
+# Testing as a Service
+## Estuary discovery
 Estuary discovery service. Reads the apps registered in Eureka.
 
 ## Build & Coverage
 [![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-discovery?branch=master)
+
 ## Docker Hub
 [![](https://images.microbadger.com/badges/image/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own image badge on microbadger.com")[![](https://images.microbadger.com/badges/version/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own version badge on microbadger.com")![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
@@ -52,3 +53,8 @@ Start your container by specifying the eureka server in order to discover all ot
     -v $PWD/inputs/variables:/variables \
     
     
+## Estuary stack
+[Estuary deployer](https://github.com/dinuta/estuary-deployer)  
+[Estuary testrunner](https://github.com/dinuta/estuary-testrunner)  
+[Estuary discovery](https://github.com/dinuta/estuary-discovery)  
+[Estuary viewer](https://github.com/dinuta/estuary-viewer)  
