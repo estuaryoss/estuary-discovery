@@ -52,6 +52,8 @@ Start your container by specifying the eureka server in order to discover all ot
     -v $PWD/inputs/templates:/data \ 
     -v $PWD/inputs/variables:/variables \
     
+ ##### Using kubernetes
+     kubectl apply -f k8sdeployment.yml  
     
 ## Estuary stack
 [Estuary deployer](https://github.com/dinuta/estuary-deployer)  
