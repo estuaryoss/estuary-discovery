@@ -173,10 +173,11 @@ def get_tests():
         host = os.environ.get('EUREKA_SERVER')
         tests = []
         testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[0])
-        for item in testrunner_apps:
+        for testrunner in testrunner_apps:
             try:
-                r = RestUtils.get(f"http://{item.get('ip')}:{item.get('port')}/gettestinfo")
+                r = RestUtils.get(f"http://{testrunner.get('ip')}:{testrunner.get('port')}/gettestinfo")
                 testinfo = r.json().get('message')
+                testinfo["ip_port"] = f"{testrunner.get('ip')}:{testrunner.get('port')}";
                 tests.append(testinfo)
             except:
                 # wont be put in the list. probably the service is down, but still registered in eureka at the time being
@@ -207,12 +208,13 @@ def get_deployments():
         host = os.environ.get('EUREKA_SERVER')
         deployments = []
         deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[1])
-        for item in deployer_apps:
+        for deployer in deployer_apps:
             try:
-                r = RestUtils.get(f"http://{item.get('ip')}:{item.get('port')}/getdeploymentinfo")
+                r = RestUtils.get(f"http://{deployer.get('ip')}:{deployer.get('port')}/getdeploymentinfo")
                 deploymentinfo = r.json().get('message')
-                for item in deploymentinfo:
-                    deployments.append(item)
+                for deployment in deploymentinfo:
+                    deployment["ip_port"] = f"{deployer.get('ip')}:{deployer.get('port')}";
+                    deployments.append(deployment)
             except:
                 # wont be put in the list. probably the service is down, but still registered in eureka at the time being
                 pass
