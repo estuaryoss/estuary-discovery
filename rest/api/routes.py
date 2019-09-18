@@ -138,7 +138,7 @@ def get_type_eureka_apps(type):
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        supported_apps = EstuaryStackApps.get_apps();
+        supported_apps = EstuaryStackApps.get_supported_apps();
         if type.strip() not in supported_apps:
             return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
                                                     ErrorCodes.HTTP_CODE.get(
@@ -162,8 +162,7 @@ def get_type_eureka_apps(type):
     return response
 
 
-# this might not be reliable. if a service from the pool does not respond within timeout window, the response will be received with latency (after timeout)
-# this is best effort ?:| TODO study the behaviour
+# this might not be reliable ?
 # aggregator of the testrunner(s) data
 @app.route('/gettests', methods=['GET'])
 def get_tests():
@@ -172,12 +171,12 @@ def get_tests():
     try:
         host = os.environ.get('EUREKA_SERVER')
         tests = []
-        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[0])
+        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[0])
         for testrunner in testrunner_apps:
             try:
                 r = RestUtils.get(f"http://{testrunner.get('ip')}:{testrunner.get('port')}/gettestinfo")
                 testinfo = r.json().get('message')
-                testinfo["ip_port"] = f"{testrunner.get('ip')}:{testrunner.get('port')}";
+                testinfo["ip_port"] = f"{testrunner.get('ip')}:{testrunner.get('port')}"
                 tests.append(testinfo)
             except:
                 # wont be put in the list. probably the service is down, but still registered in eureka at the time being
@@ -196,10 +195,8 @@ def get_tests():
     return response
 
 
-# this might not be reliable. if a service from the pool does not respond within timeout window, the response will be received with latency (after timeout)
-# this is best effort :| TODO study the behaviour
-# aggregator of the deployer(s) data. In kubernetes this will return empty list, because the deployer will be outside kubernetes.
-# the deployments will be seen in the kube dashboard, and not in the estuary-viewer dashboard
+# this might not be reliable ?
+# aggregator of the deployer(s) data.
 @app.route('/getdeployments', methods=['GET'])
 def get_deployments():
     http = HttpResponse()
@@ -207,13 +204,13 @@ def get_deployments():
     try:
         host = os.environ.get('EUREKA_SERVER')
         deployments = []
-        deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[1])
+        deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[1])
         for deployer in deployer_apps:
             try:
                 r = RestUtils.get(f"http://{deployer.get('ip')}:{deployer.get('port')}/getdeploymentinfo")
                 deploymentinfo = r.json().get('message')
                 for deployment in deploymentinfo:
-                    deployment["ip_port"] = f"{deployer.get('ip')}:{deployer.get('port')}";
+                    deployment["ip_port"] = f"{deployer.get('ip')}:{deployer.get('port')}"
                     deployments.append(deployment)
             except:
                 # wont be put in the list. probably the service is down, but still registered in eureka at the time being
