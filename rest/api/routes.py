@@ -4,15 +4,17 @@ import traceback
 
 from flask import Response
 from flask import request
-from py_eureka_client import eureka_client
 
 from about import properties
 from entities.render import Render
 from rest.api import create_app
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
+from rest.api.apiresponsehelpers.estuary_stack_apps import EstuaryStackApps
 from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import env_vars
+from rest.utils.eureka_utils import EurekaUtils
+from rest.utils.rest_utils import RestUtils
 
 app = create_app()
 
@@ -115,16 +117,8 @@ def get_eureka_apps():
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        apps_list = {}
         print(f"Getting apps from eureka server {host} ... \n")
-        for app in eureka_client.get_applications(eureka_server=f"{host}").applications:
-            for instance in app.up_instances:
-                # [ip, app, port] = instance.instanceId.split(":")
-                [ip, app, port] = [instance.ipAddr, str(instance.app).lower(), str(instance.port.port)]
-                if app not in apps_list:
-                    apps_list[app] = []
-                apps_list[app].append({"ip": ip, "port": port})
-
+        apps_list = EurekaUtils.get_eureka_apps(host)
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
@@ -135,4 +129,102 @@ def get_eureka_apps():
                                                         Constants.GET_EUREKA_APPS_FAILED) % host,
                                                     exception,
                                                     str(traceback.format_exc()))), 404, mimetype="application/json")
+    return response
+
+
+@app.route('/geteurekaapps/<type>', methods=['GET'])
+def get_type_eureka_apps(type):
+    http = HttpResponse()
+
+    try:
+        host = os.environ.get('EUREKA_SERVER')
+        supported_apps = EstuaryStackApps.get_apps();
+        if type.strip() not in supported_apps:
+            return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
+                                                    ErrorCodes.HTTP_CODE.get(
+                                                        Constants.EUREKA_APP_NOT_SUPPORTED) % (
+                                                        type, json.dumps(supported_apps)),
+                                                    ErrorCodes.HTTP_CODE.get(
+                                                        Constants.EUREKA_APP_NOT_SUPPORTED) % (
+                                                        type, json.dumps(supported_apps)),
+                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+        apps_list = EurekaUtils.get_type_eureka_apps(host, type)
+        response = Response(json.dumps(
+            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
+            mimetype="application/json")
+    except Exception as e:
+        exception = "Exception({0})".format(e.__str__())
+        return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
+                                                ErrorCodes.HTTP_CODE.get(
+                                                    Constants.GET_EUREKA_APPS_FAILED) % host,
+                                                exception,
+                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+    return response
+
+
+# this might not be reliable. if a service from the pool does not respond within timeout window, the response will be received with latency (after timeout)
+# this is best effort ?:| TODO study the behaviour
+# aggregator of the testrunner(s) data
+@app.route('/gettests', methods=['GET'])
+def get_tests():
+    http = HttpResponse()
+
+    try:
+        host = os.environ.get('EUREKA_SERVER')
+        tests = []
+        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[0])
+        for item in testrunner_apps:
+            try:
+                r = RestUtils.get(f"http://{item.get('ip')}:{item.get('port')}/gettestinfo")
+                testinfo = r.json().get('message')
+                tests.append(testinfo)
+            except:
+                # wont be put in the list. probably the service is down, but still registered in eureka at the time being
+                pass
+        response = Response(json.dumps(
+            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
+            mimetype="application/json")
+    except Exception as e:
+        exception = "Exception({0})".format(e.__str__())
+        return Response(json.dumps(http.failure(Constants.GET_TESTS_FAILED,
+                                                ErrorCodes.HTTP_CODE.get(
+                                                    Constants.GET_TESTS_FAILED),
+                                                exception,
+                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+
+    return response
+
+
+# this might not be reliable. if a service from the pool does not respond within timeout window, the response will be received with latency (after timeout)
+# this is best effort :| TODO study the behaviour
+# aggregator of the deployer(s) data. In kubernetes this will return empty list, because the deployer will be outside kubernetes.
+# the deployments will be seen in the kube dashboard, and not in the estuary-viewer dashboard
+@app.route('/getdeployments', methods=['GET'])
+def get_deployments():
+    http = HttpResponse()
+
+    try:
+        host = os.environ.get('EUREKA_SERVER')
+        deployments = []
+        deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_apps()[1])
+        for item in deployer_apps:
+            try:
+                r = RestUtils.get(f"http://{item.get('ip')}:{item.get('port')}/getdeploymentinfo")
+                deploymentinfo = r.json().get('message')
+                for item in deploymentinfo:
+                    deployments.append(item)
+            except:
+                # wont be put in the list. probably the service is down, but still registered in eureka at the time being
+                pass
+        response = Response(json.dumps(
+            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
+            mimetype="application/json")
+    except Exception as e:
+        exception = "Exception({0})".format(e.__str__())
+        return Response(json.dumps(http.failure(Constants.GET_DEPLOYMENTS_FAILED,
+                                                ErrorCodes.HTTP_CODE.get(
+                                                    Constants.GET_DEPLOYMENTS_FAILED),
+                                                exception,
+                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+
     return response

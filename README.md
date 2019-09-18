@@ -4,7 +4,11 @@ Please donate: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src
 
 # Testing as a Service
 ## Estuary discovery
-Estuary discovery service. Reads the apps registered in Eureka.
+Estuary discovery service. Aggregator of the estuary-stack.
+
+1. Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself)
+2. Reads the deployments from estuary-testrunner(s) registered in Eureka
+3. Reads the deployments from estuary-deployer(s) registered in Eureka
 
 ## Build & Coverage
 [![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)
