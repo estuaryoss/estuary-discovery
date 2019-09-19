@@ -12,7 +12,6 @@ class ThreadUtils:
     def __init__(self, apps):
         self.apps = apps
         self.response_list = []
-        self.threads = [threading.Thread(target=self.get_request_testrunners, args=(app,)) for app in self.apps]
 
     def get_url(self, app):
         return f"{app.get('ip')}:{app.get('port')}"
@@ -40,11 +39,13 @@ class ThreadUtils:
         return self.response_list
 
     def spawn_threads_testrunners(self):
-        for thread in self.threads:
+        threads = [threading.Thread(target=self.get_request_testrunners, args=(app,)) for app in self.apps]
+        for thread in threads:
             thread.start()
             thread.join()
 
     def spawn_threads_deployers(self):
-        for thread in self.threads:
+        threads = [threading.Thread(target=self.get_request_deployers, args=(app,)) for app in self.apps]
+        for thread in threads:
             thread.start()
             thread.join()
