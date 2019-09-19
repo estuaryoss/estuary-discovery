@@ -23,9 +23,6 @@ before_install:
   - docker run
     -d
     -p 8080:8080
-    -v $PWD/inputs/templates:/data
-    -v $PWD/inputs/variables:/variables
-    -v /var/run/docker.sock:/var/run/docker.sock
     --name estuary-discovery
     dinutac/estuary-discovery:latest
 
@@ -44,6 +41,7 @@ script:
 
   #run eureka registration tests
   - docker-compose pull
+  - docker build -t dinutac/estuary-discovery:latest .
   - docker-compose up -d
   - sleep 45
   - docker ps

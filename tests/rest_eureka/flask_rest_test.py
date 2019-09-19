@@ -6,7 +6,6 @@ import unittest
 
 import requests
 from py_eureka_client import eureka_client
-from requests_toolbelt.utils import dump
 
 
 class EstuaryStackApps:
@@ -135,10 +134,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 404)
         self.assertEqual(body.get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (app, json.dumps(EstuaryStackApps.get_supported_apps())))
-        self.assertEqual(body.get('message'),
                          ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
                          app, json.dumps(EstuaryStackApps.get_supported_apps())))
+        self.assertEqual(body.get('message'),
+                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
+                             app, json.dumps(EstuaryStackApps.get_supported_apps())))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.EUREKA_APP_NOT_SUPPORTED)
         self.assertIsNotNone(body.get('time'))
@@ -166,8 +166,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('message')), 2)
-        self.assertEqual(len(body.get('message')[0].get("id")), 16) # deployment id is a 16 char word
-        self.assertEqual(len(body.get('message')[1].get("id")), 16) # deployment id is a 16 char word
+        self.assertEqual(len(body.get('message')[0].get("id")), 16)  # deployment id is a 16 char word
+        self.assertEqual(len(body.get('message')[1].get("id")), 16)  # deployment id is a 16 char word
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
