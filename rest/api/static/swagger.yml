@@ -139,6 +139,50 @@ paths:
           description: Get apps success
         404:
           description: Get apps failure
+  /geteurekaapps/{type}:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets all apps registered with Eureka.
+      produces:
+        - application/json
+      parameters:
+        - name: type
+          in: path
+          description: All apps of a certain type. E.g estuary-deployer/estuary-testrunner/estuary-discovery
+          required: true
+          type: string
+          schema:
+            $ref: '#/components/schemas/estuary_app'
+      responses:
+        200:
+          description: Get apps success
+        404:
+          description: Get apps failure
+  /gettests:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets all tests accross all estuary-testrunners services.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get tests success
+        404:
+          description: Get tests failure
+  /getdeployments:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets all deployments accross all estuary-deployer services.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get deployments success
+        404:
+          description: Get deployments failure
 components:
   schemas:
     file:
@@ -173,6 +217,10 @@ components:
       example: |
         mvn test -Dtype=Prepare
         mvn test -Dtype=ExecuteTests
+    estuary_app:
+      type: string
+      minLength: 3
+      example: 'estuary-testrunner'
 externalDocs:
   description: Find out more on github
   url: https://github.com/dinuta/estuary-discovery
