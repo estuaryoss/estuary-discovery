@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
+import json
 import os
 import time
 import unittest
 
 import requests
 from py_eureka_client import eureka_client
+
+
+class EstuaryStackApps:
+
+    @staticmethod
+    def get_supported_apps():
+        return ["estuary-testrunner", "estuary-deployer", "estuary-discovery"]
 
 
 class Constants:
@@ -14,14 +22,16 @@ class Constants:
     JINJA2_RENDER_FAILURE = "1001"
     GET_EUREKA_APPS_FAILED = "1002"
     GET_CONTAINER_ENV_VAR_FAILURE = "1003"
+    EUREKA_APP_NOT_SUPPORTED = "1004"
 
 
 class ErrorCodes:
     HTTP_CODE = {
         Constants.SUCCESS: "success",
         Constants.JINJA2_RENDER_FAILURE: "jinja2 render failed",
-        Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka server_ip '%s'",
-        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'"
+        Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka discovery_ip '%s'",
+        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'",
+        Constants.EUREKA_APP_NOT_SUPPORTED: "Eureka app: '%s' not supported. Supported apps list: '%s",
     }
 
 
@@ -41,17 +51,39 @@ class EurekaClient:
 
 
 class FlaskServerEurekaTestCase(unittest.TestCase):
-    expected_version = "1.0.0"
-    server_ip = "estuary-discovery"
-    server_port = "8080"
+    expected_version = "2.0.0"
+    discovery_ip = "estuary-discovery"
+    testrunner_ip = "estuary-testrunner"
+    deployer_ip = "estuary-deployer"
+    server_port = "8080"  # all have 8080
 
     def test_eureka_registration(self):
         up_services = EurekaClient(f"{os.environ.get('EUREKA_SERVER')}").get_apps()
-        self.assertEqual(len(up_services), 1)  # 1 instance registered
-        self.assertEqual(up_services[0], self.server_ip)  # 1 instance registered
+        self.assertEqual(len(up_services), 3)
 
     def test_geteureka_apps(self):
-        response = requests.get(f"http://{self.server_ip}:{self.server_port}/geteurekaapps")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps")
+
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(len(body.get('message')), 3)
+        self.assertEqual(len(body.get('message').get(self.discovery_ip)), 1)
+        self.assertEqual(len(body.get('message').get(self.testrunner_ip)), 1)
+        self.assertEqual(len(body.get('message').get(self.deployer_ip)), 1)
+        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("ip"), self.discovery_ip)
+        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("port"), self.server_port)
+        self.assertEqual(body.get('message').get(self.testrunner_ip)[0].get("ip"), self.testrunner_ip)
+        self.assertEqual(body.get('message').get(self.testrunner_ip)[0].get("port"), self.server_port)
+        self.assertEqual(body.get('message').get(self.deployer_ip)[0].get("ip"), self.deployer_ip)
+        self.assertEqual(body.get('message').get(self.deployer_ip)[0].get("port"), self.server_port)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_geteureka_apps_testrunner(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-testrunner")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -59,9 +91,83 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('message')), 1)
-        self.assertEqual(len(body.get('message').get(self.server_ip)), 1)
-        self.assertEqual(body.get('message').get(self.server_ip)[0].get("ip"), self.server_ip)
-        self.assertEqual(body.get('message').get(self.server_ip)[0].get("port"), self.server_port)
+        self.assertEqual(len(body.get('message')[0]), 2)
+        self.assertEqual(body.get('message')[0].get("ip"), self.testrunner_ip)
+        self.assertEqual(body.get('message')[0].get("port"), self.server_port)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_geteureka_apps_deployer(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-deployer")
+
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(len(body.get('message')), 1)
+        self.assertEqual(len(body.get('message')[0]), 2)
+        self.assertEqual(body.get('message')[0].get("ip"), self.deployer_ip)
+        self.assertEqual(body.get('message')[0].get("port"), self.server_port)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_geteureka_apps_discovery(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-discovery")
+
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(len(body.get('message')), 1)
+        self.assertEqual(len(body.get('message')[0]), 2)
+        self.assertEqual(body.get('message')[0].get("ip"), self.discovery_ip)
+        self.assertEqual(body.get('message')[0].get("port"), self.server_port)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_geteureka_apps_n(self):
+        app = "whatever"
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/{app}")
+
+        body = response.json()
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
+                         app, json.dumps(EstuaryStackApps.get_supported_apps())))
+        self.assertEqual(body.get('message'),
+                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
+                             app, json.dumps(EstuaryStackApps.get_supported_apps())))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.EUREKA_APP_NOT_SUPPORTED)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_gettests(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettests")
+        body = response.json()
+        # print(dump.dump_all(response))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(len(body.get('message')), 1)
+        self.assertEqual(body.get('message')[0].get("started"), "true")
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+
+    def test_getdeployments(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/getdeployments")
+
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(len(body.get('message')), 2)
+        self.assertEqual(len(body.get('message')[0].get("id")), 16)  # deployment id is a 16 char word
+        self.assertEqual(len(body.get('message')[1].get("id")), 16)  # deployment id is a 16 char word
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
@@ -69,7 +175,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         repetitions = 100
         start = time.time()
         for i in range(1, repetitions):
-            response = requests.get(f"http://{self.server_ip}:{self.server_port}/geteurekaapps")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps")
             self.assertEqual(response.status_code, 200)
         end = time.time()
         print(f"made {repetitions} geteurekaapps repetitions in {end - start} s")

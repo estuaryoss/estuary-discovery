@@ -23,9 +23,6 @@ before_install:
   - docker run
     -d
     -p 8080:8080
-    -v $PWD/inputs/templates:/data
-    -v $PWD/inputs/variables:/variables
-    -v /var/run/docker.sock:/var/run/docker.sock
     --name estuary-discovery
     dinutac/estuary-discovery:latest
 
@@ -43,8 +40,21 @@ script:
   - docker rm estuary-discovery
 
   #run eureka registration tests
+  - docker-compose pull
+  - docker build -t dinutac/estuary-discovery:latest .
   - docker-compose up -d
-  - sleep 20
+  - sleep 60
+  - docker ps
+  #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
+  - docker exec -ti estuarydiscovery_estuary-deployer_1 bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
+  - docker exec -ti estuarydiscovery_estuary-deployer_1 bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
+  - docker exec -ti estuarydiscovery_estuary-deployer_1 bash -c "
+    curl -i
+    --request POST 'http://estuary-testrunner:8080/teststart/100'
+    --header 'Accept:application/json'
+    --header 'Content-Type:text/plain'
+    --data 'sleep 3600'"
+  - sleep 20 #wait until deployments are up and running
   - docker ps
   - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR/tests/rest_eureka "*_test.py"
   - docker-compose down -v

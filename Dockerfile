@@ -17,7 +17,8 @@ RUN apk add --no-cache \
     openssl-dev \
     gcc \
     libc-dev \
-    make
+    make \
+    curl
 
 RUN apk add --no-cache python3 && \
     pip3 install --upgrade pip setuptools --no-cache
