@@ -140,7 +140,7 @@ def get_type_eureka_apps(type):
         host = os.environ.get('EUREKA_SERVER')
         supported_apps = EstuaryStackApps.get_supported_apps();
         if type.strip() not in supported_apps:
-            return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
+            return Response(json.dumps(http.failure(Constants.EUREKA_APP_NOT_SUPPORTED,
                                                     ErrorCodes.HTTP_CODE.get(
                                                         Constants.EUREKA_APP_NOT_SUPPORTED) % (
                                                         type, json.dumps(supported_apps)),

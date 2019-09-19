@@ -2,7 +2,7 @@
 info:
   description: |
     This is estuary-discovery service. Estuary-discovery service will discover the apps registered with Eureka.
-  version: "1.0.0"
+  version: "2.0.0"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
