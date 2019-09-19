@@ -14,7 +14,7 @@ from rest.api.apiresponsehelpers.estuary_stack_apps import EstuaryStackApps
 from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import env_vars
 from rest.utils.eureka_utils import EurekaUtils
-from rest.utils.rest_utils import RestUtils
+from rest.utils.thread_utils import ThreadUtils
 
 app = create_app()
 
@@ -170,17 +170,10 @@ def get_tests():
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        tests = []
         testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[0])
-        for testrunner in testrunner_apps:
-            try:
-                r = RestUtils.get(f"http://{testrunner.get('ip')}:{testrunner.get('port')}/gettestinfo")
-                testinfo = r.json().get('message')
-                testinfo["ip_port"] = f"{testrunner.get('ip')}:{testrunner.get('port')}"
-                tests.append(testinfo)
-            except:
-                # wont be put in the list. probably the service is down, but still registered in eureka at the time being
-                pass
+        thread_utils = ThreadUtils(testrunner_apps)
+        thread_utils.spawn_threads_testrunners()
+        tests = thread_utils.get_list()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
             mimetype="application/json")
@@ -203,18 +196,10 @@ def get_deployments():
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        deployments = []
         deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[1])
-        for deployer in deployer_apps:
-            try:
-                r = RestUtils.get(f"http://{deployer.get('ip')}:{deployer.get('port')}/getdeploymentinfo")
-                deploymentinfo = r.json().get('message')
-                for deployment in deploymentinfo:
-                    deployment["ip_port"] = f"{deployer.get('ip')}:{deployer.get('port')}"
-                    deployments.append(deployment)
-            except:
-                # wont be put in the list. probably the service is down, but still registered in eureka at the time being
-                pass
+        thread_utils = ThreadUtils(deployer_apps)
+        thread_utils.spawn_threads_deployers()
+        deployments = thread_utils.get_list()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
             mimetype="application/json")
