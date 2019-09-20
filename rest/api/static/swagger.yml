@@ -149,7 +149,7 @@ paths:
       parameters:
         - name: type
           in: path
-          description: All apps of a certain type. E.g estuary-deployer/estuary-testrunner/estuary-discovery
+          description: All apps of a certain type. E.g estuary-deployer/estuary-testrunner/estuary-discovery/whatever. Returns empty list if nothing found.
           required: true
           type: string
           schema:

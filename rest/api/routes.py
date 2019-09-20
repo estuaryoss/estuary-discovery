@@ -10,7 +10,6 @@ from entities.render import Render
 from rest.api import create_app
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
-from rest.api.apiresponsehelpers.estuary_stack_apps import EstuaryStackApps
 from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import env_vars
 from rest.utils.eureka_utils import EurekaUtils
@@ -135,19 +134,10 @@ def get_eureka_apps():
 @app.route('/geteurekaapps/<type>', methods=['GET'])
 def get_type_eureka_apps(type):
     http = HttpResponse()
+    type = type.strip()
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        supported_apps = EstuaryStackApps.get_supported_apps();
-        if type.strip() not in supported_apps:
-            return Response(json.dumps(http.failure(Constants.EUREKA_APP_NOT_SUPPORTED,
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.EUREKA_APP_NOT_SUPPORTED) % (
-                                                        type, json.dumps(supported_apps)),
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.EUREKA_APP_NOT_SUPPORTED) % (
-                                                        type, json.dumps(supported_apps)),
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
         apps_list = EurekaUtils.get_type_eureka_apps(host, type)
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
@@ -170,7 +160,7 @@ def get_tests():
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[0])
+        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, "estuary-testrunner")
         thread_utils = ThreadUtils(testrunner_apps)
         thread_utils.spawn_threads_testrunners()
         tests = thread_utils.get_list()
@@ -196,7 +186,7 @@ def get_deployments():
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        deployer_apps = EurekaUtils.get_type_eureka_apps(host, EstuaryStackApps.get_supported_apps()[1])
+        deployer_apps = EurekaUtils.get_type_eureka_apps(host, "estuary-deployer")
         thread_utils = ThreadUtils(deployer_apps)
         thread_utils.spawn_threads_deployers()
         deployments = thread_utils.get_list()

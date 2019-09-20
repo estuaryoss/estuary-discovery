@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import json
 import os
 import time
 import unittest
@@ -22,7 +21,6 @@ class Constants:
     JINJA2_RENDER_FAILURE = "1001"
     GET_EUREKA_APPS_FAILED = "1002"
     GET_CONTAINER_ENV_VAR_FAILURE = "1003"
-    EUREKA_APP_NOT_SUPPORTED = "1004"
 
 
 class ErrorCodes:
@@ -30,8 +28,7 @@ class ErrorCodes:
         Constants.SUCCESS: "success",
         Constants.JINJA2_RENDER_FAILURE: "jinja2 render failed",
         Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka discovery_ip '%s'",
-        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'",
-        Constants.EUREKA_APP_NOT_SUPPORTED: "Eureka app: '%s' not supported. Supported apps list: '%s",
+        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'"
     }
 
 
@@ -127,20 +124,15 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
-    def test_geteureka_apps_n(self):
+    def test_geteureka_apps_empty_list(self):
         app = "whatever"
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/{app}")
 
         body = response.json()
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(body.get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
-                         app, json.dumps(EstuaryStackApps.get_supported_apps())))
-        self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.EUREKA_APP_NOT_SUPPORTED) % (
-                             app, json.dumps(EstuaryStackApps.get_supported_apps())))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('message')), 0)
         self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.EUREKA_APP_NOT_SUPPORTED)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
     def test_gettests(self):
