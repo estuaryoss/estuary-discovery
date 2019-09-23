@@ -1,6 +1,6 @@
 properties = {
     "name": "estuary-discovery",
-    "version": "2.0.0",
+    "version": "2.0.2",
     "description": "Discover estuary apps registered with Eureka",
     "author": "Catalin Dinuta",
     "platforms": ["any"],
