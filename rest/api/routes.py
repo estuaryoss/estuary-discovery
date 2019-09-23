@@ -152,15 +152,15 @@ def get_type_eureka_apps(type):
     return response
 
 
-# this might not be reliable ?
 # aggregator of the testrunner(s) data
 @app.route('/gettests', methods=['GET'])
 def get_tests():
     http = HttpResponse()
+    application = "estuary-testrunner"
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, "estuary-testrunner")
+        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, application)
         thread_utils = ThreadUtils(testrunner_apps)
         thread_utils.spawn_threads_testrunners()
         tests = thread_utils.get_list()
@@ -178,15 +178,15 @@ def get_tests():
     return response
 
 
-# this might not be reliable ?
 # aggregator of the deployer(s) data.
 @app.route('/getdeployments', methods=['GET'])
 def get_deployments():
     http = HttpResponse()
+    application = "estuary-deployer"
 
     try:
         host = os.environ.get('EUREKA_SERVER')
-        deployer_apps = EurekaUtils.get_type_eureka_apps(host, "estuary-deployer")
+        deployer_apps = EurekaUtils.get_type_eureka_apps(host, application)
         thread_utils = ThreadUtils(deployer_apps)
         thread_utils.spawn_threads_deployers()
         deployments = thread_utils.get_list()

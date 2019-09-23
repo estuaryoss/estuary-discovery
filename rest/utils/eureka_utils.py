@@ -9,10 +9,17 @@ class EurekaUtils:
         for app in eureka_client.get_applications(eureka_server=f"{host}").applications:
             for instance in app.up_instances:
                 # [ip, app, port] = instance.instanceId.split(":")
-                [ip, app, port] = [instance.ipAddr, str(instance.app).lower(), str(instance.port.port)]
+                app = str(instance.app.lower())
                 if app not in apps_list:
                     apps_list[app] = []
-                apps_list[app].append({"ip": ip, "port": port})
+                apps_list[app].append({
+                    "ipAddr": str(instance.ipAddr),
+                    "port": str(instance.port.port),
+                    "app": app,
+                    "homePageUrl": str(instance.homePageUrl),
+                    "healthCheckUrl": str(instance.healthCheckUrl),
+                    "statusPageUrl": str(instance.statusPageUrl)
+                })
         return apps_list
 
     @staticmethod

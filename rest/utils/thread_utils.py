@@ -14,12 +14,13 @@ class ThreadUtils:
         self.response_list = []
 
     def get_url(self, app):
-        return f"{app.get('ip')}:{app.get('port')}"
+        return f"{app.get('homePageUrl')}"
 
     def get_request_testrunners(self, app):
         try:
-            response = RestUtils().get(f"http://{self.get_url(app)}/gettestinfo")
+            response = RestUtils().get(f"{self.get_url(app)}gettestinfo")
             testinfo = response.json().get('message')
+            testinfo["homePageUrl"] = f"{app.get('homePageUrl')}gettestinfo"
             testinfo["ip_port"] = f"{app.get('ip')}:{app.get('port')}"
             self.response_list.append(testinfo)
         except:
@@ -27,9 +28,10 @@ class ThreadUtils:
 
     def get_request_deployers(self, app):
         try:
-            response = RestUtils().get(f"http://{self.get_url(app)}/getdeploymentinfo")
+            response = RestUtils().get(f"{self.get_url(app)}getdeploymentinfo")
             deploymentinfo = response.json().get('message')
             for deployment in deploymentinfo:
+                deployment["homePageUrl"] = f"{app.get('homePageUrl')}getdeploymentinfo"
                 deployment["ip_port"] = f"{app.get('ip')}:{app.get('port')}"
                 self.response_list.append(deployment)
         except:
