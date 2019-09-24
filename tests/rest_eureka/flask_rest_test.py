@@ -73,9 +73,12 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("ipAddr"), self.discovery_ip)
         self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("app"), self.discovery_ip)
-        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("homePageUrl"), f"http://{self.discovery_ip}:{self.server_port}/")
-        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("statusPageUrl"), f"http://{self.discovery_ip}:{self.server_port}/ping")
-        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("healthCheckUrl"), f"http://{self.discovery_ip}:{self.server_port}/ping")
+        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("homePageUrl"),
+                         f"http://{self.discovery_ip}:{self.server_port}/")
+        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("statusPageUrl"),
+                         f"http://{self.discovery_ip}:{self.server_port}/ping")
+        self.assertEqual(body.get('message').get(self.discovery_ip)[0].get("healthCheckUrl"),
+                         f"http://{self.discovery_ip}:{self.server_port}/ping")
         self.assertEqual(body.get('message').get(self.testrunner_ip)[0].get("ipAddr"), self.testrunner_ip)
         self.assertEqual(body.get('message').get(self.testrunner_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('message').get(self.deployer_ip)[0].get("ipAddr"), self.deployer_ip)
@@ -160,6 +163,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_gettests(self):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettests")
         body = response.json()
+        expected_port = 8080
+        expected_ip = "estuary-testrunner"
         # print(dump.dump_all(response))
 
         self.assertEqual(response.status_code, 200)
@@ -168,11 +173,15 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('message')), 1)
         self.assertEqual(body.get('message')[0].get("started"), "true")
+        self.assertEqual(body.get('message')[0].get("ip_port"), f"{expected_ip}:{expected_port}")
+        self.assertEqual(body.get('message')[0].get("homePageUrl"), f"http://{expected_ip}:{expected_port}/gettestinfo")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
     def test_getdeployments(self):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/getdeployments")
+        expected_port = 8080
+        expected_ip = "estuary-deployer"
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -181,7 +190,15 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('message')), 2)
         self.assertEqual(len(body.get('message')[0].get("id")), 16)  # deployment id is a 16 char word
+        self.assertEqual(body.get('message')[0].get("ip_port"),
+                         f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
+        self.assertEqual(body.get('message')[0].get("homePageUrl"),
+                         f"http://{expected_ip}:{expected_port}/getdeploymentinfo")
         self.assertEqual(len(body.get('message')[1].get("id")), 16)  # deployment id is a 16 char word
+        self.assertEqual(body.get('message')[1].get("ip_port"),
+                         f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
+        self.assertEqual(body.get('message')[1].get("homePageUrl"),
+                         f"http://{expected_ip}:{expected_port}/getdeploymentinfo")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 

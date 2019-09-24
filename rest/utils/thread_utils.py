@@ -21,7 +21,7 @@ class ThreadUtils:
             response = RestUtils().get(f"{self.get_url(app)}gettestinfo")
             testinfo = response.json().get('message')
             testinfo["homePageUrl"] = f"{app.get('homePageUrl')}gettestinfo"
-            testinfo["ip_port"] = f"{app.get('ip')}:{app.get('port')}"
+            testinfo["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
             self.response_list.append(testinfo)
         except:
             pass
@@ -32,7 +32,7 @@ class ThreadUtils:
             deploymentinfo = response.json().get('message')
             for deployment in deploymentinfo:
                 deployment["homePageUrl"] = f"{app.get('homePageUrl')}getdeploymentinfo"
-                deployment["ip_port"] = f"{app.get('ip')}:{app.get('port')}"
+                deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
                 self.response_list.append(deployment)
         except:
             pass
