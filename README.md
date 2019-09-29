@@ -25,8 +25,9 @@ https://documenter.getpostman.com/view/2360061/SVmpY31g
 
 
 Use cases:
-1. Useful for estuary-viewer frontend app.
-2. Useful for rapid listing of estuary services in production/your environment.
+1. Estuary-viewer stats.
+2. Rapid listing of apps registered with Eureka.
+3. Integrations
 
 ## Service run
 ##### Using docker compose
