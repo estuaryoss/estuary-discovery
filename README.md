@@ -24,7 +24,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 https://documenter.getpostman.com/view/2360061/SVmpY31g
 
 
-Use cases:
+## Use cases
 1. Estuary-viewer stats.
 2. Rapid listing of apps registered with Eureka.
 3. Integrations
