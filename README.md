@@ -39,6 +39,8 @@ Estuary discovery will boot and it will connect to the Eureka. Then it will be a
 Start Eureka server with docker:
 
     docker run -p 8080:8080 netflixoss/eureka:1.3.1
+    or
+    docker run -p 8080:8080 dinutac/netflixoss-eureka:1.9.13
 
 Start your container by specifying the eureka server in order to discover all other apps:
 
