@@ -24,10 +24,12 @@ Estuary discovery service. Aggregator of the estuary-stack.
 https://documenter.getpostman.com/view/2360061/SVmpY31g
 
 ## Service HTTP GET examples:
-http://localhost:8080/geteurekaapps #all apps
-http://localhost:8080/geteurekaapps/estuary #all apps containing estuary
-http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your app name
- 
+```
+http://localhost:8080/geteurekaapps #all apps  
+http://localhost:8080/geteurekaapps/estuary #all apps containing estuary  
+http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your app name  
+ ```
+
 ## Use cases
 1. Estuary-viewer stats.
 2. Rapid listing of apps registered with Eureka.
