@@ -46,9 +46,9 @@ script:
   - sleep 60
   - docker ps
   #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
-  - docker exec -ti estuary-discovery_estuary-deployer_1 bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
-  - docker exec -ti estuary-discovery_estuary-deployer_1 bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
-  - docker exec -ti estuary-discovery_estuary-deployer_1 bash -c "
+  - docker exec -ti estuary-discovery bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
+  - docker exec -ti estuary-discovery bash -c "curl -i http://estuary-deployer:8080/deploystart/alpine.yml/variables.yml"
+  - docker exec -ti estuary-discovery bash -c "
     curl -i
     --request POST 'http://estuary-testrunner:8080/teststart/100'
     --header 'Accept:application/json'
