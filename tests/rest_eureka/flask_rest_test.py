@@ -122,9 +122,9 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message')[0].get("app"), self.deployer_ip)
         self.assertEqual(body.get('message')[0].get("homePageUrl"), f"http://{self.deployer_ip}:{self.server_port}/docker/")
         self.assertEqual(body.get('message')[0].get("healthCheckUrl"),
-                         f"http://{self.deployer_ip}:{self.server_port}/ping")
+                         f"http://{self.deployer_ip}:{self.server_port}/docker/ping")
         self.assertEqual(body.get('message')[0].get("statusPageUrl"),
-                         f"http://{self.deployer_ip}:{self.server_port}/ping")
+                         f"http://{self.deployer_ip}:{self.server_port}/docker/ping")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
@@ -193,7 +193,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message')[0].get("ip_port"),
                          f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
         self.assertEqual(body.get('message')[0].get("homePageUrl"),
-                         f"http://{expected_ip}:{expected_port}/getdeploymentinfo")
+                         f"http://{expected_ip}:{expected_port}/docker/getdeploymentinfo")
         self.assertEqual(len(body.get('message')[1].get("id")), 16)  # deployment id is a 16 char word
         self.assertEqual(body.get('message')[1].get("ip_port"),
                          f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
