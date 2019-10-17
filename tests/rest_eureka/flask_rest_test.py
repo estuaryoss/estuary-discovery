@@ -120,7 +120,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message')[0].get("ipAddr"), self.deployer_ip)
         self.assertEqual(body.get('message')[0].get("port"), self.server_port)
         self.assertEqual(body.get('message')[0].get("app"), self.deployer_ip)
-        self.assertEqual(body.get('message')[0].get("homePageUrl"), f"http://{self.deployer_ip}:{self.server_port}/")
+        self.assertEqual(body.get('message')[0].get("homePageUrl"), f"http://{self.deployer_ip}:{self.server_port}/docker/")
         self.assertEqual(body.get('message')[0].get("healthCheckUrl"),
                          f"http://{self.deployer_ip}:{self.server_port}/ping")
         self.assertEqual(body.get('message')[0].get("statusPageUrl"),
