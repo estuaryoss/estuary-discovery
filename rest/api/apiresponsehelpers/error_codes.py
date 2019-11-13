@@ -8,5 +8,7 @@ class ErrorCodes:
         Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka server '%s'",
         Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'",
         Constants.GET_TESTS_FAILED: "Failed to get tests list",
-        Constants.GET_DEPLOYMENTS_FAILED: "Failed to get deployments list"
+        Constants.GET_DEPLOYMENTS_FAILED: "Failed to get deployments list",
+        Constants.GET_TEST_RESULTS_FAILED: "Failed to get test results list",
+        Constants.HTTP_HEADER_NOT_PROVIDED: "Http header value not provided: '%s'",
     }

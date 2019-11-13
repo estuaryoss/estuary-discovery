@@ -103,7 +103,7 @@ paths:
           description: List of env vars by key-value pair
           required: false
           schema:
-            $ref: '#/components/schemas/envvar'
+            $ref: '#/definitions/envvar'
       responses:
         200:
           description: estuary-discovery rendered template with jinja2
@@ -152,25 +152,11 @@ paths:
           description: All apps of a certain type. E.g estuary-deployer/estuary-testrunner/estuary-discovery/whatever. Returns empty list if nothing found.
           required: true
           type: string
-          schema:
-            $ref: '#/components/schemas/estuary_app'
       responses:
         200:
           description: Get apps success
         404:
           description: Get apps failure
-  /gettests:
-    get:
-      tags:
-        - estuary-discovery
-      summary: Gets all tests accross all estuary-testrunners services.
-      produces:
-        - application/json
-      responses:
-        200:
-          description: Get tests success
-        404:
-          description: Get tests failure
   /getdeployments:
     get:
       tags:
@@ -183,44 +169,45 @@ paths:
           description: Get deployments success
         404:
           description: Get deployments failure
-components:
-  schemas:
-    file:
-      type: object
-      example: '{"file" : "/etc/hostname"}'
-    folder:
-      type: object
-      example: '{"folder" : "/etc"}'
-    istestfinishedfile:
-      type: object
-      example: '{"file" : "/tmp/is_test_finished"}'
-    testconfig:
-      type: object
-      example: '{"file" : "/home/automation/config.properties", "content" : "ip=10.0.0.1\nrequest_sec=100\nthreads=10\ntype=dual"}'
+  /gettests:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets all tests accross all estuary-testrunners services.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Get tests success
+        404:
+          description: Get tests failure
+  /gettestsandfiles:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Gets all tests and file content accross all estuary-testrunners services. Useful for getting test results.
+      produces:
+        - application/json
+      parameters:
+        - name: File-Path
+          in: header
+          description: The file path asked to get information from.
+          required: true
+          type: string
+        - name: Test-Id
+          in: header
+          description: The test session/id for which the files/results will be retrieved.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Get tests and results/files success
+        404:
+          description: Get tests and results/files failure
+definitions:
     envvar:
       type: object
       example: '{"DATABASE" : "mysql56", "IMAGE":"latest"}'
-    template:
-      type: string
-      minLength: 3
-      example: |
-          version: '2.2'
-          services:
-            alpine:
-              restart: always
-              image: alpine:3.9.4
-              hostname: alpine
-              entrypoint: tail -f /etc/hostname
-    test_file_content:
-      type: string
-      minLength: 3
-      example: |
-        mvn test -Dtype=Prepare
-        mvn test -Dtype=ExecuteTests
-    estuary_app:
-      type: string
-      minLength: 3
-      example: 'estuary-testrunner'
 externalDocs:
   description: Find out more on github
   url: https://github.com/dinuta/estuary-discovery

@@ -163,7 +163,7 @@ def get_tests():
         testrunner_apps = EurekaUtils.get_type_eureka_apps(host, application)
         thread_utils = ThreadUtils(testrunner_apps)
         thread_utils.spawn_threads_testrunners()
-        tests = thread_utils.get_list()
+        tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
             mimetype="application/json")
@@ -189,7 +189,7 @@ def get_deployments():
         deployer_apps = EurekaUtils.get_type_eureka_apps(host, application)
         thread_utils = ThreadUtils(deployer_apps)
         thread_utils.spawn_threads_deployers()
-        deployments = thread_utils.get_list()
+        deployments = thread_utils.get_threads_response()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
             mimetype="application/json")
@@ -198,6 +198,47 @@ def get_deployments():
         return Response(json.dumps(http.failure(Constants.GET_DEPLOYMENTS_FAILED,
                                                 ErrorCodes.HTTP_CODE.get(
                                                     Constants.GET_DEPLOYMENTS_FAILED),
+                                                exception,
+                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+
+    return response
+
+
+# aggregator of the test results
+@app.route('/gettestsandfiles', methods=['GET', 'POST'])
+def get_tests_and_files():
+    http = HttpResponse()
+    application = "estuary-testrunner"
+    header_keys = ["File-Path", "Test-Id"]
+
+    for header_key in header_keys:
+        if not request.headers.get(f"{header_key}"):
+            return Response(json.dumps(http.failure(Constants.HTTP_HEADER_NOT_PROVIDED,
+                                                    ErrorCodes.HTTP_CODE.get(
+                                                        Constants.HTTP_HEADER_NOT_PROVIDED) % header_key,
+                                                    ErrorCodes.HTTP_CODE.get(
+                                                        Constants.HTTP_HEADER_NOT_PROVIDED) % header_key,
+                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+    try:
+        file_path = request.headers.get(f"{header_keys[0]}").strip()
+        test_id = request.headers.get(f"{header_keys[1]}").strip()
+
+        host = os.environ.get('EUREKA_SERVER')
+        test_runner_apps = EurekaUtils.get_type_eureka_apps(host, application)
+        thread_utils = ThreadUtils(test_runner_apps)
+        thread_utils.spawn_threads_testrunners()
+        tests_list = list(filter(lambda x: (x.get('id') == test_id), thread_utils.get_threads_response()))
+        thread_utils = ThreadUtils(tests_list)
+        thread_utils.spawn_threads_get_files({'File-Path': file_path})
+        response = Response(json.dumps(
+            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
+                         thread_utils.get_threads_response())), 200,
+            mimetype="application/json")
+    except Exception as e:
+        exception = "Exception({0})".format(e.__str__())
+        return Response(json.dumps(http.failure(Constants.GET_TEST_RESULTS_FAILED,
+                                                ErrorCodes.HTTP_CODE.get(
+                                                    Constants.GET_TEST_RESULTS_FAILED),
                                                 exception,
                                                 str(traceback.format_exc()))), 404, mimetype="application/json")
 
