@@ -1,9 +1,11 @@
 import json
 import os
 import traceback
+from secrets import token_hex
 
 from flask import Response
 from flask import request
+from fluent import sender
 
 from about import properties
 from entities.render import Render
@@ -11,23 +13,58 @@ from rest.api import create_app
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
 from rest.api.apiresponsehelpers.http_response import HttpResponse
-from rest.api.definitions import env_vars
+from rest.api.definitions import env_vars, swagger_file_content
+from rest.api.logginghelpers.request_dumper import RequestDumper
 from rest.utils.eureka_utils import EurekaUtils
+from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.thread_utils import ThreadUtils
 
 app = create_app()
+logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
+                             port=int(properties["fluentd_port"]))
+fluentd_utils = FluentdUtils(logger)
+request_dumper = RequestDumper()
+
+
+@app.before_request
+def before_request():
+    ctx = app.app_context()
+    ctx.g.cid = token_hex(8)
+    request_dumper.set_correlation_id(ctx.g.cid)
+
+    response = fluentd_utils.debug(tag="api", msg=request_dumper.dump(request=request))
+    app.logger.debug(f"{response}")
+
+
+@app.after_request
+def after_request(http_response):
+    # if not json, do not alter
+    try:
+        headers = dict(http_response.headers)
+        headers['Correlation-Id'] = request_dumper.get_correlation_id()
+        http_response.headers = headers
+    except:
+        pass
+
+    response = fluentd_utils.debug(tag="api", msg=request_dumper.dump(http_response))
+    app.logger.debug(f"{response}")
+
+    return http_response
 
 
 @app.route('/swagger/swagger.yml')
 def get_swagger():
-    return app.send_static_file("swagger.yml")
+    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
+                                         swagger_file_content)
+
+    return Response(json.dumps(http_response), 200, mimetype="application/json")
 
 
 @app.route('/env')
 def get_vars():
-    http = HttpResponse()
-    return Response(json.dumps(http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), env_vars)),
-                    200, mimetype="application/json")
+    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), env_vars)
+
+    return Response(json.dumps(http_response), 200, mimetype="application/json")
 
 
 @app.route('/ping')

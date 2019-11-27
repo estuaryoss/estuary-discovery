@@ -36,10 +36,11 @@ http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your a
 3. Integrations
 
 ## Service run
-##### Using docker compose
+
+##### Docker compose
     docker-compose up
     
-##### Using docker run - eureka registration
+##### Eureka registration
 Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
@@ -65,9 +66,18 @@ Start your container by specifying the eureka server in order to discover all ot
     -v $PWD/inputs/templates:/data \ 
     -v $PWD/inputs/variables:/variables \
     
- ##### Using kubernetes
-     kubectl apply -f k8sdeployment.yml  
-    
+##### Kubernetes
+    kubectl apply -f k8sdeployment.yml
+
+##### Fluentd logging
+Please consult [Fluentd](https://github.com/fluent/fluentd) for logging setup.  
+Estuary-discovery tags all logs in format ```estuary-discovery.**```
+
+    docker run \
+    -e FLUENTD_IP_PORT=10.10.15.28:24224
+    -p 8080:8080
+    dinutac/estuary-discovery:<tag>
+
 ## Estuary stack
 [Estuary deployer](https://github.com/dinuta/estuary-deployer)  
 [Estuary testrunner](https://github.com/dinuta/estuary-testrunner)  

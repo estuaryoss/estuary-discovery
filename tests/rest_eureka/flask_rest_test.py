@@ -57,7 +57,7 @@ class EurekaClient:
 
 
 class FlaskServerEurekaTestCase(unittest.TestCase):
-    expected_version = "2.0.2"
+    expected_version = "4.0.0"
     discovery_ip = "estuary-discovery"
     testrunner_ip = "estuary-testrunner"
     deployer_ip = "estuary-deployer"

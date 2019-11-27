@@ -15,7 +15,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "2.0.2"
+    expected_version = "4.0.0"
     cleanup_count_safe = 5
 
     def setUp(self):
@@ -39,11 +39,14 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.get(self.server + "/ping")
 
         body = json.loads(response.text)
+        headers = response.headers
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), "pong")
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
+        self.assertEqual(len(headers.get('Correlation-Id')), 16)
 
     def test_getenv_endpoint_p(self):
         env_var = "VARS_DIR"

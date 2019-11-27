@@ -8,3 +8,6 @@ flask_swagger_ui
 requests_toolbelt
 py_eureka_client
 flask_cors
+fluent-logger
+Jinja2
+jinja2-cli

@@ -23,23 +23,6 @@ RUN apk add --no-cache \
 RUN apk add --no-cache python3 && \
     pip3 install --upgrade pip setuptools --no-cache
 
-RUN pip3 install \
-  PyYAML \
-  httplib2 \
-  urllib3 \
-  simplejson \
-  Jinja2 \
-  jinja2-cli \
-  flask \
-  flask_restplus\
-  jsonify \
-  parameterized \
-  flask_swagger_ui \
-  requests \
-  requests_toolbelt \
-  flask-cors \
-  py_eureka_client
-
 ## Cleanup
 RUN rm -rf /var/cache/apk/*
 
@@ -67,6 +50,7 @@ ADD ./ $SCRIPTS_DIR/
 ADD ./inputs/templates/ $TEMPLATES_DIR/
 ADD ./inputs/variables/ $VARS_DIR/
 
+RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
 
 RUN chmod +x $SCRIPTS_DIR/*.py
 RUN chmod +x $SCRIPTS_DIR/*.sh
