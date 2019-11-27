@@ -3,13 +3,19 @@ import os
 
 from about import properties
 from rest.api.routes import app, fluentd_utils
-from rest.api.routes import logger
 
 if __name__ == "__main__":
     host = '0.0.0.0'
     port = properties["port"]
-
     fluentd_tag = "startup"
-    logger.emit(fluentd_tag, {"msg": f"Sending logs to fluentd instance: host={properties['fluentd_ip']}, port={properties['fluentd_port']}"})
+
+    fluentd_utils.emit(fluentd_tag, {"msg": dict(os.environ)})
+    fluentd_utils.emit(fluentd_tag, {"msg": {"host": host, "port": port}})
+    fluentd_utils.emit(fluentd_tag, {"msg": {
+        "fluentd_enabled": str(True if os.environ.get('FLUENTD_IP_PORT') else False).lower(),
+        "fluentd_ip": properties["fluentd_ip"],
+        "fluentd_port": properties["fluentd_port"]
+    }
+    })
 
     app.run(host=host, port=port)

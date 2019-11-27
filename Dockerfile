@@ -46,6 +46,8 @@ ENV OUT_DIR out
 ENV TEMPLATE docker-compose.j2
 ENV VARIABLES variables.yml
 
+ENV TZ UTC
+
 ADD ./ $SCRIPTS_DIR/
 ADD ./inputs/templates/ $TEMPLATES_DIR/
 ADD ./inputs/variables/ $VARS_DIR/
