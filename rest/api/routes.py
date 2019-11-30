@@ -23,16 +23,16 @@ app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
                              port=int(properties["fluentd_port"]))
 fluentd_utils = FluentdUtils(logger)
-request_dumper = MessageDumper()
+message_dumper = MessageDumper()
 
 
 @app.before_request
 def before_request():
     ctx = app.app_context()
     ctx.g.cid = token_hex(8)
-    request_dumper.set_correlation_id(ctx.g.cid)
+    message_dumper.set_correlation_id(ctx.g.cid)
 
-    response = fluentd_utils.debug(tag="api", msg=request_dumper.dump(request=request))
+    response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(request=request))
     app.logger.debug(f"{response}")
 
 
@@ -41,12 +41,12 @@ def after_request(http_response):
     # if not json, do not alter
     try:
         headers = dict(http_response.headers)
-        headers['Correlation-Id'] = request_dumper.get_correlation_id()
+        headers['Correlation-Id'] = message_dumper.get_correlation_id()
         http_response.headers = headers
     except:
         pass
 
-    response = fluentd_utils.debug(tag="api", msg=request_dumper.dump(http_response))
+    response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(http_response))
     app.logger.debug(f"{response}")
 
     return http_response
