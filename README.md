@@ -73,6 +73,16 @@ Start your container by specifying the eureka server in order to discover all ot
 Please consult [Fluentd](https://github.com/fluent/fluentd) for logging setup.  
 Estuary-discovery tags all logs in format ```estuary-discovery.**```
 
+Matcher example:  
+
+```xml
+<match estuary*.**>
+  type stdout
+</match>
+```
+
+Run example:
+
     docker run \
     -e FLUENTD_IP_PORT=10.10.15.28:24224
     -p 8080:8080

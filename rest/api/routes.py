@@ -14,7 +14,7 @@ from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
 from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import env_vars, swagger_file_content
-from rest.api.logginghelpers.request_dumper import RequestDumper
+from rest.api.logginghelpers.message_dumper import MessageDumper
 from rest.utils.eureka_utils import EurekaUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.thread_utils import ThreadUtils
@@ -23,7 +23,7 @@ app = create_app()
 logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
                              port=int(properties["fluentd_port"]))
 fluentd_utils = FluentdUtils(logger)
-request_dumper = RequestDumper()
+request_dumper = MessageDumper()
 
 
 @app.before_request
