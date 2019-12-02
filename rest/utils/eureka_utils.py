@@ -1,12 +1,13 @@
-from py_eureka_client import eureka_client
+import py_eureka_client.eureka_client as eureka_client
 
 
 class EurekaUtils:
+    def __init__(self, host):
+        self.host = host
 
-    @staticmethod
-    def get_eureka_apps(host):
+    def get_eureka_apps(self):
         apps_list = {}
-        for app in eureka_client.get_applications(eureka_server=f"{host}").applications:
+        for app in eureka_client.get_applications(eureka_server=f"{self.host}").applications:
             for instance in app.up_instances:
                 # [ip, app, port] = instance.instanceId.split(":")
                 app = str(instance.app.lower())
@@ -22,13 +23,15 @@ class EurekaUtils:
                 })
         return apps_list
 
-    @staticmethod
-    def get_type_eureka_apps(host, type=None):
+    def get_type_eureka_apps(self, application=None):
         apps_list = []
-        all_apps_list = EurekaUtils.get_eureka_apps(host)
+        all_apps_list = self.get_eureka_apps()
         for key in all_apps_list:
-            if type in key:
+            if application in key:
                 for item in all_apps_list[key]:
                     apps_list.append(item)
 
         return apps_list
+
+    def get_eureka_host(self):
+        return self.host

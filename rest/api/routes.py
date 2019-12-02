@@ -150,11 +150,10 @@ def get_env(name):
 @app.route('/geteurekaapps', methods=['GET'])
 def get_eureka_apps():
     http = HttpResponse()
+    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
-        host = os.environ.get('EUREKA_SERVER')
-        print(f"Getting apps from eureka server {host} ... \n")
-        apps_list = EurekaUtils.get_eureka_apps(host)
+        apps_list = eureka_utils.get_eureka_apps()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
@@ -162,7 +161,7 @@ def get_eureka_apps():
         exception = "Exception({0})".format(e.__str__())
         response = Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
                                                     ErrorCodes.HTTP_CODE.get(
-                                                        Constants.GET_EUREKA_APPS_FAILED) % host,
+                                                        Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
                                                     exception,
                                                     str(traceback.format_exc()))), 404, mimetype="application/json")
     return response
@@ -172,10 +171,10 @@ def get_eureka_apps():
 def get_type_eureka_apps(type):
     http = HttpResponse()
     type = type.strip()
+    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
-        host = os.environ.get('EUREKA_SERVER')
-        apps_list = EurekaUtils.get_type_eureka_apps(host, type)
+        apps_list = eureka_utils.get_type_eureka_apps(type)
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
@@ -183,7 +182,7 @@ def get_type_eureka_apps(type):
         exception = "Exception({0})".format(e.__str__())
         return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
                                                 ErrorCodes.HTTP_CODE.get(
-                                                    Constants.GET_EUREKA_APPS_FAILED) % host,
+                                                    Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
                                                 exception,
                                                 str(traceback.format_exc()))), 404, mimetype="application/json")
     return response
@@ -194,10 +193,10 @@ def get_type_eureka_apps(type):
 def get_tests():
     http = HttpResponse()
     application = "estuary-testrunner"
+    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
-        host = os.environ.get('EUREKA_SERVER')
-        testrunner_apps = EurekaUtils.get_type_eureka_apps(host, application)
+        testrunner_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(testrunner_apps)
         thread_utils.spawn_threads_testrunners()
         tests = thread_utils.get_threads_response()
@@ -220,10 +219,10 @@ def get_tests():
 def get_deployments():
     http = HttpResponse()
     application = "estuary-deployer"
+    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
-        host = os.environ.get('EUREKA_SERVER')
-        deployer_apps = EurekaUtils.get_type_eureka_apps(host, application)
+        deployer_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(deployer_apps)
         thread_utils.spawn_threads_deployers()
         deployments = thread_utils.get_threads_response()
@@ -245,6 +244,7 @@ def get_deployments():
 @app.route('/gettestsandfiles', methods=['GET', 'POST'])
 def get_tests_and_files():
     http = HttpResponse()
+    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
     application = "estuary-testrunner"
     header_keys = ["File-Path", "Test-Id"]
 
@@ -260,8 +260,7 @@ def get_tests_and_files():
         file_path = request.headers.get(f"{header_keys[0]}").strip()
         test_id = request.headers.get(f"{header_keys[1]}").strip()
 
-        host = os.environ.get('EUREKA_SERVER')
-        test_runner_apps = EurekaUtils.get_type_eureka_apps(host, application)
+        test_runner_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(test_runner_apps)
         thread_utils.spawn_threads_testrunners()
         tests_list = list(filter(lambda x: (x.get('id') == test_id), thread_utils.get_threads_response()))
