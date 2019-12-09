@@ -6,6 +6,14 @@ python:
 services:
   - docker
 
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: "main_flask"
+  skip_cleanup: true
+  on:
+    tags: true
+
 env:
   #scripts dir host and docker
   SCRIPTS_DIR: tests
@@ -64,6 +72,21 @@ script:
   - docker ps
   - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR/tests/rest_eureka "*_test.py"
   - docker-compose down -v
+
+  #run self contained flask app tests
+  - pyinstaller --onefile main_flask.py
+  - ls -lrt dist
+  - cp dist/main_flask .
+  - chmod +x main_flask
+  - sudo chown -R travis:travis inputs
+  - nohup ./main_flask &
+  - ls -lrt
+  - sleep 5
+  #  - ./ngrok.sh
+  #  - sleep 3600
+  - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
+  - ls -lrt /tmp
+  - ps -ef
 
   #run jinja2 render tests
   - docker run -i

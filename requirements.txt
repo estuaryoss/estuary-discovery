@@ -11,3 +11,4 @@ flask_cors
 fluent-logger
 Jinja2
 jinja2-cli
+pyinstaller
