@@ -79,7 +79,7 @@ script:
   - cp dist/main_flask .
   - chmod +x main_flask
   - sudo chown -R travis:travis inputs
-  - nohup ./main_flask &
+  - ./main_flask > /dev/null 2>&1 &
   - ls -lrt
   - sleep 5
   #  - ./ngrok.sh

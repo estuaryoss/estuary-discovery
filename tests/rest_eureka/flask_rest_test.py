@@ -4,7 +4,6 @@ import time
 import unittest
 
 import requests
-from parameterized import parameterized
 from py_eureka_client import eureka_client
 
 
@@ -57,7 +56,7 @@ class EurekaClient:
 
 
 class FlaskServerEurekaTestCase(unittest.TestCase):
-    expected_version = "4.0.0"
+    expected_version = "4.0.1"
     discovery_ip = "estuary-discovery"
     testrunner_ip = "estuary-testrunner"
     deployer_ip = "estuary-deployer"
@@ -226,83 +225,48 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         end = time.time()
         print(f"made {repetitions} geteurekaapps repetitions in {end - start} s")
 
-    def test_gettestsandfiles_missing_test_session_n(self):
-        header_key = 'Test-Id'
-        headers = {
-            'File-Path': '/etc/hostname'
-        }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettestsandfiles", headers=headers)
-        body = response.json()
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.HTTP_HEADER_NOT_PROVIDED)
-        self.assertIsNotNone(body.get('time'))
-
-    def test_gettestsandfiles_missing_file_path_n(self):
+    def test_gettestrunnersfile_missing_file_path_n(self):
         header_key = 'File-Path'
         headers = {
-            'Test-Id': '100'
+            'whatever': '100'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettestsandfiles", headers=headers)
-        body = response.json()
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.HTTP_HEADER_NOT_PROVIDED)
-        self.assertIsNotNone(body.get('time'))
-
-    def test_gettestsandfiles_no_tests_with_this_id_n(self):
-        headers = {
-            'Test-Id': '12345dummy',
-            'File-Path': '/etc/hostname'
-        }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettestsandfiles", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(body.get('message')), 0)
-        self.assertEqual(body.get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('message')[0].get('message'),
+                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
+        self.assertEqual(body.get('message')[1].get('message'),
+                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
+        self.assertEqual(body.get('message')[0].get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
+        self.assertEqual(body.get('message')[1].get('description'),
+                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
-    @parameterized.expand([
-        "100",
-        "200"
-    ])
-    def test_gettestsandfiles_p(self, test_id):
+    def test_gettestrunnersfile_p(self):
         headers = {
-            'Test-Id': f'{test_id}',
             'File-Path': '/etc/hostname'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettestsandfiles", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(body.get('message')), 1)
-        self.assertEqual(body.get('message')[0].get('id'), test_id)
-        self.assertEqual(len(body.get('message')[0]), 8)
+        self.assertEqual(len(body.get('message')), 2)
+        self.assertGreater(len(body.get('message')[0]), 8)
+        self.assertGreater(len(body.get('message')[1]), 8)
 
-    @parameterized.expand([
-        "100",
-        "200"
-    ])
-    def test_gettestsandfiles_file_not_found(self, test_id):
+    def test_gettestrunnersfile_file_not_found(self):
+        expected = f"Exception([Errno 2] No such file or directory:"
         headers = {
-            'Test-Id': f'{test_id}',
             'File-Path': '/dummy_path'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettestsandfiles", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(body.get('message')), 1)
-        self.assertEqual(body.get('message')[0].get('id'), test_id)
-        self.assertEqual(len(body.get('message')[0]), 8)
-        self.assertIn("Exception", body.get('message')[0].get('fileContent'))
+        self.assertEqual(len(body.get('message')), 2)
+        self.assertIn(expected, body.get('message')[0].get('message'))
+        self.assertIn(expected, body.get('message')[1].get('message'))
 
 
 if __name__ == '__main__':

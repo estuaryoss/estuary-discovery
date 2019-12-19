@@ -19,49 +19,77 @@ class ThreadUtils:
     def get_url(self, app):
         return f"{app.get('homePageUrl')}"
 
-    def get_request_testrunners(self, app):
+    def get_test_info(self, app):
+        request_object = {
+            "uri": "gettestinfo",
+            "method": 'GET',
+            "headers": {"Content-Type": "application/json"},
+            "data": ""
+        }
+
         try:
-            response = requests.get(f"{self.get_url(app)}gettestinfo", timeout=3)
+            response = self.send_http_request(app, request_object=request_object)
             test_info = response.json().get('message')
             test_info["homePageUrl"] = f"{app.get('homePageUrl')}"
             test_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
             self.response_list.append(test_info)
         except:
-            pass
+            self.response_list.append({"err": f"{request_object}"})
 
-    def get_request_deployers(self, app):
+    def spawn_threads_get_test_info(self):
+        threads = [threading.Thread(target=self.get_test_info, args=(app,)) for app in self.apps]
+        for thread in threads:
+            thread.start()
+            thread.join()
+
+    def get_request_get_deployment_info(self, app):
+        request_object = {
+            "uri": "getdeploymentinfo",
+            "method": 'GET',
+            "headers": {"Content-Type": "application/json"},
+            "data": ""
+        }
+
         try:
-            response = requests.get(f"{self.get_url(app)}getdeploymentinfo", timeout=3)
+            response = self.send_http_request(app, request_object=request_object)
             deployment_info = response.json().get('message')
             for deployment in deployment_info:
                 deployment["homePageUrl"] = f"{app.get('homePageUrl')}"
                 deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
                 self.response_list.append(deployment)
         except:
+            self.response_list.append({"err": f"{request_object}"})
+
+    def spawn_threads_get_deployment_info(self):
+        threads = [threading.Thread(target=self.get_request_get_deployment_info, args=(app,)) for app in self.apps]
+        for thread in threads:
+            thread.start()
+            thread.join()
+
+    def send_http_request(self, app, request_object):
+        if request_object.get('method') == 'GET':
+            response = requests.get(f'{self.get_url(app)}{request_object.get("uri")}',
+                                    headers=request_object.get("headers"), timeout=3)
+        elif request_object.get('method') == 'POST':
+            response = requests.post(f'{self.get_url(app)}{request_object.get("uri")}',
+                                     data=request_object.get('data'),
+                                     headers=request_object.get("headers"), timeout=3)
+        else:
             pass
 
-    def get_results_testrunners(self, app, headers):
+        return response
+
+    def send_testrunner_request(self, app, request_object):
         try:
-            response = requests.get(f"{app.get('homePageUrl')}getfile", headers=headers, timeout=3)
-            app['fileContent'] = response.text
-            self.response_list.append(app)
+            response = self.send_http_request(app, request_object=request_object).json()
         except:
-            pass
+            response = self.send_http_request(app, request_object=request_object).text
 
-    def spawn_threads_testrunners(self):
-        threads = [threading.Thread(target=self.get_request_testrunners, args=(app,)) for app in self.apps]
-        for thread in threads:
-            thread.start()
-            thread.join()
+        self.response_list.append(response)
 
-    def spawn_threads_deployers(self):
-        threads = [threading.Thread(target=self.get_request_deployers, args=(app,)) for app in self.apps]
-        for thread in threads:
-            thread.start()
-            thread.join()
-
-    def spawn_threads_get_files(self, headers):
-        threads = [threading.Thread(target=self.get_results_testrunners, args=(app, headers,)) for app in self.apps]
+    def spawn_threads_send_testrunner_request(self, request_object):
+        threads = [threading.Thread(target=self.send_testrunner_request, args=(app, request_object,)) for app in
+                   self.apps]
         for thread in threads:
             thread.start()
             thread.join()

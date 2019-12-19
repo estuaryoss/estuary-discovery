@@ -11,4 +11,5 @@ class ErrorCodes:
         Constants.GET_DEPLOYMENTS_FAILED: "Failed to get deployments list",
         Constants.GET_TEST_RESULTS_FAILED: "Failed to get test results list",
         Constants.HTTP_HEADER_NOT_PROVIDED: "Http header value not provided: '%s'",
+        Constants.DISCOVERY_ERROR: "Estuary discovery: error aggregating results",
     }

@@ -207,29 +207,24 @@ paths:
           description: Get tests success
         404:
           description: Get tests failure
-  /gettestsandfiles:
+  /testrunner/{testrunner_uri}:
     get:
       tags:
         - estuary-discovery
-      summary: Gets all tests and file content accross all estuary-testrunners services. Useful for getting test results.
+      summary: Send a GET request to all testrunners. Any testrunner uri can be used. Useful for getting test results, starting tests, and so on.
       produces:
         - application/json
       parameters:
-        - name: File-Path
-          in: header
-          description: The file path asked to get information from.
-          required: true
-          type: string
-        - name: Test-Id
-          in: header
-          description: The test session/id for which the files/results will be retrieved.
+        - name: testrunner_uri
+          in: path
+          description: The uri of the testrunner. E.g. ping. Check the documentation of the test runner
           required: true
           type: string
       responses:
         200:
-          description: Get tests and results/files success
+          description: Aggregated response from the testrunners success
         404:
-          description: Get tests and results/files failure
+          description: Aggregated response from the testrunners failure
 definitions:
     envvar:
       type: object

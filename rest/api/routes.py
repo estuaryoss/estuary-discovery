@@ -54,10 +54,7 @@ def after_request(http_response):
 
 @app.route('/swagger/swagger.yml')
 def get_swagger():
-    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
-                                         swagger_file_content)
-
-    return Response(json.dumps(http_response), 200, mimetype="application/json")
+    return Response(swagger_file_content, 200, mimetype="application/json")
 
 
 @app.route('/env')
@@ -188,17 +185,17 @@ def get_type_eureka_apps(type):
     return response
 
 
-# aggregator of the testrunner(s) data
+# aggregator of the testrunner(s) tests
 @app.route('/gettests', methods=['GET'])
 def get_tests():
     http = HttpResponse()
-    application = "estuary-testrunner"
+    application = "testrunner"
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
         testrunner_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(testrunner_apps)
-        thread_utils.spawn_threads_testrunners()
+        thread_utils.spawn_threads_get_test_info()
         tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
@@ -218,13 +215,13 @@ def get_tests():
 @app.route('/getdeployments', methods=['GET'])
 def get_deployments():
     http = HttpResponse()
-    application = "estuary-deployer"
+    application = "deployer"
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
 
     try:
         deployer_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(deployer_apps)
-        thread_utils.spawn_threads_deployers()
+        thread_utils.spawn_threads_get_deployment_info()
         deployments = thread_utils.get_threads_response()
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
@@ -240,42 +237,41 @@ def get_deployments():
     return response
 
 
-# aggregator of the test results
-@app.route('/gettestsandfiles', methods=['GET', 'POST'])
-def get_tests_and_files():
+# aggregator of all testrunners endpoints
+@app.route('/testrunner/<path:text>', methods=['GET', 'POST'])
+def testrunner_request(text):
     http = HttpResponse()
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
-    application = "estuary-testrunner"
-    header_keys = ["File-Path", "Test-Id"]
-
-    for header_key in header_keys:
-        if not request.headers.get(f"{header_key}"):
-            return Response(json.dumps(http.failure(Constants.HTTP_HEADER_NOT_PROVIDED,
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.HTTP_HEADER_NOT_PROVIDED) % header_key,
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.HTTP_HEADER_NOT_PROVIDED) % header_key,
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+    uri = text.lstrip("/")
+    input_data = ""
+    application = "testrunner"
     try:
-        file_path = request.headers.get(f"{header_keys[0]}").strip()
-        test_id = request.headers.get(f"{header_keys[1]}").strip()
+        input_data = request.get_data()
+    except:
+        pass
 
+    try:
+        headers = request.headers
+        request_object = {
+            "uri": f'{uri}',
+            "method": request.method,
+            "headers": headers,
+            "data": input_data
+        }
+        app.logger.debug({"msg": f"{request_object}"})
         test_runner_apps = eureka_utils.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(test_runner_apps)
-        thread_utils.spawn_threads_testrunners()
-        tests_list = list(filter(lambda x: (x.get('id') == test_id), thread_utils.get_threads_response()))
-        thread_utils = ThreadUtils(tests_list)
-        thread_utils.spawn_threads_get_files({'File-Path': file_path})
+        thread_utils.spawn_threads_send_testrunner_request(request_object)
+
         response = Response(json.dumps(
             http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
                          thread_utils.get_threads_response())), 200,
             mimetype="application/json")
+
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(Constants.GET_TEST_RESULTS_FAILED,
-                                                ErrorCodes.HTTP_CODE.get(
-                                                    Constants.GET_TEST_RESULTS_FAILED),
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
-
+        response = Response(json.dumps(http.failure(Constants.DISCOVERY_ERROR,
+                                                    ErrorCodes.HTTP_CODE.get(Constants.DISCOVERY_ERROR),
+                                                    exception,
+                                                    exception)), 404, mimetype="application/json")
     return response

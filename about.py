@@ -10,7 +10,7 @@ if os.environ.get('FLUENTD_IP_PORT'):
 
 properties = {
     "name": "estuary-discovery",
-    "version": "4.0.0",
+    "version": "4.0.1",
     "description": "Discover estuary apps registered with Eureka",
     "author": "Catalin Dinuta",
     "platforms": ["Linux", "Mac"],

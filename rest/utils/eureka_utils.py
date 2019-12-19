@@ -1,3 +1,5 @@
+import re
+
 import py_eureka_client.eureka_client as eureka_client
 
 
@@ -27,7 +29,9 @@ class EurekaUtils:
         apps_list = []
         all_apps_list = self.get_eureka_apps()
         for key in all_apps_list:
-            if application in key:
+            pattern = rf'{application}'
+            match = re.search(pattern, key)
+            if match:
                 for item in all_apps_list[key]:
                     apps_list.append(item)
 

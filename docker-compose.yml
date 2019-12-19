@@ -17,8 +17,6 @@ services:
     expose:
       - "8080"
 
-
-
   estuary-testrunner:
     image: dinutac/estuary-testrunner:latest
     hostname: estuary-testrunner
