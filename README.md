@@ -31,9 +31,10 @@ http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your a
  ```
 
 ## Use cases
-1. Estuary-viewer stats.
-2. Rapid listing of apps registered with Eureka.
-3. Integrations
+1. Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
+2. L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
+3. Rapid listing of apps registered with Eureka.
+4. Integrations
 
 ## Service run
 
@@ -77,7 +78,7 @@ Matcher example:
 
 ```xml
 <match estuary*.**>
-  type stdout
+  @type stdout
 </match>
 ```
 
