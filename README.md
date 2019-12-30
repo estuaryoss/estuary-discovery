@@ -6,14 +6,14 @@ Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img s
 ## Estuary discovery
 Estuary discovery service. Aggregator of the estuary-stack.
 
-1. Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself), or others
-2. Reads the tests from estuary-testrunner(s) registered in Eureka
-3. Reads the deployments from estuary-deployer(s) registered in Eureka.
+1.  Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself), or others
+2.  Reads the tests from estuary-testrunner(s) registered in Eureka
+3.  Reads the deployments from estuary-deployer(s) registered in Eureka.
 
 ## Build & Coverage
 [![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-discovery?branch=master)
-
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/30ef547718d54f7485e57a5da936c557)](https://www.codacy.com/manual/dinuta/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dinuta/estuary-discovery&amp;utm_campaign=Badge_Grade)
 ## Docker Hub
 [![](https://images.microbadger.com/badges/image/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own image badge on microbadger.com")[![](https://images.microbadger.com/badges/version/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own version badge on microbadger.com")![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
@@ -21,27 +21,27 @@ Estuary discovery service. Aggregator of the estuary-stack.
 /api/docs
 
 ## Postman collection
-https://documenter.getpostman.com/view/2360061/SVmpY31g
+[Collection](https://documenter.getpostman.com/view/2360061/SVmpY31g)
 
-## Service HTTP GET examples:
-```
-http://localhost:8080/geteurekaapps #all apps  
-http://localhost:8080/geteurekaapps/estuary #all apps containing estuary  
-http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your app name  
+## Service HTTP GET examples
+```bash
+curl -i http://localhost:8080/geteurekaapps #all apps  
+curl -i http://localhost:8080/geteurekaapps/estuary #all apps containing estuary  
+curl -i http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your app name  
  ```
 
 ## Use cases
-1. Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
-2. L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
-3. Rapid listing of apps registered with Eureka.
-4. Integrations
+1.  Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
+2.  L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
+3.  Rapid listing of apps registered with Eureka.
+4.  Integrations
 
 ## Service run
 
-##### Docker compose
+### Docker compose
     docker-compose up
     
-##### Eureka registration
+### Eureka registration
 Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
@@ -67,10 +67,10 @@ Start your container by specifying the eureka server in order to discover all ot
     -v $PWD/inputs/templates:/data \ 
     -v $PWD/inputs/variables:/variables \
     
-##### Kubernetes
+### Kubernetes
     kubectl apply -f k8sdeployment.yml
 
-##### Fluentd logging
+### Fluentd logging
 Please consult [Fluentd](https://github.com/fluent/fluentd) for logging setup.  
 Estuary-discovery tags all logs in format ```estuary-discovery.**```
 

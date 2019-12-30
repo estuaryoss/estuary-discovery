@@ -26,16 +26,4 @@ class Utils:
         file_path = Path(path)
         if not file_path.exists():
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
-        shutil.make_archive(f"/tmp/{name}", 'zip', f"{path}")
-
-    def get_hostname_fqdn(self):
-        result = subprocess.Popen(["hostname", "--fqdn"], stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-        out, err = result.communicate()
-        return [out.decode('utf-8'), err.decode('utf-8')]
-
-    def run_cmd(self, command):
-        result = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-        out, err = result.communicate()
-        return [out.decode('utf-8'), err.decode('utf-8')]
+        shutil.make_archive("/tmp/{}".format(name), 'zip', path)

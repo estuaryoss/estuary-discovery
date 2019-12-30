@@ -1,6 +1,3 @@
-import os
-
-
 class Constants:
     DOCKER_PATH = "/tmp/"
 
@@ -13,4 +10,3 @@ class Constants:
     GET_TEST_RESULTS_FAILED = "1006"
     HTTP_HEADER_NOT_PROVIDED = "1007"
     DISCOVERY_ERROR = "1008"
-

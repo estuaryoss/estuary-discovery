@@ -1,6 +1,3 @@
-import os
-
-
 class Constants:
     DOCKER_PATH = "/tmp/"
 
@@ -8,4 +5,3 @@ class Constants:
     JINJA2_RENDER_FAILURE = "1001"
     GET_EUREKA_APPS_FAILED = "1002"
     GET_CONTAINER_ENV_VAR_FAILURE = "1003"
-

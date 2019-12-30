@@ -29,7 +29,7 @@ class Render:
 
     def rend_template(self, vars_dir=os.environ.get('VARS_DIR')):
         with open(vars_dir + "/" + self.variables, closefd=True) as f:
-            data = yaml.load(f, Loader=yaml.Loader)
+            data = yaml.safe_load(f)
 
         self.env.filters['yaml'] = self.yaml_filter
         self.env.globals["environ"] = lambda key: os.environ.get(key)

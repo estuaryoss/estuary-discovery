@@ -1,4 +1,5 @@
 import json
+from json import JSONDecodeError
 
 
 class MessageDumper:
@@ -15,8 +16,8 @@ class MessageDumper:
 
         try:
             body = json.loads(request.get_data())
-            body["message"] = json.dumps(body.get("message")) #can be anything, so it will break elasticsearch things
-        except Exception as e:
+            body["message"] = json.dumps(body.get("message"))  # can be anything, so it will break elasticsearch things
+        except (JSONDecodeError, AttributeError, RuntimeError):
             body = {"message": "NA"}
 
         return {

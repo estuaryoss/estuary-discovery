@@ -33,7 +33,7 @@ def before_request():
     message_dumper.set_correlation_id(ctx.g.cid)
 
     response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(request=request))
-    app.logger.debug(f"{response}")
+    app.logger.debug(response)
 
 
 @app.after_request
@@ -47,7 +47,7 @@ def after_request(http_response):
         pass
 
     response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(http_response))
-    app.logger.debug(f"{response}")
+    app.logger.debug(response)
 
     return http_response
 

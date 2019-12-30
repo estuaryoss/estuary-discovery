@@ -12,7 +12,7 @@ RUN apk add --no-cache \
 
 
 RUN apk add --no-cache \
-    python-dev \
+    python3-dev \
     libffi-dev \
     openssl-dev \
     gcc \
@@ -21,7 +21,7 @@ RUN apk add --no-cache \
     curl
 
 RUN apk add --no-cache python3 && \
-    pip3 install --upgrade pip setuptools --no-cache
+    pip3 install --upgrade pip==19.3.1 setuptools==42.0.2 --no-cache
 
 ## Cleanup
 RUN rm -rf /var/cache/apk/*
@@ -48,9 +48,9 @@ ENV VARIABLES variables.yml
 
 ENV TZ UTC
 
-ADD ./ $SCRIPTS_DIR/
-ADD ./inputs/templates/ $TEMPLATES_DIR/
-ADD ./inputs/variables/ $VARS_DIR/
+COPY ./ $SCRIPTS_DIR/
+COPY ./inputs/templates/ $TEMPLATES_DIR/
+COPY ./inputs/variables/ $VARS_DIR/
 
 RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
 

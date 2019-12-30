@@ -47,8 +47,8 @@ class EurekaClient:
 
     def get_apps(self):
         apps_list = []
-        print(f"Getting apps from eureka server {self.host} ... \n")
-        for app in eureka_client.get_applications(eureka_server=f"{self.host}").applications:
+        print("Getting apps from eureka server {} ... \n".format(self.host))
+        for app in eureka_client.get_applications(eureka_server=self.host).applications:
             for instance in app.up_instances:
                 # print(instance.app)
                 apps_list.append(instance.hostName)

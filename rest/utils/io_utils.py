@@ -40,7 +40,7 @@ class IOUtils:
         file_path = Path(path)
         if not file_path.exists():
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
-        shutil.make_archive(f"/tmp/{name}", 'zip', f"{path}")
+        shutil.make_archive("/tmp/{}".format(name), 'zip', path)
 
     @staticmethod
     def get_hostname_fqdn():

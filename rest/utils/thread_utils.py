@@ -17,7 +17,7 @@ class ThreadUtils:
         return self.response_list
 
     def get_url(self, app):
-        return f"{app.get('homePageUrl')}"
+        return app.get('homePageUrl')
 
     def get_test_info(self, app):
         request_object = {
@@ -30,7 +30,7 @@ class ThreadUtils:
         try:
             response = self.send_http_request(app, request_object=request_object)
             test_info = response.json().get('message')
-            test_info["homePageUrl"] = f"{app.get('homePageUrl')}"
+            test_info["homePageUrl"] = app.get('homePageUrl')
             test_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
             self.response_list.append(test_info)
         except:
@@ -54,7 +54,7 @@ class ThreadUtils:
             response = self.send_http_request(app, request_object=request_object)
             deployment_info = response.json().get('message')
             for deployment in deployment_info:
-                deployment["homePageUrl"] = f"{app.get('homePageUrl')}"
+                deployment["homePageUrl"] = app.get('homePageUrl')
                 deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
                 self.response_list.append(deployment)
         except:

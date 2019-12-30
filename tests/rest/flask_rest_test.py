@@ -50,7 +50,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_getenv_endpoint_p(self):
         env_var = "VARS_DIR"
-        response = requests.get(self.server + f"/getenv/{env_var}")
+        response = requests.get(self.server + "/getenv/{}".format(env_var))
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -62,7 +62,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_getenv_endpoint_n(self):
         env_var = "alabalaportocala"
-        response = requests.get(self.server + f"/getenv/{env_var}")
+        response = requests.get(self.server + "/getenv/{}".format(env_var))
 
         body = response.json()
         self.assertEqual(response.status_code, 404)
@@ -96,7 +96,7 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_swagger_yml_endpoint(self):
         response = requests.get(self.server + "/swagger/swagger.yml")
 
-        body = yaml.load(response.text, Loader=yaml.Loader)
+        body = yaml.safe_load(response.text)
         self.assertEqual(response.status_code, 200)
         # self.assertTrue(len(body.get('paths')) == 14)
 
@@ -104,10 +104,10 @@ class FlaskServerTestCase(unittest.TestCase):
         ("json.j2", "json.json"),
         ("yml.j2", "yml.yml")
     ])
-    def test_rend_endpoint(self, template, variables):
-        response = requests.get(self.server + f"/rend/{template}/{variables}", Loader=yaml.Loader)
+    def test_rend_endpoint_p(self, template, variables):
+        response = requests.get(self.server + "/rend/{}/{}".format(template, variables))
 
-        body = yaml.load(response.text)
+        body = yaml.safe_load(response.text)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body), 3)
 
@@ -115,11 +115,11 @@ class FlaskServerTestCase(unittest.TestCase):
         ("json.j2", "doesnotexists.json"),
         ("yml.j2", "doesnotexists.yml")
     ])
-    def test_rend_endpoint(self, template, variables):
+    def test_rend_endpoint_no_such_variables_file_n(self, template, variables):
         # expected = f"Exception([Errno 2] No such file or directory: \'/variables/{variables}\')"
         expected = f"Exception([Errno 2] No such file or directory:"
 
-        response = requests.get(self.server + f"/rend/{template}/{variables}")
+        response = requests.get(self.server + "/rend/{}/{}".format(template, variables))
 
         body = response.json()
         self.assertEqual(response.status_code, 404)
@@ -130,10 +130,10 @@ class FlaskServerTestCase(unittest.TestCase):
         ("doesnotexists.j2", "json.json"),
         ("doesnotexists.j2", "yml.yml")
     ])
-    def test_rend_endpoint(self, template, variables):
+    def test_rend_endpoint_no_such_template_file_n(self, template, variables):
         expected = f"Exception({template})"
 
-        response = requests.get(self.server + f"/rend/{template}/{variables}")
+        response = requests.get(self.server + "/rend/{}/{}".format(template, variables))
 
         body = response.json()
         self.assertEqual(response.status_code, 404)
@@ -149,7 +149,7 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.post(self.server + f"/rendwithenv/{template}/{variables}", data=json.dumps(payload),
                                  headers=headers)
 
-        body = yaml.load(response.text, Loader=yaml.Loader)
+        body = yaml.safe_load(response.text)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get("services")), 2)
         self.assertEqual(int(body.get("version")), 3)

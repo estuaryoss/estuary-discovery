@@ -17,8 +17,8 @@ class EurekaRegistrator:
         if pre_url:
             home_page_url = pre_url + "/"
             deployment_id = app_ip_port.split(":")[1].split("/")[3]
-        print(f"Starting eureka register on eureka server {self.host}. \n")
-        print(f"{properties['name']} registering with: ip={app_ip}, port={app_port}... \n")
+        print("Starting eureka register on eureka server {}. \n".format(self.host))
+        print("{} registering with: ip={}, port={}... \n".format(properties['name'], app_ip, app_port))
         eureka_client.init(eureka_server=f"{self.host}",
                            app_name=f"{properties['name']}{deployment_id}",
                            instance_port=app_port,

@@ -9,9 +9,8 @@ class EurekaUtils:
 
     def get_eureka_apps(self):
         apps_list = {}
-        for app in eureka_client.get_applications(eureka_server=f"{self.host}").applications:
+        for app in eureka_client.get_applications(eureka_server=self.host).applications:
             for instance in app.up_instances:
-                # [ip, app, port] = instance.instanceId.split(":")
                 app = str(instance.app.lower())
                 if app not in apps_list:
                     apps_list[app] = []
