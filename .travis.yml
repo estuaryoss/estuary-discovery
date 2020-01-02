@@ -10,7 +10,7 @@ services:
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
-  file: "main_linux"
+  file: "main-linux"
   skip_cleanup: true
   on:
     tags: true
@@ -18,7 +18,6 @@ deploy:
 env:
   #scripts dir host and docker
   SCRIPTS_DIR: tests
-  DOCKER_SCRIPTS_DIR: /home/dev/scripts
 
   #server on host
   SERVER: "localhost:8080"
@@ -44,7 +43,7 @@ before_script:
 script:
   - python3 -m unittest discover $SCRIPTS_DIR "*_test.py"
   #  - python -m unittest discover tests/rest "*_test.py"
-  - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR "render_test.py"
+  - docker exec estuary-discovery python3 -m unittest discover /home/dev/scripts "render_test.py"
   - docker stop estuary-discovery
   - docker rm estuary-discovery
 
@@ -71,16 +70,16 @@ script:
     --data 'sleep 3600'"
   - sleep 20 #wait until deployments are up and running
   - docker ps
-  - docker exec estuary-discovery python3 -m unittest discover $DOCKER_SCRIPTS_DIR/tests/rest_eureka "*_test.py"
+  - docker exec estuary-discovery python3 -m unittest discover /home/dev/scripts/tests/rest_eureka "*_test.py"
   - docker-compose down -v
 
   #run self contained flask app tests
   - pyinstaller --onefile main_flask.py
   - ls -lrt dist
-  - cp dist/main_flask main_linux
-  - chmod +x main_linux
+  - cp dist/main_flask main-linux
+  - chmod +x main-linux
   - sudo chown -R travis:travis inputs
-  - ./main_linux > /dev/null 2>&1 &
+  - ./main-linux > /dev/null 2>&1 &
   - ls -lrt
   - sleep 5
   #  - ./ngrok.sh
@@ -94,7 +93,7 @@ script:
     -v $TRAVIS_BUILD_DIR/inputs/templates:/data
     -v $TRAVIS_BUILD_DIR/inputs/variables:/variables  -e TEMPLATE=standalone.yml
     -e VARIABLES=variables.yml -e DATABASE=mysql56 -e IMAGE=latest
-    --entrypoint python3 dinutac/estuary-discovery:latest $DOCKER_SCRIPTS_DIR/main.py
+    --entrypoint python3 dinutac/estuary-discovery:latest /home/dev/scripts/main.py
 
   - docker run --entrypoint jinja2
     -v $TRAVIS_BUILD_DIR/inputs/templates:/data

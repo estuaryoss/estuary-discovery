@@ -211,20 +211,25 @@ paths:
     get:
       tags:
         - estuary-discovery
-      summary: Send a GET request to all testrunners. Any testrunner uri can be used. Useful for getting test results, starting tests, and so on.
+      summary: Broadcasts/Unicasts a request to the testrunners connected to same Eureka domain. Useful for getting test results, starting tests ...
       produces:
         - application/json
       parameters:
         - name: testrunner_uri
           in: path
-          description: The uri of the testrunner. E.g. ping. Check the documentation of the test runner
+          description: Broadcasts the request to the testrunner. E.g. /ping. 
           required: true
+          type: string
+        - name: IpAddr-Port
+          in: header
+          description: The ipAddr:port of the testrunner unicast target, in this format with colon. If not used, then the request will be broadcast.
+          required: false
           type: string
       responses:
         200:
-          description: Aggregated response from the testrunners success
+          description: Aggregated response from the testrunners, success
         404:
-          description: Aggregated response from the testrunners failure
+          description: Aggregated response from the testrunners, failure
 definitions:
     envvar:
       type: object

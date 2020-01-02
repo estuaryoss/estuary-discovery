@@ -240,26 +240,30 @@ def get_deployments():
 # aggregator of all testrunners endpoints
 @app.route('/testrunner/<path:text>', methods=['GET', 'POST'])
 def testrunner_request(text):
+    text = text.strip()
     http = HttpResponse()
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
-    uri = text.lstrip("/")
-    input_data = ""
+    header_key = 'IpAddr-Port'  # target specific testrunner
     application = "testrunner"
     try:
         input_data = request.get_data()
     except:
-        pass
+        input_data = ""
 
     try:
         headers = request.headers
         request_object = {
-            "uri": f'{uri}',
+            "uri": text.lstrip("/"),
             "method": request.method,
             "headers": headers,
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})
         test_runner_apps = eureka_utils.get_type_eureka_apps(application)
+        if request.headers.get(f"{header_key}"):  # not mandatory
+            ip_port = request.headers.get(f"{header_key}").split(":")
+            test_runner_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
+                                           test_runner_apps))
         thread_utils = ThreadUtils(test_runner_apps)
         thread_utils.spawn_threads_send_testrunner_request(request_object)
 

@@ -5,6 +5,7 @@ import unittest
 
 import requests
 from py_eureka_client import eureka_client
+from requests_toolbelt.utils import dump
 
 
 class EstuaryStackApps:
@@ -58,6 +59,7 @@ class EurekaClient:
 class FlaskServerEurekaTestCase(unittest.TestCase):
     expected_version = "4.0.1"
     discovery_ip = "estuary-discovery"
+    # discovery_ip = "localhost"
     testrunner_ip = "estuary-testrunner"
     deployer_ip = "estuary-deployer"
     server_port = "8080"  # all have 8080
@@ -267,6 +269,86 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(len(body.get('message')), 2)
         self.assertIn(expected, body.get('message')[0].get('message'))
         self.assertIn(expected, body.get('message')[1].get('message'))
+
+    def test_testrunner_teststart_broadcast_p(self):
+        cmds = "ls -lrt\n"
+        test_id = "100"
+        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id}",
+                                 data=cmds)
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('message')), 2)
+        self.assertEqual(body.get('message')[0].get('message'), test_id)
+        self.assertEqual(body.get('message')[1].get('message'), test_id)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('message')), 2)
+        self.assertEqual(body.get('message')[0].get('message').get('id'), test_id)
+        self.assertEqual(body.get('message')[1].get('message').get('id'), test_id)
+
+    def test_testrunner_teststart_unicast_p(self):
+        test_id = ["1", "2"]
+        cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
+
+        # get eureka apps testrunner
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/testrunner")
+        # print(dump.dump_response(response))
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('message')), 2)
+
+        # send unicast teststart request and check the results
+        testrunner_apps = body.get('message')
+        for i, item in enumerate(testrunner_apps):
+            headers = {
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port'))
+            }
+
+            # send unicast message to the testrunners with the ip:port
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id[i]}",
+                                     data=cmds[i], headers=headers)
+            body = response.json()
+            print(dump.dump_response(response))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('message')), 1)
+            self.assertEqual(body.get('message')[0].get('message'), test_id[i])
+
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+            body = response.json()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('message')), 2)
+            self.assertIn(test_id[i], [body.get('message')[0].get('message').get('id'),
+                                       body.get('message')[1].get('message').get('id')])
+
+    def test_testrunner_teststart_unicast_wrong_ipport_p(self):
+        test_id = ["1", "2"]
+        cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
+
+        # get eureka apps testrunner
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/testrunner")
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('message')), 2)
+
+        # send unicast teststart request and check the results
+        testrunner_apps = body.get('message')
+        for i, item in enumerate(testrunner_apps):
+            headers = {
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr') + "dummy", item.get('port'))
+            }
+
+            # send unicast message to the testrunners with the ip:port
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id[i]}",
+                                     data=cmds[i], headers=headers)
+            body = response.json()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('message')), 0)
+
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+            body = response.json()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('message')), 2)
 
 
 if __name__ == '__main__':
