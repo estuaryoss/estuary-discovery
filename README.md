@@ -25,9 +25,9 @@ Estuary discovery service. Aggregator of the estuary-stack.
 
 ## Service HTTP GET examples
 ```bash
-curl -i http://localhost:8080/geteurekaapps #all apps  
-curl -i http://localhost:8080/geteurekaapps/estuary #all apps containing estuary  
-curl -i http://localhost:8080/geteurekaapps/your_app_name #all apps designated by your app name  
+curl -i http://localhost:8080/eurekaapps #all apps  
+curl -i http://localhost:8080/eurekaapps/estuary #all apps containing estuary  
+curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by your app name  
  ```
 
 ## Use cases
