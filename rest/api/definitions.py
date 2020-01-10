@@ -2,14 +2,11 @@ import os
 
 from flask_swagger_ui import get_swaggerui_blueprint
 
-env_vars = {
+unmodifiable_env_vars = {
     "TEMPLATES_DIR": os.environ.get('TEMPLATES_DIR'),
     "VARS_DIR": os.environ.get('VARS_DIR'),
-    "TEMPLATE": os.environ.get('TEMPLATE'),
-    "VARIABLES": os.environ.get('VARIABLES'),
-    "TEMPLATES_DIR_FILES": os.listdir(os.environ.get('TEMPLATES_DIR')),
-    "VARS_DIR_FILES": os.listdir(os.environ.get('VARS_DIR')),
-    "PATH": os.environ.get('PATH')
+    "PORT": os.environ.get('PORT'),
+    "WORKSPACE": os.environ.get('WORKSPACE')
 }
 
 SWAGGER_URL = '/api/docs'
@@ -27,8 +24,9 @@ swagger_file_content = '''
 "swagger": '2.0'
 info:
   description: |
-    This is estuary-discovery service. Estuary-discovery service will discover the apps registered with Eureka.
-  version: "2.0.0"
+    This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
+    manage test sessions by communicating with estuary testrunners.
+  version: "4.0.1"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
@@ -40,7 +38,7 @@ info:
 basePath: /
 tags:
   - name: estuary-discovery
-    description: Estuary-discovery service will discover the apps registered with Eureka.
+    description: Estuary-discovery service will discover the apps registered with Eureka, and manage test sessions
     externalDocs:
       description: Find out more on github
       url: https://github.com/dinuta/estuary-discovery
@@ -57,89 +55,11 @@ paths:
       responses:
         200:
           description: List of env vars in key value pairs
-  /ping:
+  /env/{env_name}:
     get:
       tags:
         - estuary-discovery
-      summary: Ping endpoint which replies with pong
-      produces:
-        - application/json
-      responses:
-        200:
-          description: Ping endpoint which replies with pong. Useful for situations where checking the alive status of the service is needed.
-  /about:
-    get:
-      tags:
-        - estuary-discovery
-      summary: Information about the application.
-      produces:
-        - application/json
-      responses:
-        200:
-          description: Prints the name, version of the estuary-discovery application.
-  /rend/{template}/{variables}:
-    get:
-      tags:
-        - estuary-discovery
-      summary: estuary-discovery render wo env vars
-      description: Gets the rendered output from template and variable files with estuary-discovery
-      produces:
-        - application/json
-        - text/plain
-      parameters:
-        - name: template
-          in: path
-          description: The template file mounted in docker
-          required: true
-          type: string
-        - name: variables
-          in: path
-          description: The variables file mounted in docker
-          required: true
-          type: string
-      responses:
-        200:
-          description: estuary-discovery rendered template with jinja2
-        404:
-          description: estuary-discovery failure to rend the template
-  /rendwithenv/{template}/{variables}:
-    post:
-      tags:
-        - estuary-discovery
-      summary: estuary-discovery render with inserted env vars
-      consumes:
-        - application/json
-        - application/x-www-form-urlencoded
-      produces:
-        - application/json
-        - text/plain
-      parameters:
-        - name: template
-          in: path
-          description: Template file mounted in docker
-          required: true
-          type: string
-        - name: variables
-          in: path
-          description: Variables file mounted in docker
-          required: true
-          type: string
-        - name: EnvVars
-          in: body
-          description: List of env vars by key-value pair
-          required: false
-          schema:
-            $ref: '#/definitions/envvar'
-      responses:
-        200:
-          description: estuary-discovery rendered template with jinja2
-        404:
-          description: estuary-discovery failure to rend the template
-  /getenv/{env_name}:
-    get:
-      tags:
-        - estuary-discovery
-      summary: Gets the environment variable value from the estuary-discovery container
+      summary: Gets the environment variable value from the service
       produces:
         - application/json
       parameters:
@@ -153,7 +73,84 @@ paths:
           description: Get env var success
         404:
           description: Get env var failure
-  /geteurekaapps:
+  /ping:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Ping endpoint which replies with pong
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Ping endpoint which replies with pong. Useful for checking alive status
+  /about:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Information about the application.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Prints the name, version of the estuary-discovery application.
+  /render/{template}/{variables}:
+    get:
+      tags:
+        - estuary-discovery
+      summary: estuary-discovery render wo env vars
+      description: Gets the jinja2 rendered output from template and variable 
+      produces:
+        - application/json
+        - text/plain
+      parameters:
+        - name: template
+          in: path
+          description: The template file
+          required: true
+          type: string
+        - name: variables
+          in: path
+          description: The variables file
+          required: true
+          type: string
+      responses:
+        200:
+          description: jinja2 rendered template success
+        404:
+          description: jinja2 rendered template failure
+    post:
+      tags:
+        - estuary-discovery
+      summary: jinja2 render where env vars can be inserted
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - text/plain
+      parameters:
+        - name: template
+          in: path
+          description: Template file
+          required: true
+          type: string
+        - name: variables
+          in: path
+          description: Variables file
+          required: true
+          type: string
+        - name: EnvVars
+          in: body
+          description: List of env vars by key-value pair
+          required: false
+          schema:
+            $ref: '#/definitions/envvar'
+      responses:
+        200:
+          description: jinja2 rendered template success
+        404:
+          description: jinja2 rendered template failure
+  /eurekaapps:
     get:
       tags:
         - estuary-discovery
@@ -165,17 +162,17 @@ paths:
           description: Get apps success
         404:
           description: Get apps failure
-  /geteurekaapps/{type}:
+  /eurekaapps/{type}:
     get:
       tags:
         - estuary-discovery
-      summary: Gets all apps registered with Eureka.
+      summary: Gets all apps registered with Eureka with the regex 
       produces:
         - application/json
       parameters:
         - name: type
           in: path
-          description: All apps of a certain type. E.g estuary-deployer/estuary-testrunner/estuary-discovery/whatever. Returns empty list if nothing found.
+          description: All apps of a certain type. E.g deployer/testrunner/discovery/whatever. Returns empty list if nothing found.
           required: true
           type: string
       responses:
@@ -183,7 +180,7 @@ paths:
           description: Get apps success
         404:
           description: Get apps failure
-  /getdeployments:
+  /deployments:
     get:
       tags:
         - estuary-discovery
@@ -195,7 +192,7 @@ paths:
           description: Get deployments success
         404:
           description: Get deployments failure
-  /gettests:
+  /tests:
     get:
       tags:
         - estuary-discovery

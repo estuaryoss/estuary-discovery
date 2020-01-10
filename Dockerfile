@@ -46,6 +46,7 @@ ENV OUT_DIR out
 ENV TEMPLATE docker-compose.j2
 ENV VARIABLES variables.yml
 
+ENV PORT 8080
 ENV TZ UTC
 
 COPY ./ $SCRIPTS_DIR/

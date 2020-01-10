@@ -12,7 +12,7 @@ services:
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP_PORT: estuary-discovery:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
 #    ports:
-#      - "8092:8080"
+#      - "8090:8080"
 
     expose:
       - "8080"
@@ -61,9 +61,9 @@ services:
       - "8080"
 
   eureka-server:
-    image: dinutac/netflixoss-eureka:1.9.13
+    image: dinutac/netflixoss-eureka:1.9.15
     hostname: eureka-server
 #    ports:
-#      - "8091:8080"
+#      - "8080:8080"
     expose:
       - "8080"

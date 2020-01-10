@@ -72,7 +72,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(len(up_services), 4)
 
     def test_geteureka_apps(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -101,7 +101,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_geteureka_apps_testrunner(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-testrunner")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-testrunner")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -122,7 +122,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_geteureka_apps_deployer(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-deployer")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-deployer")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -144,7 +144,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_geteureka_apps_discovery(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/estuary-discovery")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-discovery")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -166,7 +166,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_geteureka_apps_empty_list(self):
         app = "whatever"
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/{app}")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/{app}")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -176,7 +176,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_gettests(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/gettests")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests")
         body = response.json()
         expected_port = 8080
         expected_ip = "estuary-testrunner"
@@ -195,7 +195,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_getdeployments(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/getdeployments")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/deployments")
         expected_port = 8080
         expected_ip = "estuary-deployer"
 
@@ -222,7 +222,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         repetitions = 100
         start = time.time()
         for i in range(1, repetitions):
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps")
             self.assertEqual(response.status_code, 200)
         end = time.time()
         print(f"made {repetitions} geteurekaapps repetitions in {end - start} s")
@@ -232,7 +232,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'whatever': '100'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message')[0].get('message'),
@@ -251,7 +251,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'File-Path': '/etc/hostname'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message')), 2)
@@ -263,7 +263,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'File-Path': '/dummy_path'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/getfile", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message')), 2)
@@ -273,14 +273,14 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_testrunner_teststart_broadcast_p(self):
         cmds = "ls -lrt\n"
         test_id = "100"
-        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id}",
+        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id}",
                                  data=cmds)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message')), 2)
         self.assertEqual(body.get('message')[0].get('message'), test_id)
         self.assertEqual(body.get('message')[1].get('message'), test_id)
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message')), 2)
@@ -292,7 +292,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
 
         # get eureka apps testrunner
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/testrunner")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/testrunner")
         # print(dump.dump_response(response))
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -306,7 +306,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the testrunners with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id[i]}",
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             print(dump.dump_response(response))
@@ -314,7 +314,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('message')), 1)
             self.assertEqual(body.get('message')[0].get('message'), test_id[i])
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('message')), 2)
@@ -326,7 +326,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
 
         # get eureka apps testrunner
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/geteurekaapps/testrunner")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/testrunner")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('message')), 2)
@@ -339,13 +339,13 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the testrunners with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunner/teststart/{test_id[i]}",
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('message')), 0)
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunner/gettestinfo")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('message')), 2)

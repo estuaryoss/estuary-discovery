@@ -12,6 +12,9 @@ if __name__ == "__main__":
     fluentd_tag = "startup"
     message_dumper = MessageDumper()
 
+    if os.environ.get('PORT'):
+        port = int(os.environ.get("PORT"))  # override port  if set from env
+
     if os.environ.get('EUREKA_SERVER'):
         EurekaRegistrator(os.environ.get('EUREKA_SERVER')).register_app(os.environ["APP_IP_PORT"])
 

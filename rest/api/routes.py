@@ -13,7 +13,7 @@ from rest.api import create_app
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
 from rest.api.apiresponsehelpers.http_response import HttpResponse
-from rest.api.definitions import env_vars, swagger_file_content
+from rest.api.definitions import swagger_file_content, unmodifiable_env_vars
 from rest.api.logginghelpers.message_dumper import MessageDumper
 from rest.utils.eureka_utils import EurekaUtils
 from rest.utils.fluentd_utils import FluentdUtils
@@ -57,13 +57,6 @@ def get_swagger():
     return Response(swagger_file_content, 200, mimetype="application/json")
 
 
-@app.route('/env')
-def get_vars():
-    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), env_vars)
-
-    return Response(json.dumps(http_response), 200, mimetype="application/json")
-
-
 @app.route('/ping')
 def ping():
     http = HttpResponse()
@@ -81,30 +74,13 @@ def about():
         mimetype="application/json")
 
 
-@app.route('/rend/<template>/<variables>', methods=['GET'])
-def get_content(template, variables):
-    os.environ['TEMPLATE'] = template.strip()
-    os.environ['VARIABLES'] = variables.strip()
-    http = HttpResponse()
-    try:
-        r = Render(os.environ['TEMPLATE'], os.environ['VARIABLES'])
-        response = Response(r.rend_template(), 200, mimetype="text/plain")
-        # response = http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), result), 200
-    except Exception as e:
-        result = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.JINJA2_RENDER_FAILURE,
-                                                    ErrorCodes.HTTP_CODE.get(Constants.JINJA2_RENDER_FAILURE), result,
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
-
-    return response
-
-
-@app.route('/rendwithenv/<template>/<variables>', methods=['POST'])
+@app.route('/render/<template>/<variables>', methods=['GET', 'POST'])
 def get_content_with_env(template, variables):
+    http = HttpResponse()
     try:
         input_json = request.get_json(force=True)
         for key, value in input_json.items():
-            if key not in env_vars:
+            if key not in unmodifiable_env_vars:
                 os.environ[key] = value
     except:
         pass
@@ -112,7 +88,6 @@ def get_content_with_env(template, variables):
     os.environ['TEMPLATE'] = template.strip()
     os.environ['VARIABLES'] = variables.strip()
 
-    http = HttpResponse()
     try:
         r = Render(os.environ['TEMPLATE'], os.environ['VARIABLES'])
         response = Response(r.rend_template(), 200, mimetype="text/plain")
@@ -126,7 +101,15 @@ def get_content_with_env(template, variables):
     return response
 
 
-@app.route('/getenv/<name>', methods=['GET'])
+@app.route('/env')
+def get_vars():
+    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
+                                         dict(os.environ))
+
+    return Response(json.dumps(http_response), 200, mimetype="application/json")
+
+
+@app.route('/env/<name>', methods=['GET'])
 def get_env(name):
     name = name.upper().strip()
     http = HttpResponse()
@@ -144,7 +127,7 @@ def get_env(name):
     return response
 
 
-@app.route('/geteurekaapps', methods=['GET'])
+@app.route('/eurekaapps', methods=['GET'])
 def get_eureka_apps():
     http = HttpResponse()
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
@@ -164,7 +147,7 @@ def get_eureka_apps():
     return response
 
 
-@app.route('/geteurekaapps/<type>', methods=['GET'])
+@app.route('/eurekaapps/<type>', methods=['GET'])
 def get_type_eureka_apps(type):
     http = HttpResponse()
     type = type.strip()
@@ -186,7 +169,7 @@ def get_type_eureka_apps(type):
 
 
 # aggregator of the testrunner(s) tests
-@app.route('/gettests', methods=['GET'])
+@app.route('/tests', methods=['GET'])
 def get_tests():
     http = HttpResponse()
     application = "testrunner"
@@ -212,7 +195,7 @@ def get_tests():
 
 
 # aggregator of the deployer(s) data.
-@app.route('/getdeployments', methods=['GET'])
+@app.route('/deployments', methods=['GET'])
 def get_deployments():
     http = HttpResponse()
     application = "deployer"
@@ -238,8 +221,8 @@ def get_deployments():
 
 
 # aggregator of all testrunners endpoints
-@app.route('/testrunner/<path:text>', methods=['GET', 'POST'])
-def testrunner_request(text):
+@app.route('/testrunners/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def testrunners_request(text):
     text = text.strip()
     http = HttpResponse()
     eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))

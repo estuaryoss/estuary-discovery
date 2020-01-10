@@ -21,7 +21,7 @@ class ThreadUtils:
 
     def get_test_info(self, app):
         request_object = {
-            "uri": "gettestinfo",
+            "uri": "test",
             "method": 'GET',
             "headers": {"Content-Type": "application/json"},
             "data": ""
@@ -44,7 +44,7 @@ class ThreadUtils:
 
     def get_request_get_deployment_info(self, app):
         request_object = {
-            "uri": "getdeploymentinfo",
+            "uri": "deployments",
             "method": 'GET',
             "headers": {"Content-Type": "application/json"},
             "data": ""
