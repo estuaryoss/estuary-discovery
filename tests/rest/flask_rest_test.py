@@ -47,7 +47,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
-        self.assertEqual(len(headers.get('Correlation-Id')), 16)
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_getenv_endpoint_p(self):
         env_var = "VARS_DIR"
@@ -66,17 +66,20 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.get(self.server + "/env/{}".format(env_var))
 
         body = response.json()
+        headers = response.headers
         self.assertEqual(response.status_code, 404)
         self.assertEqual(body.get('description'),
                          ErrorCodes.HTTP_CODE.get(Constants.GET_CONTAINER_ENV_VAR_FAILURE) % env_var.upper())
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.GET_CONTAINER_ENV_VAR_FAILURE)
         self.assertIsNotNone(body.get('time'))
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_about_endpoint(self):
         response = requests.get(self.server + "/about")
         service_name = "estuary-discovery"
-        body = json.loads(response.text)
+        body = response.json()
+        headers = response.headers
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'), service_name)
         self.assertEqual(body.get('name'), service_name)
@@ -84,6 +87,59 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
+
+    def test_about_endpoint_xid_set_by_client_is_same(self):
+        xid = "whatever"
+        headers = {
+            'X-Request-ID': xid
+        }
+        response = requests.get(self.server + "/about", headers=headers)
+        service_name = "estuary-discovery"
+        body = response.json()
+        headers = response.headers
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('message'), service_name)
+        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('time'))
+        self.assertEqual(headers.get('X-Request-ID'), xid)
+
+    def test_about_endpoint_unauthorized(self):
+        headers = {'Token': "invalidtoken"}
+        response = requests.get(self.server + "/about", headers=headers)
+        service_name = "estuary-discovery"
+        body = response.json()
+        headers = response.headers
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(body.get('message'), "Invalid Token")
+        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
+        self.assertIsNotNone(body.get('time'))
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
+
+    def test_about_endpoint_unauthorized_xid_by_client_remains_the_same(self):
+        xid = "whatever"
+        headers = {
+            'Token': "invalidtoken",
+            'X-Request-ID': xid
+        }
+        response = requests.get(self.server + "/about", headers=headers)
+        service_name = "estuary-discovery"
+        body = response.json()
+        headers = response.headers
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(body.get('message'), "Invalid Token")
+        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
+        self.assertIsNotNone(body.get('time'))
+        self.assertEqual(headers.get('X-Request-ID'), xid)
 
     @unittest.skipIf(os.environ.get('TEMPLATES_DIR'),
                      "inputs/templates")  # when service runs on VM only this is skipped

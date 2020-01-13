@@ -176,9 +176,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('time'))
 
     def test_gettests(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
         body = response.json()
-        expected_port = 8080
         expected_ip = "estuary-testrunner"
         # print(dump.dump_all(response))
 
@@ -194,8 +196,19 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
+    def test_gettests_unauthorized(self):
+        headers = {'Token': 'whateverinvalid'}
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
+        headers = response.headers
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
+
     def test_getdeployments(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/deployments")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/deployments", headers=headers)
         expected_port = 8080
         expected_ip = "estuary-deployer"
 
@@ -217,6 +230,20 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          f"http://{expected_ip}:{expected_port}/docker/")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
+
+    def test_getdeployments_unauthorized(self):
+        xid = 'whatever'
+        headers = {
+            'Token': 'whateverinvalid',
+            'X-Request-ID': xid
+        }
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/deployments", headers=headers)
+
+        body = response.json()
+        headers = response.headers
+        self.assertEqual(response.status_code, 401)
+        self.assertIsNotNone(body.get('time'))
+        self.assertEqual(headers.get('X-Request-ID'), xid)
 
     def test_time_of_100_requests(self):
         repetitions = 100

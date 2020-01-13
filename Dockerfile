@@ -37,6 +37,8 @@ VOLUME ["/variables"]
 
 ENV TEMPLATES_DIR /data
 ENV TEMPLATES_DIR_TR /data_tr
+ENV HTTP_AUTH_TOKEN None
+ENV PORT 8080
 
 ENV VARS_DIR /variables
 ENV VARS_DIR_TR /variables_tr
@@ -46,7 +48,6 @@ ENV OUT_DIR out
 ENV TEMPLATE docker-compose.j2
 ENV VARIABLES variables.yml
 
-ENV PORT 8080
 ENV TZ UTC
 
 COPY ./ $SCRIPTS_DIR/

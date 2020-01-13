@@ -29,11 +29,27 @@ message_dumper = MessageDumper()
 @app.before_request
 def before_request():
     ctx = app.app_context()
-    ctx.g.cid = token_hex(8)
-    message_dumper.set_correlation_id(ctx.g.cid)
+    ctx.g.xid = token_hex(8)
+    http = HttpResponse()
+    request_uri = request.environ.get("REQUEST_URI")
+
+    # add here your custom header to be logged with fluentd
+    message_dumper.set_header("X-Request-ID",
+                              request.headers.get('X-Request-ID') if request.headers.get('X-Request-ID') else ctx.g.xid)
+    message_dumper.set_header("Request-Uri", request_uri)
 
     response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(request=request))
     app.logger.debug(response)
+    if not str(request.headers.get("Token")) == str(os.environ.get("HTTP_AUTH_TOKEN")):
+        if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri):  # exclude swagger
+            headers = {
+                'X-Request-ID': message_dumper.get_header("X-Request-ID")
+            }
+            return Response(json.dumps(http.failure(Constants.UNAUTHORIZED,
+                                                    ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED),
+                                                    "Invalid Token",
+                                                    str(traceback.format_exc()))), 401, mimetype="application/json",
+                            headers=headers)
 
 
 @app.after_request
@@ -41,10 +57,10 @@ def after_request(http_response):
     # if not json, do not alter
     try:
         headers = dict(http_response.headers)
-        headers['Correlation-Id'] = message_dumper.get_correlation_id()
+        headers['X-Request-ID'] = message_dumper.get_header("X-Request-ID")
         http_response.headers = headers
     except:
-        pass
+        app.logger.debug("Message was not altered: " + message_dumper.dump(http_response))
 
     response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(http_response))
     app.logger.debug(response)
@@ -177,7 +193,7 @@ def get_tests():
 
     try:
         testrunner_apps = eureka_utils.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(testrunner_apps)
+        thread_utils = ThreadUtils(testrunner_apps, headers=request.headers)
         thread_utils.spawn_threads_get_test_info()
         tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
@@ -203,7 +219,7 @@ def get_deployments():
 
     try:
         deployer_apps = eureka_utils.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(deployer_apps)
+        thread_utils = ThreadUtils(deployer_apps, headers=request.headers)
         thread_utils.spawn_threads_get_deployment_info()
         deployments = thread_utils.get_threads_response()
         response = Response(json.dumps(
@@ -234,11 +250,10 @@ def testrunners_request(text):
         input_data = ""
 
     try:
-        headers = request.headers
         request_object = {
             "uri": text.lstrip("/"),
             "method": request.method,
-            "headers": headers,
+            "headers": request.headers,
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})

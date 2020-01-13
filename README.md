@@ -90,6 +90,23 @@ Run example:
     -p 8080:8080
     dinutac/estuary-discovery:<tag>
 
+### Authentication
+For auth set HTTP_AUTH_TOKEN env variable.  
+
+Run example:
+```shell script
+docker run \
+-e HTTP_AUTH_TOKEN=mysecret
+-p 8080:8080
+dinutac/estuary-discovery:<tag>
+```
+Then, access the Http Api. Call example:
+```shell script
+curl -i -H 'Token:mysecret' http:localhost:8080/about
+```  
+Because discovery acts as an stack aggregator hitting testrunner or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
+across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
+    
 ## Estuary stack
 [Estuary deployer](https://github.com/dinuta/estuary-deployer)  
 [Estuary testrunner](https://github.com/dinuta/estuary-testrunner)  

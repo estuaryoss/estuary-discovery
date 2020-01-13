@@ -9,8 +9,9 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 class ThreadUtils:
-    def __init__(self, apps):
+    def __init__(self, apps, headers=dict()):
         self.apps = apps
+        self.headers = headers
         self.response_list = []
 
     def get_threads_response(self):
@@ -23,7 +24,7 @@ class ThreadUtils:
         request_object = {
             "uri": "test",
             "method": 'GET',
-            "headers": {"Content-Type": "application/json"},
+            "headers": self.headers,  # forward headers if set like X-Request-ID or Token
             "data": ""
         }
 
@@ -46,7 +47,7 @@ class ThreadUtils:
         request_object = {
             "uri": "deployments",
             "method": 'GET',
-            "headers": {"Content-Type": "application/json"},
+            "headers": self.headers,
             "data": ""
         }
 

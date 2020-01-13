@@ -52,6 +52,11 @@ paths:
       summary: Print env vars
       produces:
         - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       responses:
         200:
           description: List of env vars in key value pairs
@@ -63,6 +68,10 @@ paths:
       produces:
         - application/json
       parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       - name: env_name
         in: path
         description: The name of the env var wanted
@@ -80,6 +89,11 @@ paths:
       summary: Ping endpoint which replies with pong
       produces:
         - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       responses:
         200:
           description: Ping endpoint which replies with pong. Useful for checking alive status
@@ -103,16 +117,20 @@ paths:
         - application/json
         - text/plain
       parameters:
-        - name: template
-          in: path
-          description: The template file
-          required: true
-          type: string
-        - name: variables
-          in: path
-          description: The variables file
-          required: true
-          type: string
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: template
+        in: path
+        description: The template file
+        required: true
+        type: string
+      - name: variables
+        in: path
+        description: The variables file
+        required: true
+        type: string
       responses:
         200:
           description: jinja2 rendered template success
@@ -129,22 +147,26 @@ paths:
         - application/json
         - text/plain
       parameters:
-        - name: template
-          in: path
-          description: Template file
-          required: true
-          type: string
-        - name: variables
-          in: path
-          description: Variables file
-          required: true
-          type: string
-        - name: EnvVars
-          in: body
-          description: List of env vars by key-value pair
-          required: false
-          schema:
-            $ref: '#/definitions/envvar'
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: template
+        in: path
+        description: Template file
+        required: true
+        type: string
+      - name: variables
+        in: path
+        description: Variables file
+        required: true
+        type: string
+      - name: EnvVars
+        in: body
+        description: List of env vars by key-value pair
+        required: false
+        schema:
+          $ref: '#/definitions/envvar'
       responses:
         200:
           description: jinja2 rendered template success
@@ -157,6 +179,11 @@ paths:
       summary: Gets all apps registered with Eureka.
       produces:
         - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       responses:
         200:
           description: Get apps success
@@ -170,11 +197,15 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: type
-          in: path
-          description: All apps of a certain type. E.g deployer/testrunner/discovery/whatever. Returns empty list if nothing found.
-          required: true
-          type: string
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: type
+        in: path
+        description: All apps of a certain type. E.g deployer/testrunner/discovery/whatever. Returns empty list if nothing found.
+        required: true
+        type: string
       responses:
         200:
           description: Get apps success
@@ -187,6 +218,11 @@ paths:
       summary: Gets all deployments accross all estuary-deployer services.
       produces:
         - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       responses:
         200:
           description: Get deployments success
@@ -199,6 +235,11 @@ paths:
       summary: Gets all tests accross all estuary-testrunners services.
       produces:
         - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
       responses:
         200:
           description: Get tests success
@@ -212,16 +253,20 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: testrunner_uri
-          in: path
-          description: Broadcasts the request to the testrunner. E.g. /ping. 
-          required: true
-          type: string
-        - name: IpAddr-Port
-          in: header
-          description: The ipAddr:port of the testrunner unicast target, in this format with colon. If not used, then the request will be broadcast.
-          required: false
-          type: string
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: testrunner_uri
+        in: path
+        description: Broadcasts the request to the testrunner. E.g. /ping. 
+        required: true
+        type: string
+      - name: IpAddr-Port
+        in: header
+        description: The ipAddr:port of the testrunner unicast target, in this format with colon. If not used, then the request will be broadcast.
+        required: false
+        type: string
       responses:
         200:
           description: Aggregated response from the testrunners, success
