@@ -1,107 +1,157 @@
-language: python
 dist: xenial
-
-python:
-  - "3.6"
-
-services:
-  - docker
-
-deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file: "main-linux"
-  skip_cleanup: true
-  on:
-    tags: true
+language: python
+python: 3.6
+script: skip
+os: linux
 
 env:
-  #scripts dir host and docker
-  SCRIPTS_DIR: tests
+  NGROK_TOKEN: 1RER6BUC3QNNwYWY5LcIBjrv3A8_24QccmopTEQJGMErG9uzw
 
-  #server on host
-  SERVER: "localhost:8080"
+jobs:
+  include:
+    - stage: test
+    #run unit tests for render
+    - language: python
+      python: 3.6
+      env:
+        TEMPLATES_DIR: inputs/templates
+        VARS_DIR: inputs/variables
+        SCRIPTS_DIR: tests
+        ISOLATED: true
+      before_install:
+        - pip3 install -r requirements.txt
+        - pip3 install coveralls
+      before_script:
+        - py.test $SCRIPTS_DIR/render_test.py --cov=entities
+      script:
+        - python3 -m unittest discover $SCRIPTS_DIR "render_test.py"
+      after_script:
+        - coveralls
 
-  # unit tests env vars and flask app as cli (the last tests)
-  TEMPLATES_DIR: inputs/templates
-  VARS_DIR: inputs/variables
+      #run self contained flask app
+    - language: python
+      python: 3.6
+      env:
+        TEMPLATES_DIR: inputs/templates
+        VARS_DIR: inputs/variables
+        SCRIPTS_DIR: tests
+        ISOLATED: true
+      before_install:
+        - pip3 install -r requirements.txt
+      before_script:
+        - pyinstaller --onefile main_flask.py
+        - ls -lrt dist
+        - cp dist/main_flask main-linux
+        - chmod +x main-linux
+        - sudo chown -R travis:travis inputs
+        - ./main-linux > /dev/null 2>&1 &
+        - ls -lrt
+        - sleep 5
+        #  - ./ngrok.sh
+        #  - sleep 3600
+        - ls -lrt /tmp
+        - ps -ef
+      script:
+        - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
 
-before_install:
-  - docker build -t dinutac/estuary-discovery:latest .
-  - docker run
-    -d
-    -p 8080:8080
-    --name estuary-discovery
-    dinutac/estuary-discovery:latest
+    #run jinja2 templating tests
+    - language: python
+      python: 3.6
+      services: docker
+      env:
+        ISOLATED: true
+        SCRIPTS_DIR: tests
+      before_script:
+        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+      script:
+        - docker run -i
+          -v $TRAVIS_BUILD_DIR/inputs/templates:/data
+          -v $TRAVIS_BUILD_DIR/inputs/variables:/variables  -e TEMPLATE=standalone.yml
+          -e VARIABLES=variables.yml -e DATABASE=mysql56 -e IMAGE=latest
+          --entrypoint python3 dinutac/estuary-discovery:latest /home/dev/scripts/main.py
 
-install:
-  - pip install -r requirements.txt
+        - docker run --entrypoint jinja2
+          -v $TRAVIS_BUILD_DIR/inputs/templates:/data
+          -v $TRAVIS_BUILD_DIR/inputs/variables:/variables
+          dinutac/estuary-discovery:latest
+          /data/json.j2 /variables/json.json --format=json
 
-before_script:
-  - py.test $SCRIPTS_DIR/render_test.py --cov=entities
+    #run eureka registration tests
+    - language: python
+      python: 3.6
+      services: docker
+      env:
+        ISOLATED: true
+        SCRIPTS_DIR: tests
+      before_script:
+        - docker-compose pull
+        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+        - docker-compose up -d
+      script:
+        - sleep 70
+        - docker ps
+        #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
+        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
+        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
+        - docker exec -ti estuary-discovery bash -c "
+          curl -i
+          --request POST 'http://estuary-testrunner:8080/test/100'
+          --header 'Accept:application/json'
+          --header 'Content-Type:text/plain'
+          --data 'sleep 3600'"
+        - docker exec -ti estuary-discovery bash -c "
+          curl -i
+          --request POST 'http://estuary-testrunner2:8080/test/200'
+          --header 'Accept:application/json'
+          --header 'Content-Type:text/plain'
+          --data 'sleep 3600'"
+        - sleep 20 #wait until deployments are up and running
+        - docker ps
+        - docker exec estuary-discovery python3 -m unittest discover /home/dev/scripts/tests/rest_eureka "*_test.py"
 
-script:
-  - python3 -m unittest discover $SCRIPTS_DIR "*_test.py"
-  #  - python -m unittest discover tests/rest "*_test.py"
-  - docker exec estuary-discovery python3 -m unittest discover /home/dev/scripts "render_test.py"
-  - docker stop estuary-discovery
-  - docker rm estuary-discovery
+    #run docker tests
+    - language: python
+      python: 3.6
+      services: docker
+      env:
+        ISOLATED: true
+        SCRIPTS_DIR: tests
+      before_script:
+        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+      script:
+        - docker run -d -p 8080:8080  dinutac/estuary-discovery:latest
 
-  #run eureka registration tests
-  - docker-compose pull
-  - docker build -t dinutac/estuary-discovery:latest .
-  - docker-compose up -d
-  - sleep 70
-  - docker ps
-  #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
-  - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
-  - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
-  - docker exec -ti estuary-discovery bash -c "
-    curl -i
-    --request POST 'http://estuary-testrunner:8080/test/100'
-    --header 'Accept:application/json'
-    --header 'Content-Type:text/plain'
-    --data 'sleep 3600'"
-  - docker exec -ti estuary-discovery bash -c "
-    curl -i
-    --request POST 'http://estuary-testrunner2:8080/test/200'
-    --header 'Accept:application/json'
-    --header 'Content-Type:text/plain'
-    --data 'sleep 3600'"
-  - sleep 20 #wait until deployments are up and running
-  - docker ps
-  - docker exec estuary-discovery python3 -m unittest discover /home/dev/scripts/tests/rest_eureka "*_test.py"
-  - docker-compose down -v
-
-  #run self contained flask app tests
-  - pyinstaller --onefile main_flask.py
-  - ls -lrt dist
-  - cp dist/main_flask main-linux
-  - chmod +x main-linux
-  - sudo chown -R travis:travis inputs
-  - ./main-linux > /dev/null 2>&1 &
-  - ls -lrt
-  - sleep 5
-  #  - ./ngrok.sh
-  #  - sleep 3600
-  - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
-  - ls -lrt /tmp
-  - ps -ef
-
-  #run jinja2 render tests
-  - docker run -i
-    -v $TRAVIS_BUILD_DIR/inputs/templates:/data
-    -v $TRAVIS_BUILD_DIR/inputs/variables:/variables  -e TEMPLATE=standalone.yml
-    -e VARIABLES=variables.yml -e DATABASE=mysql56 -e IMAGE=latest
-    --entrypoint python3 dinutac/estuary-discovery:latest /home/dev/scripts/main.py
-
-  - docker run --entrypoint jinja2
-    -v $TRAVIS_BUILD_DIR/inputs/templates:/data
-    -v $TRAVIS_BUILD_DIR/inputs/variables:/variables
-    dinutac/estuary-discovery:latest
-    /data/json.j2 /variables/json.json --format=json
-
-after_success:
-  - coveralls
+        - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
 
 
+    - stage: deploy
+      services: docker
+      before_deploy:
+        - pip3 install -r requirements.txt
+        - pyinstaller --onefile main_flask.py
+        - ls -lrt dist
+        - cp dist/main_flask main-linux
+        - ls -lrt
+        - rm -rf dist
+        - rm -rf build
+        - chmod +x *.sh
+      deploy:
+        - provider: script
+          script: bash docker_push_tag.sh
+          cleanup: false
+          on:
+            tags: true
+
+        - provider: script
+          script: bash docker_push_master.sh
+          cleanup: false
+          on:
+            branch: master
+
+        - provider: releases
+          token: $GITHUB_TOKEN
+          file:
+            - "main-linux"
+          cleanup: false
+          on:
+            tags: true

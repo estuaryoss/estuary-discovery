@@ -36,12 +36,10 @@ VOLUME ["/data"]
 VOLUME ["/variables"]
 
 ENV TEMPLATES_DIR /data
-ENV TEMPLATES_DIR_TR /data_tr
 ENV HTTP_AUTH_TOKEN None
 ENV PORT 8080
 
 ENV VARS_DIR /variables
-ENV VARS_DIR_TR /variables_tr
 
 ENV SCRIPTS_DIR /home/dev/scripts
 ENV OUT_DIR out

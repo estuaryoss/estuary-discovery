@@ -4,16 +4,22 @@ Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img s
 
 # Testing as a Service
 ## Estuary discovery
-Estuary discovery service. Aggregator of the estuary-stack.
+Estuary discovery service. Aggregator of the estuary-stack. 
+-   Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself), or others  
+-   Reads the tests from estuary-testrunner(s) registered in Eureka  
+-   Reads the deployments from estuary-deployer(s) registered in Eureka.  
+-   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the testrunners  
 
-1.  Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself), or others
-2.  Reads the tests from estuary-testrunner(s) registered in Eureka
-3.  Reads the deployments from estuary-deployer(s) registered in Eureka.
-
-## Build & Coverage
-[![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)
+## Coverage & code quality
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-discovery?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/30ef547718d54f7485e57a5da936c557)](https://www.codacy.com/manual/dinuta/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dinuta/estuary-discovery&amp;utm_campaign=Badge_Grade)
+
+## Linux status
+[![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)
+
+## Windows status
+[![CircleCI](https://circleci.com/gh/dinuta/estuary-discovery.svg?style=svg)](https://circleci.com/gh/dinuta/estuary-discovery)
+
 ## Docker Hub
 [![](https://images.microbadger.com/badges/image/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own image badge on microbadger.com")[![](https://images.microbadger.com/badges/version/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own version badge on microbadger.com")![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
@@ -31,10 +37,10 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
  ```
 
 ## Use cases
-1.  Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
-2.  L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
-3.  Rapid listing of apps registered with Eureka.
-4.  Integrations
+-   Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
+-   L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
+-   Rapid listing of apps registered with Eureka.
+-   Other integrations
 
 ## Service run
 

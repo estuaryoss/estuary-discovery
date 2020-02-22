@@ -26,7 +26,7 @@ info:
   description: |
     This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
     manage test sessions by communicating with estuary testrunners.
-  version: "4.0.1"
+  version: "4.0.2"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
