@@ -20,7 +20,7 @@ spec:
         - name: estuary-discovery
           image: dinutac/estuary-discovery:latest
 #          imagePullPolicy: Never
-          command: ["bash", "-c", "sleep 30 && /home/dev/scripts/main_flask.py"] #wait until eureka up
+          command: ["bash", "-c", "sleep 30 && /scripts/main_flask.py"] #wait until eureka up
           env:
             - name: EUREKA_SERVER
               value: "http://netflixoss-eureka:8080/eureka/v2"
