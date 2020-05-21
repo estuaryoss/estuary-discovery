@@ -1,7 +1,15 @@
 FROM alpine:3.11
 
 RUN apk add --no-cache python3 bash curl && \
-    pip3 install --upgrade pip==20.1 setuptools==46.2.0 --no-cache
+    pip3 install --upgrade pip==20.1.1 setuptools==46.2.0 --no-cache
+
+RUN apk add --no-cache \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    gcc \
+    libc-dev \
+    make
 
 ## Cleanup
 RUN rm -rf /var/cache/apk/*
@@ -32,11 +40,12 @@ COPY ./ $SCRIPTS_DIR/
 COPY ./inputs/templates/ $TEMPLATES_DIR/
 COPY ./inputs/variables/ $VARS_DIR/
 
-RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
-
 RUN chmod +x $SCRIPTS_DIR/*.py
 RUN chmod +x $SCRIPTS_DIR/*.sh
 
-WORKDIR /data
+WORKDIR $SCRIPTS_DIR
 
-CMD ["python3", "/scripts/main_flask.py"]
+RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
+RUN pip3 install uwsgi
+
+CMD ["uwsgi", "/scripts/flaskconfig.ini"]
