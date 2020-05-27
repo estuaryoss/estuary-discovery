@@ -13,6 +13,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 ## Coverage & code quality
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-discovery?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/30ef547718d54f7485e57a5da936c557)](https://www.codacy.com/manual/dinuta/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dinuta/estuary-discovery&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/b01d63081ceea125033b/maintainability)](https://codeclimate.com/github/dinuta/estuary-discovery/maintainability)
 
 ## Linux status
 [![Build Status](https://travis-ci.org/dinuta/estuary-discovery.svg?branch=master)](https://travis-ci.org/dinuta/estuary-discovery)

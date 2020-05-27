@@ -81,6 +81,7 @@ jobs:
         - docker-compose pull
         - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
         - docker-compose up -d
+        - docker pull alpine:3.9.4
       script:
         - sleep 70
         - docker ps
@@ -99,7 +100,7 @@ jobs:
           --header 'Accept:application/json'
           --header 'Content-Type:text/plain'
           --data 'sleep 3600'"
-        - sleep 20 #wait until deployments are up and running
+        - sleep 30 # wait until deployments are up and running
         - docker ps
         - docker exec estuary-discovery python3 -m unittest discover /scripts/tests/rest_eureka "*_test.py"
 

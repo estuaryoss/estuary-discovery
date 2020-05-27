@@ -13,8 +13,9 @@ from rest.api import create_app
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
 from rest.api.apiresponsehelpers.http_response import HttpResponse
-from rest.api.definitions import swagger_file_content, unmodifiable_env_vars
+from rest.api.definitions import unmodifiable_env_vars
 from rest.api.logginghelpers.message_dumper import MessageDumper
+from rest.api.swagger import swagger_file_content
 from rest.utils.eureka_utils import EurekaUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.thread_utils import ThreadUtils
@@ -38,7 +39,7 @@ def before_request():
                               request.headers.get('X-Request-ID') if request.headers.get('X-Request-ID') else ctx.g.xid)
     message_dumper.set_header("Request-Uri", request_uri)
 
-    response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(request=request))
+    response = fluentd_utils.emit(tag="api", msg=message_dumper.dump(request=request))
     app.logger.debug(response)
     if not str(request.headers.get("Token")) == str(os.environ.get("HTTP_AUTH_TOKEN")):
         if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri):  # exclude swagger
@@ -62,7 +63,7 @@ def after_request(http_response):
     except:
         app.logger.debug("Message was not altered: " + message_dumper.dump(http_response))
 
-    response = fluentd_utils.debug(tag="api", msg=message_dumper.dump(http_response))
+    response = fluentd_utils.emit(tag="api", msg=message_dumper.dump(http_response))
     app.logger.debug(response)
 
     return http_response

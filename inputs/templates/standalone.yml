@@ -22,7 +22,7 @@ services:
     container_name: server1
     image: docker.swf-artifactory.lab.com/home_company/server:{{environ('IMAGE')}}
     hostname: server1
-    command: -w {{environ('DATABASE')}}:{{database.expose[0] | int | safe | trim}} --debug --before /init/before.sh --after /init/after.sh  --after "sudo /usr/sbin/sshd -D &"
+    command: -w {{environ('DATABASE')}}:{{database.expose[0] | int | safe | trim}} --emit --before /init/before.sh --after /init/after.sh  --after "sudo /usr/sbin/sshd -D &"
     environment:
       LicenseFile: /license/license.xml
       appSharedDirectory: /shared
