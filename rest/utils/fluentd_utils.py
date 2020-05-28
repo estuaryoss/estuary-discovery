@@ -3,6 +3,7 @@ import os
 import platform
 
 from about import properties
+from rest.utils.env_startup import EnvStartup
 
 
 class FluentdUtils:
@@ -20,7 +21,7 @@ class FluentdUtils:
     def __enrichlog(level_code, msg):
         return {
             "name": properties.get('name'),
-            "port": os.environ.get('PORT') if os.environ.get('PORT') else properties.get('port'),
+            "port": EnvStartup.get_instance().get("port"),
             "version": properties.get('version'),
             "uname": list(platform.uname()),
             "python": platform.python_version(),
@@ -31,7 +32,7 @@ class FluentdUtils:
         }
 
     def __send(self, tag, msg):
-        if os.environ.get('FLUENTD_IP_PORT'):
+        if EnvStartup.get_instance().get("fluentd_ip_port"):
             return str(self.logger.emit(tag, msg)).lower()
 
         return "fluentd logging not enabled"

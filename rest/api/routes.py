@@ -16,13 +16,17 @@ from rest.api.apiresponsehelpers.http_response import HttpResponse
 from rest.api.definitions import unmodifiable_env_vars
 from rest.api.logginghelpers.message_dumper import MessageDumper
 from rest.api.swagger import swagger_file_content
+from rest.utils.env_startup import EnvStartup
 from rest.utils.eureka_utils import EurekaUtils
 from rest.utils.fluentd_utils import FluentdUtils
 from rest.utils.thread_utils import ThreadUtils
 
 app = create_app()
-logger = sender.FluentSender(properties.get('name'), host=properties["fluentd_ip"],
-                             port=int(properties["fluentd_port"]))
+logger = \
+    sender.FluentSender(tag=properties.get('name'),
+                        host=EnvStartup.get_instance().get("fluentd_ip_port").split(":")[0],
+                        port=int(EnvStartup.get_instance().get("fluentd_ip_port").split(":")[1])) \
+        if EnvStartup.get_instance().get("fluentd_ip_port") else None
 fluentd_utils = FluentdUtils(logger)
 message_dumper = MessageDumper()
 
@@ -41,7 +45,7 @@ def before_request():
 
     response = fluentd_utils.emit(tag="api", msg=message_dumper.dump(request=request))
     app.logger.debug(response)
-    if not str(request.headers.get("Token")) == str(os.environ.get("HTTP_AUTH_TOKEN")):
+    if not str(request.headers.get("Token")) == str(EnvStartup.get_instance().get("http_auth_token")):
         if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri):  # exclude swagger
             headers = {
                 'X-Request-ID': message_dumper.get_header("X-Request-ID")
@@ -147,7 +151,7 @@ def get_env(name):
 @app.route('/eurekaapps', methods=['GET'])
 def get_eureka_apps():
     http = HttpResponse()
-    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
+    eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
 
     try:
         apps_list = eureka_utils.get_eureka_apps()
@@ -168,7 +172,7 @@ def get_eureka_apps():
 def get_type_eureka_apps(type):
     http = HttpResponse()
     type = type.strip()
-    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
+    eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
 
     try:
         apps_list = eureka_utils.get_type_eureka_apps(type)
@@ -190,7 +194,7 @@ def get_type_eureka_apps(type):
 def get_tests():
     http = HttpResponse()
     application = "testrunner"
-    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
+    eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
 
     try:
         testrunner_apps = eureka_utils.get_type_eureka_apps(application)
@@ -216,7 +220,7 @@ def get_tests():
 def get_deployments():
     http = HttpResponse()
     application = "deployer"
-    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
+    eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
 
     try:
         deployer_apps = eureka_utils.get_type_eureka_apps(application)
@@ -242,7 +246,7 @@ def get_deployments():
 def testrunners_request(text):
     text = text.strip()
     http = HttpResponse()
-    eureka_utils = EurekaUtils(os.environ.get('EUREKA_SERVER'))
+    eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
     header_key = 'IpAddr-Port'  # target specific testrunner
     application = "testrunner"
     try:

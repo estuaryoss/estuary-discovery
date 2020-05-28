@@ -55,13 +55,13 @@ Start Eureka server with docker:
 
     docker run -p 8080:8080 netflixoss/eureka:1.3.1
     or
-    docker run -p 8080:8080 dinutac/netflixoss-eureka:1.9.15
+    docker run -p 8080:8080 dinutac/netflixoss-eureka:1.9.21
 
 Start your container by specifying the eureka server in order to discover all other apps.  
 Optionally you can set PORT environment variable (default=8080).  
 
     docker run \
-    -e EUREKA_SERVER=http://10.10.15.25:8080/eureka/v2
+    -e EUREKA_SERVER=http://10.10.15.30:8080/eureka/v2
     -e APP_IP_PORT=10.10.15.25:8081
     -p 8081:8080
     dinutac/estuary-discovery:<tag>

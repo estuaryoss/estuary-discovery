@@ -6,7 +6,7 @@ services:
     image: dinutac/estuary-discovery:latest
     hostname: estuary-discovery
 #    entrypoint: tail -f /etc/alpine-release
-    command: bash -c "sleep 30 && python3 /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
 #      FLUENTD_IP_PORT: 192.168.100.12:24224
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
@@ -21,7 +21,7 @@ services:
     image: dinutac/estuary-testrunner:latest
     hostname: estuary-testrunner
     #    entrypoint: tail -f /etc/alpine-release
-    command: bash -c "sleep 30 && python3 /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
       limit: 'sky' #example env var inserted. you can read it with environ('limit') in your jinja2 template
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
@@ -33,7 +33,7 @@ services:
     image: dinutac/estuary-testrunner:latest
     hostname: estuary-testrunner2
     #    entrypoint: tail -f /etc/alpine-release
-    command: bash -c "sleep 30 && python3 /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
       limit: 'sky' #example env var inserted. you can read it with environ('limit') in your jinja2 template
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
@@ -54,14 +54,14 @@ services:
       #      APP_APPEND_ID: SR # this suffix will be added to the deployer service in order to differentiate between different services mapped on VM with specific resources
       APP_IP_PORT: "estuary-deployer:8080" #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
     #    entrypoint: python3 /scripts/main_flask.py
-    command: bash -c "sleep 30 && python3 /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /scripts/main_flask.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # works on win also as long as you don't enable tcp daemon on 2375/2376
     expose:
       - "8080"
 
   eureka-server:
-    image: dinutac/netflixoss-eureka:1.9.15
+    image: dinutac/netflixoss-eureka:1.9.21
     hostname: eureka-server
 #    ports:
 #      - "8080:8080"
