@@ -1,6 +1,5 @@
 import json
 import os
-import traceback
 from secrets import token_hex
 
 from flask import Response
@@ -36,7 +35,7 @@ def before_request():
     ctx = app.app_context()
     ctx.g.xid = token_hex(8)
     http = HttpResponse()
-    request_uri = request.environ.get("REQUEST_URI")
+    request_uri = request.full_path
 
     # add here your custom header to be logged with fluentd
     message_dumper.set_header("X-Request-ID",
@@ -50,10 +49,9 @@ def before_request():
             headers = {
                 'X-Request-ID': message_dumper.get_header("X-Request-ID")
             }
-            return Response(json.dumps(http.failure(Constants.UNAUTHORIZED,
-                                                    ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED),
-                                                    "Invalid Token",
-                                                    str(traceback.format_exc()))), 401, mimetype="application/json",
+            return Response(json.dumps(http.response(Constants.UNAUTHORIZED,
+                                                     ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED),
+                                                     "Invalid Token")), 401, mimetype="application/json",
                             headers=headers)
 
 
@@ -82,7 +80,7 @@ def get_swagger():
 def ping():
     http = HttpResponse()
 
-    return Response(json.dumps(http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), "pong")),
+    return Response(json.dumps(http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), "pong")),
                     200, mimetype="application/json")
 
 
@@ -91,7 +89,7 @@ def about():
     http = HttpResponse()
 
     return Response(json.dumps(
-        http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), properties["name"])), 200,
+        http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), properties["name"])), 200,
         mimetype="application/json")
 
 
@@ -112,20 +110,20 @@ def get_content_with_env(template, variables):
     try:
         r = Render(os.environ['TEMPLATE'], os.environ['VARIABLES'])
         response = Response(r.rend_template(), 200, mimetype="text/plain")
-        # response = http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), result), 200
+        # response = http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), result), 200
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.JINJA2_RENDER_FAILURE,
-                                                    ErrorCodes.HTTP_CODE.get(Constants.JINJA2_RENDER_FAILURE), result,
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+        response = Response(json.dumps(
+            http.response(Constants.JINJA2_RENDER_FAILURE, ErrorCodes.HTTP_CODE.get(Constants.JINJA2_RENDER_FAILURE),
+                          result)), 404, mimetype="application/json")
 
     return response
 
 
 @app.route('/env')
 def get_vars():
-    http_response = HttpResponse.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
-                                         dict(os.environ))
+    http_response = HttpResponse.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
+                                          dict(os.environ))
 
     return Response(json.dumps(http_response), 200, mimetype="application/json")
 
@@ -136,15 +134,14 @@ def get_env(name):
     http = HttpResponse()
     try:
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), os.environ[name])), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), os.environ[name])), 200,
             mimetype="application/json")
     except Exception as e:
         result = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.GET_CONTAINER_ENV_VAR_FAILURE,
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.GET_CONTAINER_ENV_VAR_FAILURE) % name,
-                                                    result,
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+        response = Response(json.dumps(http.response(Constants.GET_CONTAINER_ENV_VAR_FAILURE,
+                                                     ErrorCodes.HTTP_CODE.get(
+                                                         Constants.GET_CONTAINER_ENV_VAR_FAILURE) % name,
+                                                     result)), 404, mimetype="application/json")
     return response
 
 
@@ -156,15 +153,14 @@ def get_eureka_apps():
     try:
         apps_list = eureka_utils.get_eureka_apps()
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
-                                                    ErrorCodes.HTTP_CODE.get(
-                                                        Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
-                                                    exception,
-                                                    str(traceback.format_exc()))), 404, mimetype="application/json")
+        response = Response(json.dumps(http.response(Constants.GET_EUREKA_APPS_FAILED,
+                                                     ErrorCodes.HTTP_CODE.get(
+                                                         Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
+                                                     exception)), 404, mimetype="application/json")
     return response
 
 
@@ -177,15 +173,14 @@ def get_type_eureka_apps(type):
     try:
         apps_list = eureka_utils.get_type_eureka_apps(type)
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(Constants.GET_EUREKA_APPS_FAILED,
-                                                ErrorCodes.HTTP_CODE.get(
-                                                    Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+        return Response(json.dumps(http.response(Constants.GET_EUREKA_APPS_FAILED,
+                                                 ErrorCodes.HTTP_CODE.get(
+                                                     Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
+                                                 exception)), 404, mimetype="application/json")
     return response
 
 
@@ -202,15 +197,14 @@ def get_tests():
         thread_utils.spawn_threads_get_test_info()
         tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), tests)), 200,
             mimetype="application/json")
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(Constants.GET_TESTS_FAILED,
-                                                ErrorCodes.HTTP_CODE.get(
-                                                    Constants.GET_TESTS_FAILED),
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+        return Response(json.dumps(http.response(Constants.GET_TESTS_FAILED,
+                                                 ErrorCodes.HTTP_CODE.get(
+                                                     Constants.GET_TESTS_FAILED),
+                                                 exception)), 404, mimetype="application/json")
 
     return response
 
@@ -228,15 +222,14 @@ def get_deployments():
         thread_utils.spawn_threads_get_deployment_info()
         deployments = thread_utils.get_threads_response()
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), deployments)), 200,
             mimetype="application/json")
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        return Response(json.dumps(http.failure(Constants.GET_DEPLOYMENTS_FAILED,
-                                                ErrorCodes.HTTP_CODE.get(
-                                                    Constants.GET_DEPLOYMENTS_FAILED),
-                                                exception,
-                                                str(traceback.format_exc()))), 404, mimetype="application/json")
+        return Response(json.dumps(http.response(Constants.GET_DEPLOYMENTS_FAILED,
+                                                 ErrorCodes.HTTP_CODE.get(
+                                                     Constants.GET_DEPLOYMENTS_FAILED),
+                                                 exception)), 404, mimetype="application/json")
 
     return response
 
@@ -271,14 +264,13 @@ def testrunners_request(text):
         thread_utils.spawn_threads_send_testrunner_request(request_object)
 
         response = Response(json.dumps(
-            http.success(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
-                         thread_utils.get_threads_response())), 200,
+            http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),
+                          thread_utils.get_threads_response())), 200,
             mimetype="application/json")
 
     except Exception as e:
         exception = "Exception({0})".format(e.__str__())
-        response = Response(json.dumps(http.failure(Constants.DISCOVERY_ERROR,
-                                                    ErrorCodes.HTTP_CODE.get(Constants.DISCOVERY_ERROR),
-                                                    exception,
-                                                    exception)), 404, mimetype="application/json")
+        response = Response(json.dumps(http.response(Constants.DISCOVERY_ERROR,
+                                                     ErrorCodes.HTTP_CODE.get(Constants.DISCOVERY_ERROR),
+                                                     exception)), 404, mimetype="application/json")
     return response

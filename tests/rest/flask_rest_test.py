@@ -17,7 +17,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.0.3"
+    expected_version = "4.0.6"
     cleanup_count_safe = 5
 
     def test_env_endpoint(self):
@@ -25,10 +25,10 @@ class FlaskServerTestCase(unittest.TestCase):
 
         body = json.loads(response.text)
         self.assertEqual(response.status_code, 200)
-        self.assertGreaterEqual(len(body.get('message')), 7)
-        # self.assertIsNotNone(body.get('message')["VARS_DIR"])
-        # self.assertIsNotNone(body.get('message')["TEMPLATES_DIR"])
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertGreaterEqual(len(body.get('description')), 7)
+        # self.assertIsNotNone(body.get('description)["VARS_DIR"])
+        # self.assertIsNotNone(body.get('description)["TEMPLATES_DIR"])
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -40,7 +40,7 @@ class FlaskServerTestCase(unittest.TestCase):
         headers = response.headers
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('message'), "pong")
+        self.assertEqual(body.get('description'), "pong")
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -52,8 +52,8 @@ class FlaskServerTestCase(unittest.TestCase):
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
-        self.assertIsNotNone(body.get('message'))
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertIsNotNone(body.get('description'))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -65,7 +65,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(body.get('description'),
+        self.assertEqual(body.get('message'),
                          ErrorCodes.HTTP_CODE.get(Constants.GET_CONTAINER_ENV_VAR_FAILURE) % env_var.upper())
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.GET_CONTAINER_ENV_VAR_FAILURE)
@@ -78,9 +78,9 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('message'), service_name)
+        self.assertEqual(body.get('description'), service_name)
         self.assertEqual(body.get('name'), service_name)
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -96,10 +96,9 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('message'), service_name)
-        self.assertEqual(body.get('message'), service_name)
+        self.assertEqual(body.get('description'), service_name)
         self.assertEqual(body.get('name'), service_name)
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -112,9 +111,9 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(body.get('message'), "Invalid Token")
+        self.assertEqual(body.get('description'), "Invalid Token")
         self.assertEqual(body.get('name'), service_name)
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
         self.assertIsNotNone(body.get('time'))
@@ -131,9 +130,9 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(body.get('message'), "Invalid Token")
+        self.assertEqual(body.get('description'), "Invalid Token")
         self.assertEqual(body.get('name'), service_name)
-        self.assertEqual(body.get('description'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
+        self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
         self.assertIsNotNone(body.get('time'))
@@ -178,8 +177,8 @@ class FlaskServerTestCase(unittest.TestCase):
 
         body = response.json()
         self.assertEqual(response.status_code, 404)
-        # self.assertEqual(expected, body.get("message"))
-        self.assertIn(expected, body.get("message"))
+        # self.assertEqual(expected, body.get("description"))
+        self.assertIn(expected, body.get("description"))
 
     @parameterized.expand([
         ("doesnotexists.j2", "json.json"),
@@ -192,7 +191,7 @@ class FlaskServerTestCase(unittest.TestCase):
 
         body = response.json()
         self.assertEqual(response.status_code, 404)
-        self.assertIn(expected, body.get("message"))
+        self.assertIn(expected, body.get("description"))
 
     @parameterized.expand([
         ("standalone.yml", "variables.yml")

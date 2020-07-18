@@ -57,7 +57,7 @@ paths:
         type: string
       responses:
         200:
-          description: Get env var success
+          description: Get env var response
         404:
           description: Get env var failure
   /ping:
@@ -111,7 +111,7 @@ paths:
         type: string
       responses:
         200:
-          description: jinja2 rendered template success
+          description: jinja2 rendered template response
         404:
           description: jinja2 rendered template failure
     post:
@@ -147,7 +147,7 @@ paths:
           $ref: '#/definitions/envvar'
       responses:
         200:
-          description: jinja2 rendered template success
+          description: jinja2 rendered template response
         404:
           description: jinja2 rendered template failure
   /eurekaapps:
@@ -164,7 +164,7 @@ paths:
         required: false
       responses:
         200:
-          description: Get apps success
+          description: Get apps response
         404:
           description: Get apps failure
   /eurekaapps/{type}:
@@ -186,7 +186,7 @@ paths:
         type: string
       responses:
         200:
-          description: Get apps success
+          description: Get apps response
         404:
           description: Get apps failure
   /deployments:
@@ -203,7 +203,7 @@ paths:
         required: false
       responses:
         200:
-          description: Get deployments success
+          description: Get deployments response
         404:
           description: Get deployments failure
   /tests:
@@ -220,7 +220,7 @@ paths:
         required: false
       responses:
         200:
-          description: Get tests success
+          description: Get tests response
         404:
           description: Get tests failure
   /testrunner/{testrunner_uri}:
@@ -247,7 +247,7 @@ paths:
         type: string
       responses:
         200:
-          description: Aggregated response from the testrunners, success
+          description: Aggregated response from the testrunners, response
         404:
           description: Aggregated response from the testrunners, failure
 definitions:

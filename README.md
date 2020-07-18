@@ -22,7 +22,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 [![CircleCI](https://circleci.com/gh/dinuta/estuary-discovery.svg?style=svg)](https://circleci.com/gh/dinuta/estuary-discovery)
 
 ## Docker Hub
-[![](https://images.microbadger.com/badges/image/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own image badge on microbadger.com")[![](https://images.microbadger.com/badges/version/dinutac/estuary-discovery.svg)](https://microbadger.com/images/dinutac/estuary-discovery "Get your own version badge on microbadger.com")![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
+[alpine](https://hub.docker.com/r/dinutac/estuary-discovery) ![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
 ## Api docs
 [Swagger](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.0.1)

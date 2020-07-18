@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.11.5
 
 RUN apk add --no-cache python3 bash curl && \
     pip3 install --upgrade pip==20.1.1 setuptools==46.2.0 --no-cache
