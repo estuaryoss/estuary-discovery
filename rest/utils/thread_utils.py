@@ -58,7 +58,7 @@ class ThreadUtils:
 
         try:
             response = self.send_http_request(app, request_object=request_object)
-            deployment_info = response.json().get('message')
+            deployment_info = response.json().get('description')
             for deployment in deployment_info:
                 deployment["homePageUrl"] = app.get('homePageUrl')
                 deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
