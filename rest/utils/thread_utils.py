@@ -3,6 +3,7 @@ import logging
 import threading
 
 import requests
+from requests_toolbelt.utils import dump
 
 from rest.api.apiresponsehelpers.constants import Constants
 from rest.api.apiresponsehelpers.error_codes import ErrorCodes
@@ -28,56 +29,73 @@ class ThreadUtils:
     def get_test_info(self, app):
         request_object = {
             "uri": "test",
-            "method": 'GET',
+            "method": "GET",
             "headers": self.headers,  # forward headers if set like X-Request-ID or Token
             "data": None
         }
 
-        try:
-            response = self.send_http_request(app, request_object=request_object)
-            test_info = response.json().get('description')
-            test_info["homePageUrl"] = app.get('homePageUrl')
-            test_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
-            self.response_list.append(test_info)
-        except:
-            self.response_list.append({"err": f"{request_object}"})
+        response = self.send_http_request(app, request_object=request_object)
+
+        if response.status_code == 200:
+            try:
+                test_info = response.json().get('description')
+                test_info["homePageUrl"] = app.get('homePageUrl')
+                test_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
+                self.response_list.append(test_info)
+            except:
+                self.response_list.append(str(dump.dump_all(response)))
+        else:
+            self.response_list.append(str(dump.dump_all(response)))
 
     def spawn_threads_get_test_info(self):
         threads = [threading.Thread(target=self.get_test_info, args=(app,)) for app in self.apps]
         for thread in threads:
             thread.start()
+        for thread in threads:
             thread.join()
 
     def get_request_get_deployment_info(self, app):
         request_object = {
             "uri": "docker/deployments",
-            "method": 'GET',
+            "method": "GET",
             "headers": self.headers,
             "data": None
         }
 
-        try:
-            response = self.send_http_request(app, request_object=request_object)
-            deployment_info = response.json().get('description')
-            for deployment in deployment_info:
-                deployment["homePageUrl"] = app.get('homePageUrl')
-                deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
-                self.response_list.append(deployment)
-        except:
-            self.response_list.append({"err": f"{request_object}"})
+        response = self.send_http_request(app, request_object=request_object)
+
+        if response.status_code == 200:
+            try:
+                deployment_info = response.json().get('description')
+                for deployment in deployment_info:
+                    deployment["homePageUrl"] = app.get('homePageUrl')
+                    deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
+                    self.response_list.append(deployment)
+            except:
+                self.response_list.append(str(dump.dump_all(response)))
+        else:
+            self.response_list.append(str(dump.dump_all(response)))
 
     def spawn_threads_get_deployment_info(self):
         threads = [threading.Thread(target=self.get_request_get_deployment_info, args=(app,)) for app in self.apps]
         for thread in threads:
             thread.start()
+        for thread in threads:
             thread.join()
 
     def send_http_request(self, app, request_object):
         http = HttpResponse()
+        logging.debug({"url": f'{self.get_url(app)}{request_object.get("uri")}',
+                       "method": request_object.get('method'),
+                       "headers": request_object.get("headers"),
+                       "data": request_object.get("data")})
+
         try:
-            response = requests.request(url=f'{self.get_url(app)}{request_object.get("uri")}',
-                                        method=request_object.get('method'), data=request_object.get('data'),
-                                        headers=request_object.get("headers"), timeout=5)
+            response = requests.request(method=request_object.get('method'),
+                                        url=f'{self.get_url(app)}{request_object.get("uri")}',
+                                        headers=request_object.get("headers"),
+                                        data=request_object.get('data'),
+                                        timeout=3)
         except Exception as e:
             exception = "Exception({})".format(e.__str__())
             response = requests.Response(

@@ -65,6 +65,7 @@ def after_request(http_response):
     except:
         app.logger.debug("Message was not altered: " + message_dumper.dump(http_response))
 
+    http_response.direct_passthrough = False
     response = fluentd_utils.emit(tag="api", msg=message_dumper.dump(http_response))
     app.logger.debug(response)
 
@@ -176,7 +177,7 @@ def get_type_eureka_apps(type):
             http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS), apps_list)), 200,
             mimetype="application/json")
     except Exception as e:
-        exception = "Exception({0})".format(e.__str__())
+        exception = "Exception({})".format(e.__str__())
         return Response(json.dumps(http.response(Constants.GET_EUREKA_APPS_FAILED,
                                                  ErrorCodes.HTTP_CODE.get(
                                                      Constants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),

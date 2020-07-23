@@ -44,11 +44,12 @@ jobs:
         - cp dist/main_flask main-linux
         - chmod +x main-linux
         - sudo chown -R travis:travis inputs
-        - ./main-linux > /dev/null 2>&1 &
+        - ./main-linux &
+#        - ./main-linux > /dev/null 2>&1 &
         - ls -lrt
         - sleep 5
-        #  - ./ngrok.sh
-        #  - sleep 3600
+#          - ./ngrok.sh
+#          - sleep 3600
         - ls -lrt /tmp
         - ps -ef
       script:
