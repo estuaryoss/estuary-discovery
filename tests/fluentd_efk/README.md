@@ -23,4 +23,4 @@ http://localhost:9200
 http://localhost:5601
 
 ## Elastic APM
-http:localhost:8200 
+http://localhost:8200 
