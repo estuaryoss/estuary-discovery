@@ -45,11 +45,11 @@ jobs:
         - chmod +x main-linux
         - sudo chown -R travis:travis inputs
         - ./main-linux &
-#        - ./main-linux > /dev/null 2>&1 &
+        #        - ./main-linux > /dev/null 2>&1 &
         - ls -lrt
         - sleep 5
-#          - ./ngrok.sh
-#          - sleep 3600
+        #          - ./ngrok.sh
+        #          - sleep 3600
         - ls -lrt /tmp
         - ps -ef
       script:
@@ -104,6 +104,30 @@ jobs:
         - sleep 40 # wait until deployments are up and running
         - docker ps
         - docker exec estuary-discovery python3 -m unittest discover /scripts/tests/rest_eureka "*_test.py"
+
+    #run fluentd EFK tests
+    - language: python
+      python: 3.6
+      services: docker
+      env:
+        ISOLATED: true
+        SCRIPTS_DIR: tests
+      before_script:
+        - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
+        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+        #        - sudo sysctl -w vm.max_map_count=262144
+        - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
+        - sleep 100 #wait until efk stack is up and running
+        - docker ps
+      script:
+        - curl -i http://localhost:8081/about #discovery
+        - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
+        - curl -i http://localhost:8082/about #testrunner
+        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #testrunner unauth
+        - sleep 30
+        - docker logs estuary-discovery
+        - docker logs estuary-testrunner
+        - python3 -m unittest discover $SCRIPTS_DIR/fluentd_efk "*_test.py"
 
     #run docker tests
     - language: python

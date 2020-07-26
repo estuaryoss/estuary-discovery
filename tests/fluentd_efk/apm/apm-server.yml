@@ -1,0 +1,13 @@
+output.elasticsearch.hosts: ["es01:9200"]
+apm-server.host: "0.0.0.0:8200"
+apm-server.kibana.enabled: true
+apm-server.kibana.host: "http://kib01:5601"
+setup.template.name: "apm-server"
+setup.template.pattern: "apm-*"
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/apm-server
+  name: apm-server
+  keepfiles: 7
+  permissions: 0644
