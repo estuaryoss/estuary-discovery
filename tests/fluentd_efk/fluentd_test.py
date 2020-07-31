@@ -12,7 +12,8 @@ class FluentdEFKTestCase(unittest.TestCase):
         # 2 messages each microservice boot
         # 8 messages api request-response
         # 3 fluentd booting
-        expected_no_of_ES_messages = 13
+        # 3 testrunner java (there is no boot message)
+        expected_no_of_ES_messages = 2 + (2 + 2 + 2 + 2) + (1 + 1 + 1) + (2 + 1)
         response = requests.get(self.server + "/fluentd*/_search?size=1000&&sort=@timestamp")
 
         body = response.json()
