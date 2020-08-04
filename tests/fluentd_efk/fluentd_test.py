@@ -9,11 +9,11 @@ class FluentdEFKTestCase(unittest.TestCase):
 
     def test_number_of_ES_messages(self):
         # total-3 estuary stack
-        # 2 messages each microservice boot
+        # 3 messages each microservice boot
         # 8 messages api request-response
         # 3 fluentd booting
-        # 3 testrunner java (there is no boot message)
-        expected_no_of_ES_messages = 2 + (2 + 2 + 2 + 2) + (1 + 1 + 1) + (2 + 1)
+        # 3 testrunner java
+        expected_no_of_ES_messages = (1 + 1 + 1) + (2 + 2 + 2 + 2) + (1 + 1 + 1) + (2 + 1)
         response = requests.get(self.server + "/fluentd*/_search?size=1000&&sort=@timestamp")
 
         body = response.json()
