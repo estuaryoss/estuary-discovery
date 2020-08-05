@@ -1,1 +1,1 @@
-Insert here your custom template, and mount it inside the test runner service container.
+Insert here your custom template, and mount it inside the agent service container.

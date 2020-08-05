@@ -5,10 +5,10 @@ Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img s
 # Testing as a Service
 ## Estuary discovery
 Estuary discovery service. Aggregator of the estuary-stack. 
--   Reads the estuary apps registered in Eureka: deployer, testrunner or discovery(itself), or others  
--   Reads the tests from estuary-testrunner(s) registered in Eureka  
+-   Reads the apps/services registered in Eureka  
+-   Reads the tests from estuary-agent(s) registered in Eureka  
 -   Reads the deployments from estuary-deployer(s) registered in Eureka.  
--   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the testrunners  
+-   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the agents  
 
 ## Coverage & code quality
 [![Coverage Status](https://coveralls.io/repos/github/dinuta/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/dinuta/estuary-discovery?branch=master)
@@ -39,7 +39,7 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 
 ## Use cases
 -   Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
--   L7 RESTApi broadcasts to the TestRunner services: start test/ get test status / get test results  
+-   L7 RESTApi broadcasts to the Agent: start test/ get test status / get test results  
 -   Rapid listing of apps registered with Eureka.
 -   Other integrations
 
@@ -111,11 +111,11 @@ Then, access the Http Api. Call example:
 ```shell script
 curl -i -H 'Token:mysecret' http:localhost:8080/about
 ```  
-Because discovery acts as an stack aggregator hitting testrunner or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
+Because discovery acts as an stack aggregator hitting agents or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
     
 ## Estuary stack
 [Estuary deployer](https://github.com/dinuta/estuary-deployer)  
-[Estuary testrunner](https://github.com/dinuta/estuary-testrunner)  
+[Estuary agent](https://github.com/dinuta/estuary-agent)  
 [Estuary discovery](https://github.com/dinuta/estuary-discovery)  
 [Estuary viewer](https://github.com/dinuta/estuary-viewer)  

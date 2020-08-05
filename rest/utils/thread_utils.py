@@ -106,7 +106,7 @@ class ThreadUtils:
 
         return response
 
-    def send_testrunner_request(self, app, request_object):
+    def send_agent_request(self, app, request_object):
         try:
             response = self.send_http_request(app, request_object=request_object).json()
         except:
@@ -114,8 +114,8 @@ class ThreadUtils:
 
         self.response_list.append(response)
 
-    def spawn_threads_send_testrunner_request(self, request_object):
-        threads = [threading.Thread(target=self.send_testrunner_request, args=(app, request_object,)) for app in
+    def spawn_threads_send_agent_request(self, request_object):
+        threads = [threading.Thread(target=self.send_agent_request, args=(app, request_object,)) for app in
                    self.apps]
         for thread in threads:
             thread.start()

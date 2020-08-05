@@ -3,8 +3,8 @@ swagger_file_content = '''
 info:
   description: |
     This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
-    manage test sessions by communicating with estuary testrunners.
-  version: "4.0.2"
+    manage test sessions by communicating with estuary agents.
+  version: "4.0.7"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
@@ -181,7 +181,7 @@ paths:
         required: false
       - name: type
         in: path
-        description: All apps of a certain type. E.g deployer/testrunner/discovery/whatever. Returns empty list if nothing found.
+        description: All apps of a certain type. E.g deployer/agent/discovery/whatever. Returns empty list if nothing found.
         required: true
         type: string
       responses:
@@ -210,7 +210,7 @@ paths:
     get:
       tags:
         - estuary-discovery
-      summary: Gets all tests accross all estuary-testrunners services.
+      summary: Gets all tests accross all estuary-agents services.
       produces:
         - application/json
       parameters:
@@ -223,11 +223,11 @@ paths:
           description: Get tests response
         404:
           description: Get tests failure
-  /testrunner/{testrunner_uri}:
+  /agents/{agent_uri}:
     get:
       tags:
         - estuary-discovery
-      summary: Broadcasts/Unicasts a request to the testrunners connected to same Eureka domain. Useful for getting test results, starting tests ...
+      summary: Broadcasts/Unicasts a request to the agents connected to same Eureka domain. Useful for getting test results, starting tests ...
       produces:
         - application/json
       parameters:
@@ -235,21 +235,21 @@ paths:
         name: Token
         type: string
         required: false
-      - name: testrunner_uri
+      - name: agent_uri
         in: path
-        description: Broadcasts the request to the testrunner. E.g. /ping. 
+        description: Broadcasts the request to the agent. E.g. /ping. 
         required: true
         type: string
       - name: IpAddr-Port
         in: header
-        description: The ipAddr:port of the testrunner unicast target, in this format with colon. If not used, then the request will be broadcast.
+        description: The ipAddr:port of the agent unicast target, in this format with colon. If not used, then the request will be broadcast.
         required: false
         type: string
       responses:
         200:
-          description: Aggregated response from the testrunners, response
+          description: Aggregated response from the agents, response
         404:
-          description: Aggregated response from the testrunners, failure
+          description: Aggregated response from the agents, failure
 definitions:
     envvar:
       type: object

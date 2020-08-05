@@ -12,7 +12,7 @@ class EstuaryStackApps:
 
     @staticmethod
     def get_supported_apps():
-        return ["estuary-testrunner", "estuary-deployer", "estuary-discovery"]
+        return ["estuary-agent", "estuary-deployer", "estuary-discovery"]
 
 
 class Constants:
@@ -60,11 +60,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     expected_version = "4.0.1"
     discovery_ip = "estuary-discovery"
     # discovery_ip = "localhost"
-    testrunner_ip = "estuary-testrunner"
+    agent_ip = "estuary-agent"
     deployer_ip = "estuary-deployer"
     server_port = "8080"  # all have 8080
     no_of_deployers = 1
-    no_of_testrunners = 2
+    no_of_agents = 2
     no_of_discovery = 1
 
     def test_eureka_registration(self):
@@ -80,9 +80,9 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')),
-                         3)  # its 3 because we have only 3 keys: deployer, testrunner, discovery
+                         3)  # its 3 because we have only 3 keys: deployer, agent, discovery
         self.assertEqual(len(body.get('description').get(self.discovery_ip)), 1)
-        self.assertEqual(len(body.get('description').get(self.testrunner_ip)), 2)
+        self.assertEqual(len(body.get('description').get(self.agent_ip)), 2)
         self.assertEqual(len(body.get('description').get(self.deployer_ip)), 1)
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("ipAddr"), self.discovery_ip)
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("port"), self.server_port)
@@ -93,30 +93,30 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          f"http://{self.discovery_ip}:{self.server_port}/ping")
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("healthCheckUrl"),
                          f"http://{self.discovery_ip}:{self.server_port}/ping")
-        self.assertIn(self.testrunner_ip, body.get('description').get(self.testrunner_ip)[0].get("ipAddr"))
-        self.assertEqual(body.get('description').get(self.testrunner_ip)[0].get("port"), self.server_port)
+        self.assertIn(self.agent_ip, body.get('description').get(self.agent_ip)[0].get("ipAddr"))
+        self.assertEqual(body.get('description').get(self.agent_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("ipAddr"), self.deployer_ip)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
-    def test_geteureka_apps_testrunner(self):
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-testrunner")
+    def test_geteureka_apps_agent(self):
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-agent")
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         # self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(len(body.get('description')), self.no_of_testrunners)
+        self.assertEqual(len(body.get('description')), self.no_of_agents)
         self.assertEqual(len(body.get('description')[0]), 6)
-        # self.assertEqual(body.get('description')[0].get("ipAddr"), self.testrunner_ip)
-        # self.assertEqual(body.get('description')[0].get("app"), self.testrunner_ip)
-        # self.assertEqual(body.get('description')[0].get("homePageUrl"), f"http://{self.testrunner_ip}:{self.server_port}/")
+        # self.assertEqual(body.get('description')[0].get("ipAddr"), self.agent_ip)
+        # self.assertEqual(body.get('description')[0].get("app"), self.agent_ip)
+        # self.assertEqual(body.get('description')[0].get("homePageUrl"), f"http://{self.agent_ip}:{self.server_port}/")
         # self.assertEqual(body.get('description')[0].get("healthCheckUrl"),
-        #                  f"http://{self.testrunner_ip}:{self.server_port}/ping")
+        #                  f"http://{self.agent_ip}:{self.server_port}/ping")
         # self.assertEqual(body.get('description')[0].get("statusPageUrl"),
-        #                  f"http://{self.testrunner_ip}:{self.server_port}/ping")
+        #                  f"http://{self.agent_ip}:{self.server_port}/ping")
         # self.assertEqual(body.get('description')[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
@@ -181,7 +181,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         }
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
         body = response.json()
-        expected_ip = "estuary-testrunner"
+        expected_ip = "estuary-agent"
         # print(dump.dump_all(response))
 
         self.assertEqual(response.status_code, 200)
@@ -252,14 +252,14 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps")
             self.assertEqual(response.status_code, 200)
         end = time.time()
-        print(f"made {repetitions} geteurekaapps repetitions in {end - start} s")
+        print(f"made {repetitions} get eureka apps repetitions in {end - start} s")
 
-    def test_gettestrunnersfile_missing_file_path_n(self):
+    def test_get_agents_file_missing_file_path_n(self):
         header_key = 'File-Path'
         headers = {
             'whatever': '100'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('description')[0].get('description'),
@@ -274,66 +274,66 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
-    def test_gettestrunnersfile_p(self):
+    def test_get_agents_file_p(self):
         headers = {
             'File-Path': '/etc/hostname'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
         self.assertGreater(len(body.get('description')[0]), 8)
         self.assertGreater(len(body.get('description')[1]), 8)
 
-    def test_gettestrunnersfile_file_not_found(self):
+    def test_get_agents_file_file_not_found(self):
         expected = f"Exception([Errno 2] No such file or directory:"
         headers = {
             'File-Path': '/dummy_path'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/file", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
         self.assertIn(expected, body.get('description')[0].get('description'))
         self.assertIn(expected, body.get('description')[1].get('description'))
 
-    def test_testrunner_teststart_broadcast_p(self):
+    def test_agent_teststart_broadcast_p(self):
         cmds = "ls -lrt\n"
         test_id = "100"
-        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id}",
+        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id}",
                                  data=cmds)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
         self.assertEqual(body.get('description')[0].get('description'), test_id)
         self.assertEqual(body.get('description')[1].get('description'), test_id)
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
         self.assertEqual(body.get('description')[0].get('description').get('id'), test_id)
         self.assertEqual(body.get('description')[1].get('description').get('id'), test_id)
 
-    def test_testrunner_teststart_unicast_p(self):
+    def test_agent_teststart_unicast_p(self):
         test_id = ["1", "2"]
         cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
 
-        # get eureka apps testrunner
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/testrunner")
+        # get eureka apps agent
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/agent")
         # print(dump.dump_response(response))
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
 
         # send unicast teststart request and check the results
-        testrunner_apps = body.get('description')
-        for i, item in enumerate(testrunner_apps):
+        agent_apps = body.get('description')
+        for i, item in enumerate(agent_apps):
             headers = {
                 'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port'))
             }
 
-            # send unicast message to the testrunners with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id[i]}",
+            # send unicast message to the agents with the ip:port
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             print(dump.dump_response(response))
@@ -341,38 +341,38 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('description')), 1)
             self.assertEqual(body.get('description')[0].get('description'), test_id[i])
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 2)
             self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id'),
                                        body.get('description')[1].get('description').get('id')])
 
-    def test_testrunner_teststart_unicast_wrong_ipport_p(self):
+    def test_agent_teststart_unicast_wrong_ipport_p(self):
         test_id = ["1", "2"]
         cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
 
-        # get eureka apps testrunner
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/testrunner")
+        # get eureka apps agent
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/agent")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
 
         # send unicast teststart request and check the results
-        testrunner_apps = body.get('description')
-        for i, item in enumerate(testrunner_apps):
+        agent_apps = body.get('description')
+        for i, item in enumerate(agent_apps):
             headers = {
                 'IpAddr-Port': '{}:{}'.format(item.get('ipAddr') + "dummy", item.get('port'))
             }
 
-            # send unicast message to the testrunners with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test/{test_id[i]}",
+            # send unicast message to the agents with the ip:port
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 0)
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/testrunners/test")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 2)

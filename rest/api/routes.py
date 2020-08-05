@@ -185,16 +185,16 @@ def get_type_eureka_apps(type):
     return response
 
 
-# aggregator of the testrunner(s) tests
+# aggregator of the agent(s) tests
 @app.route('/tests', methods=['GET'])
 def get_tests():
     http = HttpResponse()
-    application = "testrunner"
+    application = "agent"
     eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
 
     try:
-        testrunner_apps = eureka_utils.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(testrunner_apps, headers=request.headers)
+        agent_apps = eureka_utils.get_type_eureka_apps(application)
+        thread_utils = ThreadUtils(agent_apps, headers=request.headers)
         thread_utils.spawn_threads_get_test_info()
         tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
@@ -235,14 +235,14 @@ def get_deployments():
     return response
 
 
-# aggregator of all testrunners endpoints
-@app.route('/testrunners/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def testrunners_request(text):
+# aggregator of all agents endpoints
+@app.route('/agents/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def agents_request(text):
     text = text.strip()
     http = HttpResponse()
     eureka_utils = EurekaUtils(EnvStartup.get_instance().get("eureka_server"))
-    header_key = 'IpAddr-Port'  # target specific testrunner
-    application = "testrunner"
+    header_key = 'IpAddr-Port'  # target specific agent
+    application = "agent"
     try:
         input_data = request.get_data()
     except:
@@ -256,13 +256,13 @@ def testrunners_request(text):
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})
-        test_runner_apps = eureka_utils.get_type_eureka_apps(application)
+        test_agent_apps = eureka_utils.get_type_eureka_apps(application)
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
-            test_runner_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                           test_runner_apps))
-        thread_utils = ThreadUtils(test_runner_apps)
-        thread_utils.spawn_threads_send_testrunner_request(request_object)
+            test_agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
+                                           test_agent_apps))
+        thread_utils = ThreadUtils(test_agent_apps)
+        thread_utils.spawn_threads_send_agent_request(request_object)
 
         response = Response(json.dumps(
             http.response(Constants.SUCCESS, ErrorCodes.HTTP_CODE.get(Constants.SUCCESS),

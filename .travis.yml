@@ -91,13 +91,13 @@ jobs:
         - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
         - docker exec -ti estuary-discovery bash -c "
           curl -i
-          --request POST 'http://estuary-testrunner:8080/test/100'
+          --request POST 'http://estuary-agent:8080/test/100'
           --header 'Accept:application/json'
           --header 'Content-Type:text/plain'
           --data 'sleep 3600'"
         - docker exec -ti estuary-discovery bash -c "
           curl -i
-          --request POST 'http://estuary-testrunner2:8080/test/200'
+          --request POST 'http://estuary-agent2:8080/test/200'
           --header 'Accept:application/json'
           --header 'Content-Type:text/plain'
           --data 'sleep 3600'"
@@ -122,14 +122,14 @@ jobs:
       script:
         - curl -i http://localhost:8081/about #discovery
         - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
-        - curl -i http://localhost:8082/about #testrunner
-        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #testrunner unauth
-        - curl -i --header 'Token:None' http://localhost:8083/about #testrunner-java
-        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #testrunner-java unauth
+        - curl -i http://localhost:8082/about #agent
+        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #agent unauth
+        - curl -i --header 'Token:None' http://localhost:8083/about #agent-java
+        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #agent-java unauth
         - sleep 30
         - docker logs estuary-discovery
-        - docker logs estuary-testrunner
-        - docker logs estuary-testrunner-java
+        - docker logs estuary-agent
+        - docker logs estuary-agent-java
         - python3 -m unittest discover $SCRIPTS_DIR/fluentd_efk "*_test.py"
 
     #run docker tests
