@@ -25,7 +25,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 [alpine](https://hub.docker.com/r/dinutac/estuary-discovery) ![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
 ## Api docs
-[Swagger](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.0.1)
+[4.0.7](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.0.7)
 
 ## Postman collection
 [Collection](https://documenter.getpostman.com/view/2360061/SVmpY31g)
