@@ -39,7 +39,7 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 
 ## Use cases
 -   Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
--   L7 RESTApi broadcasts to the Agent: start test/ get test status / get test results  
+-   L7 RESTApi broadcasts to the Agents: start test/ get test status / get test results  
 -   Rapid listing of apps registered with Eureka.
 -   Other integrations
 
