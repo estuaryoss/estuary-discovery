@@ -18,14 +18,14 @@ class EstuaryStackApps:
 class Constants:
     DOCKER_PATH = "/tmp/"
 
-    SUCCESS = "1000"
-    JINJA2_RENDER_FAILURE = "1001"
-    GET_EUREKA_APPS_FAILED = "1002"
-    GET_CONTAINER_ENV_VAR_FAILURE = "1003"
-    GET_TESTS_FAILED = "1004"
-    GET_DEPLOYMENTS_FAILED = "1005"
-    GET_TEST_RESULTS_FAILED = "1006"
-    HTTP_HEADER_NOT_PROVIDED = "1007"
+    SUCCESS = 1000
+    JINJA2_RENDER_FAILURE = 1001
+    GET_EUREKA_APPS_FAILED = 1002
+    GET_CONTAINER_ENV_VAR_FAILURE = 1003
+    GET_TESTS_FAILED = 1004
+    GET_DEPLOYMENTS_FAILED = 1005
+    GET_TEST_RESULTS_FAILED = 1006
+    HTTP_HEADER_NOT_PROVIDED = 1007
 
 
 class ErrorCodes:
@@ -156,7 +156,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("ipAddr"), self.discovery_ip)
         self.assertEqual(body.get('description')[0].get("port"), self.server_port)
         self.assertEqual(body.get('description')[0].get("app"), self.discovery_ip)
-        self.assertEqual(body.get('description')[0].get("homePageUrl"), f"http://{self.discovery_ip}:{self.server_port}/")
+        self.assertEqual(body.get('description')[0].get("homePageUrl"),
+                         f"http://{self.discovery_ip}:{self.server_port}/")
         self.assertEqual(body.get('description')[0].get("healthCheckUrl"),
                          f"http://{self.discovery_ip}:{self.server_port}/ping")
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
