@@ -183,17 +183,18 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
         body = response.json()
         expected_ip = "estuary-agent"
-        # print(dump.dump_all(response))
+        print(f"! Active test sessions response : {dump.dump_all(response)}")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
                          ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), 2)  # 2 tests active
-        self.assertEqual(body.get('description')[0].get("started"), True)
         self.assertIn(f"{expected_ip}", body.get('description')[0].get("ip_port"))
         self.assertIn(f"http://{expected_ip}", body.get('description')[0].get("homePageUrl"))
-        self.assertEqual(body.get('description')[1].get("started"), True)
+        self.assertIn(f"http://{expected_ip}", body.get('description')[1].get("homePageUrl"))
+        self.assertIsInstance(body.get('description')[0].get("started"), bool)
+        self.assertIsInstance(body.get('description')[1].get("started"), bool)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('time'))
 
@@ -317,7 +318,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_agent_teststart_unicast_p(self):
         test_id = ["1", "2"]
-        cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
+        cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
 
         # get eureka apps agent
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/agent")
@@ -351,7 +352,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_agent_teststart_unicast_wrong_ipport_p(self):
         test_id = ["1", "2"]
-        cmds = ["sleep {}".format(test_id[0]), "sleep {}".format(test_id[1])]
+        cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
 
         # get eureka apps agent
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/agent")

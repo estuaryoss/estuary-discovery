@@ -1,4 +1,3 @@
-import json
 import logging
 import threading
 
@@ -84,7 +83,6 @@ class ThreadUtils:
             thread.join()
 
     def send_http_request(self, app, request_object):
-        http = HttpResponse()
         logging.debug({"url": f'{self.get_url(app)}{request_object.get("uri")}',
                        "method": request_object.get('method'),
                        "headers": request_object.get("headers"),
@@ -97,20 +95,24 @@ class ThreadUtils:
                                         data=request_object.get('data'),
                                         timeout=3)
         except Exception as e:
-            exception = "Exception({})".format(e.__str__())
-            response = requests.Response(
-                json.dumps(http.response(Constants.TARGET_UNREACHABLE, ErrorCodes.HTTP_CODE.get(
-                    Constants.TARGET_UNREACHABLE) % f'{self.get_url(app)}{request_object.get("uri")}', exception)),
-                404,
-                mimetype="application/json")
+            response = HttpResponse.response(
+                Constants.TARGET_UNREACHABLE,
+                ErrorCodes.HTTP_CODE.get(
+                    Constants.TARGET_UNREACHABLE) % f'{self.get_url(app)}{request_object.get("uri")}',
+                "Exception({})".format(e.__str__()))
 
         return response
 
     def send_agent_request(self, app, request_object):
+        resp = self.send_http_request(app, request_object=request_object)
+
         try:
-            response = self.send_http_request(app, request_object=request_object).json()
+            response = resp.json()
         except:
-            response = self.send_http_request(app, request_object=request_object).text
+            try:
+                response = resp.text
+            except:
+                response = resp
 
         self.response_list.append(response)
 
