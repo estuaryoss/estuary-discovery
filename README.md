@@ -113,7 +113,41 @@ curl -i -H 'Token:mysecret' http:localhost:8080/about
 ```  
 Because discovery acts as an stack aggregator hitting agents or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
-    
+
+### Output example
+curl -i http://172.17.0.22:8081/eurekaapps
+```json
+{
+   "code" : 1000,
+   "description" : {
+      "estuary-agent" : [
+         {
+            "app" : "estuary-agent",
+            "healthCheckUrl" : "http://172.17.0.22:8082/ping",
+            "homePageUrl" : "http://172.17.0.22:8082/",
+            "ipAddr" : "172.17.0.22",
+            "port" : "8082",
+            "statusPageUrl" : "http://172.17.0.22:8082/ping"
+         }
+      ],
+      "estuary-discovery" : [
+         {
+            "app" : "estuary-discovery",
+            "healthCheckUrl" : "http://172.17.0.22:8081/ping",
+            "homePageUrl" : "http://172.17.0.22:8081/",
+            "ipAddr" : "172.17.0.22",
+            "port" : "8081",
+            "statusPageUrl" : "http://172.17.0.22:8081/ping"
+         }
+      ]
+   },
+   "message" : "Success",
+   "name" : "estuary-discovery",
+   "time" : "2020-08-15 20:18:36.359046",
+   "version" : "4.0.7"
+}
+```
+
 ## Estuary stack
 [Estuary deployer](https://github.com/dinuta/estuary-deployer)  
 [Estuary agent](https://github.com/dinuta/estuary-agent)  
