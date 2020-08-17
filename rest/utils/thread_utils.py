@@ -4,9 +4,9 @@ import threading
 import requests
 from requests_toolbelt.utils import dump
 
-from rest.api.apiresponsehelpers.constants import Constants
-from rest.api.apiresponsehelpers.error_codes import ErrorCodes
-from rest.api.apiresponsehelpers.http_response import HttpResponse
+from rest.api.responsehelpers.error_codes import ErrorCodes
+from rest.api.responsehelpers.http_response import HttpResponse
+from rest.api.constants.api_constants import ApiConstants
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s',
@@ -27,7 +27,7 @@ class ThreadUtils:
 
     def get_test_info(self, app):
         request_object = {
-            "uri": "test",
+            "uri": "commanddetached",
             "method": "GET",
             "headers": self.headers,  # forward headers if set like X-Request-ID or Token
             "data": None
@@ -96,9 +96,9 @@ class ThreadUtils:
                                         timeout=3)
         except Exception as e:
             response = HttpResponse.response(
-                Constants.TARGET_UNREACHABLE,
+                ApiConstants.TARGET_UNREACHABLE,
                 ErrorCodes.HTTP_CODE.get(
-                    Constants.TARGET_UNREACHABLE) % f'{self.get_url(app)}{request_object.get("uri")}',
+                    ApiConstants.TARGET_UNREACHABLE) % f'{self.get_url(app)}{request_object.get("uri")}',
                 "Exception({})".format(e.__str__()))
 
         return response

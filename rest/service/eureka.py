@@ -3,7 +3,7 @@ import re
 import py_eureka_client.eureka_client as eureka_client
 
 
-class EurekaUtils:
+class Eureka:
     def __init__(self, host):
         self.host = host
 

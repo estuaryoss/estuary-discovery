@@ -25,7 +25,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 [alpine](https://hub.docker.com/r/dinutac/estuary-discovery) ![](https://img.shields.io/docker/pulls/dinutac/estuary-discovery.svg)
 
 ## Api docs
-[4.0.7](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.0.7)
+[4.0.8](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.0.8)
 
 ## Postman collection
 [Collection](https://documenter.getpostman.com/view/2360061/SVmpY31g)
@@ -143,8 +143,9 @@ curl -i http://172.17.0.22:8081/eurekaapps
    },
    "message" : "Success",
    "name" : "estuary-discovery",
-   "time" : "2020-08-15 20:18:36.359046",
-   "version" : "4.0.7"
+   "timestamp" : "2020-08-15 20:18:36.359046",
+   "path" : "/eurekaapps?",
+   "version" : "4.0.8"
 }
 ```
 

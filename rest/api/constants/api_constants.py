@@ -1,4 +1,4 @@
-class Constants:
+class ApiConstants:
     DOCKER_PATH = "/tmp/"
 
     SUCCESS = 1000

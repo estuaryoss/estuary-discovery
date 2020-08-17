@@ -98,7 +98,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("ipAddr"), self.deployer_ip)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_agent(self):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-agent")
@@ -119,7 +119,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         #                  f"http://{self.agent_ip}:{self.server_port}/ping")
         # self.assertEqual(body.get('description')[0].get("port"), self.server_port)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_deployer(self):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-deployer")
@@ -141,7 +141,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
                          f"http://{self.deployer_ip}:{self.server_port}/api/docs")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_discovery(self):
         response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps/estuary-discovery")
@@ -163,7 +163,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
                          f"http://{self.discovery_ip}:{self.server_port}/ping")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_empty_list(self):
         app = "whatever"
@@ -174,13 +174,13 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(len(body.get('description')), 0)
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_gettests(self):
         headers = {
             'Token': 'None'
         }
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/commandsdetached", headers=headers)
         body = response.json()
         expected_ip = "estuary-agent"
         print(f"! Active test sessions response : {dump.dump_all(response)}")
@@ -196,11 +196,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsInstance(body.get('description')[0].get("started"), bool)
         self.assertIsInstance(body.get('description')[1].get("started"), bool)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_gettests_unauthorized(self):
         headers = {'Token': 'whateverinvalid'}
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/tests", headers=headers)
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/commandsdetached", headers=headers)
         headers = response.headers
 
         self.assertEqual(response.status_code, 401)
@@ -231,7 +231,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[1].get("homePageUrl"),
                          f"http://{expected_ip}:{expected_port}/")
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_getdeployments_unauthorized(self):
         xid = 'whatever'
@@ -244,7 +244,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 401)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
         self.assertEqual(headers.get('X-Request-ID'), xid)
 
     def test_time_of_100_requests(self):
@@ -274,7 +274,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
 
     def test_get_agents_file_p(self):
         headers = {
@@ -302,14 +302,14 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_agent_teststart_broadcast_p(self):
         cmds = "ls -lrt\n"
         test_id = "100"
-        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id}",
+        response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id}",
                                  data=cmds)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
         self.assertEqual(body.get('description')[0].get('description'), test_id)
         self.assertEqual(body.get('description')[1].get('description'), test_id)
-        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
+        response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 2)
@@ -335,7 +335,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the agents with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id[i]}",
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             print(dump.dump_response(response))
@@ -343,7 +343,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('description')), 1)
             self.assertEqual(body.get('description')[0].get('description'), test_id[i])
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 2)
@@ -368,13 +368,13 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the agents with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/test/{test_id[i]}",
+            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
                                      data=cmds[i], headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 0)
 
-            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/test")
+            response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached")
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 2)

@@ -4,7 +4,7 @@ info:
   description: |
     This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
     manage test sessions by communicating with estuary agents.
-  version: "4.0.7"
+  version: "4.0.8"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
@@ -206,11 +206,11 @@ paths:
           description: Get deployments response
         404:
           description: Get deployments failure
-  /tests:
+  /commandsdetached:
     get:
       tags:
         - estuary-discovery
-      summary: Gets all tests accross all estuary-agents services.
+      summary: Gets detached command info across all estuary-agents services.
       produces:
         - application/json
       parameters:
@@ -220,9 +220,9 @@ paths:
         required: false
       responses:
         200:
-          description: Get tests response
+          description: Get commands detached success
         404:
-          description: Get tests failure
+          description: Get commands detached failure
   /agents/{agent_uri}:
     get:
       tags:

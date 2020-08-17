@@ -17,7 +17,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.0.7"
+    expected_version = "4.0.8"
     cleanup_count_safe = 5
 
     def test_env_endpoint(self):
@@ -31,7 +31,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
 
     def test_ping_endpoint(self):
         response = requests.get(self.server + "/ping")
@@ -43,7 +44,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('description'), "pong")
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_getenv_endpoint_p(self):
@@ -56,7 +58,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('description'))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
 
     def test_getenv_endpoint_n(self):
         env_var = "alabalaportocala"
@@ -69,7 +72,8 @@ class FlaskServerTestCase(unittest.TestCase):
                          ErrorCodes.HTTP_CODE.get(Constants.GET_CONTAINER_ENV_VAR_FAILURE) % env_var.upper())
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.GET_CONTAINER_ENV_VAR_FAILURE)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_about_endpoint(self):
@@ -83,7 +87,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_about_endpoint_xid_set_by_client_is_same(self):
@@ -101,7 +106,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.SUCCESS)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(headers.get('X-Request-ID'), xid)
 
     def test_about_endpoint_unauthorized(self):
@@ -116,7 +122,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_about_endpoint_unauthorized_xid_by_client_remains_the_same(self):
@@ -135,7 +142,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'), ErrorCodes.HTTP_CODE.get(Constants.UNAUTHORIZED))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), Constants.UNAUTHORIZED)
-        self.assertIsNotNone(body.get('time'))
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
         self.assertEqual(headers.get('X-Request-ID'), xid)
 
     @unittest.skipIf(os.environ.get('TEMPLATES_DIR'),
