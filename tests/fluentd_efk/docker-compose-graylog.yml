@@ -1,0 +1,108 @@
+version: '3'
+services:
+  estuary-discovery:
+    container_name: estuary-discovery
+    image: dinutac/estuary-discovery:latest
+    environment:
+      FLUENTD_IP_PORT: fluentd:24224
+    expose:
+      - "8080"
+    ports:
+      - "8081:8080"
+    networks:
+      - elastic
+
+  estuary-agent:
+    container_name: estuary-agent
+    image: dinutac/estuary-agent:latest
+    environment:
+      FLUENTD_IP_PORT: fluentd:24224
+    expose:
+      - "8080"
+    ports:
+      - "8082:8080"
+    networks:
+      - elastic
+
+  estuary-agent-java:
+    container_name: estuary-agent-java
+    image: dinutac/estuary-agent-java:latest
+    environment:
+      FLUENTD_IP_PORT: fluentd:24224
+    expose:
+      - "8080"
+    ports:
+      - "8083:8080"
+    networks:
+      - elastic
+
+  mongo:
+    image: mongo:3
+    networks:
+      - elastic
+
+  graylog:
+    image: riftbit/graylog:latest
+    environment:
+      # CHANGE ME (must be at least 16 characters)!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_ELASTICSEARCH_VERSION=7
+    networks:
+      - elastic
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+
+  fluentd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    links:
+      - "elasticsearch"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - elastic
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=es-docker-cluster
+      - cluster.initial_master_nodes=elasticsearch
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
