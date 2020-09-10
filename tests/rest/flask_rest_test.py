@@ -126,6 +126,13 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
+    def test_about_endpoint_options_must_be_auth(self):
+        headers = {'Token': "invalidtoken"}
+        response = requests.options(self.server + "/about", headers=headers)
+        headers = response.headers
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(headers.get('X-Request-ID')), 16)
+
     def test_about_endpoint_unauthorized_xid_by_client_remains_the_same(self):
         xid = "whatever"
         headers = {

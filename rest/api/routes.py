@@ -9,13 +9,13 @@ from fluent import sender
 from about import properties
 from entities.render import Render
 from rest.api import create_app
-from rest.api.responsehelpers.error_codes import ErrorCodes
-from rest.api.responsehelpers.http_response import HttpResponse
 from rest.api.constants.api_constants import ApiConstants
 from rest.api.constants.env_constants import EnvConstants
 from rest.api.constants.header_constants import HeaderConstants
 from rest.api.definitions import unmodifiable_env_vars
 from rest.api.loghelpers.message_dumper import MessageDumper
+from rest.api.responsehelpers.error_codes import ErrorCodes
+from rest.api.responsehelpers.http_response import HttpResponse
 from rest.api.swagger import swagger_file_content
 from rest.service.eureka import Eureka
 from rest.service.fluentd import Fluentd
@@ -49,7 +49,9 @@ def before_request():
     app.logger.debug(response)
     if not str(request.headers.get(HeaderConstants.TOKEN)) == str(
             EnvStartup.get_instance().get(EnvConstants.HTTP_AUTH_TOKEN)):
-        if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri):  # exclude swagger
+        # options is for preflight CORS
+        # swagger should be permitted
+        if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri or request.method == 'OPTIONS'):
             headers = {
                 HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
             }
