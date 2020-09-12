@@ -4,19 +4,28 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
-import jinja2
 import os
 import sys
+
+import jinja2
 import yaml
+
+from rest.environment.environment import EnvironmentSingleton
 
 
 class Render:
 
-    def __init__(self, template=None, variables=None, templates_dir=os.environ.get('TEMPLATES_DIR')):
+    def __init__(self, template=None, variables=None):
+        """
+
+        Custom jinja2 render
+        """
+
         self.template = template
         self.variables = variables
         self.env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(templates_dir),
+            loader=jinja2.FileSystemLoader(
+                EnvironmentSingleton.get_instance().get_env_and_virtual_env().get('TEMPLATES_DIR')),
             extensions=['jinja2.ext.autoescape', 'jinja2.ext.do', 'jinja2.ext.loopcontrols', 'jinja2.ext.with_'],
             autoescape=True,
             trim_blocks=True)
@@ -27,12 +36,12 @@ class Render:
     def env_override(self, value, key):
         return os.getenv(key, value)
 
-    def rend_template(self, vars_dir=os.environ.get('VARS_DIR')):
+    def rend_template(self, vars_dir=EnvironmentSingleton.get_instance().get_env_and_virtual_env().get('VARS_DIR')):
         with open(vars_dir + "/" + self.variables, closefd=True) as f:
             data = yaml.safe_load(f)
 
         self.env.filters['yaml'] = self.yaml_filter
-        self.env.globals["environ"] = lambda key: os.environ.get(key)
+        self.env.globals["environ"] = lambda key: EnvironmentSingleton.get_instance().get_env_and_virtual_env().get(key)
         self.env.globals["get_context"] = lambda: data
 
         try:
@@ -48,4 +57,5 @@ class Render:
 
 
 if __name__ == '__main__':
-    render = Render(os.environ.get('TEMPLATE'), os.environ.get('VARIABLES')).rend_template()
+    render = Render(EnvironmentSingleton.get_instance().get_env_and_virtual_env().get('TEMPLATE'),
+                    EnvironmentSingleton.get_instance().get_env_and_virtual_env().get('VARIABLES')).rend_template()

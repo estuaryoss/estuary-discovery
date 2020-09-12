@@ -22,9 +22,9 @@ jobs:
         - pip3 install -r requirements.txt
         - pip3 install coveralls
       before_script:
-        - py.test $SCRIPTS_DIR/render_test.py --cov=entities
+        - py.test $SCRIPTS_DIR/render_test.py --cov=rest/api/jinja2
       script:
-        - python3 -m unittest discover $SCRIPTS_DIR "render_test.py"
+        - python3 -m unittest discover . "render_test.py"
       after_script:
         - coveralls
 
@@ -54,22 +54,6 @@ jobs:
         - ps -ef
       script:
         - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
-
-    #run jinja2 templating tests
-    - language: python
-      python: 3.6
-      services: docker
-      env:
-        ISOLATED: true
-        SCRIPTS_DIR: tests
-      before_script:
-        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
-      script:
-        - docker run -i
-          -v $TRAVIS_BUILD_DIR/inputs/templates:/data
-          -v $TRAVIS_BUILD_DIR/inputs/variables:/variables  -e TEMPLATE=standalone.yml
-          -e VARIABLES=variables.yml -e DATABASE=mysql56 -e IMAGE=latest
-          --entrypoint python3 dinutac/estuary-discovery:latest /scripts/entities/render.py
 
     #run eureka registration tests
     - language: python

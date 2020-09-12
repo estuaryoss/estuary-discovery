@@ -4,7 +4,7 @@ info:
   description: |
     This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
     manage test sessions by communicating with estuary agents.
-  version: "4.0.8"
+  version: "4.0.9"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
@@ -38,6 +38,28 @@ paths:
       responses:
         200:
           description: List of env vars in key value pairs
+    post:
+      tags:
+        - estuary-discovery
+      summary: Set environment variables
+      produces:
+        - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: EnvVars
+        in: body
+        description: List of env vars by key-value pair
+        required: true
+        schema:
+          $ref: '#/definitions/envvar'
+      responses:
+        200:
+          description: Set environment variables response
+        404:
+          description: Set environment variables failure
   /env/{env_name}:
     get:
       tags:
@@ -58,8 +80,6 @@ paths:
       responses:
         200:
           description: Get env var response
-        404:
-          description: Get env var failure
   /ping:
     get:
       tags:

@@ -66,15 +66,6 @@ Optionally you can set PORT environment variable (default=8080).
     -p 8081:8080
     dinutac/estuary-discovery:<tag>
     
-    Jinja2 templating can be done, just add:
-    Windows:
-    -v %cd%/inputs/templates:/data \ 
-    -v %cd%/inputs/variables:/variables \
-    
-    Linux:
-    -v $PWD/inputs/templates:/data \ 
-    -v $PWD/inputs/variables:/variables \
-    
 ### Kubernetes
     kubectl apply -f k8sdeployment.yml
 
@@ -113,6 +104,14 @@ curl -i -H 'Token:mysecret' http:localhost:8080/about
 ```  
 Because discovery acts as an stack aggregator hitting agents or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
+
+## Environment variables injection
+User defined environment variables will be stored in a 'virtual' environment. The extra env vars will be used by the process that executes system commands.  
+There are two ways to inject user defined environment variables.    
+-   call POST on **/env** endpoint. The body will contain the env vars in JSON format. E.g. {"FOO1":"BAR1"}  
+-   create an **environment.properties** file with the extra env vars needed and place it in the same path as the JAR. Example in this repo.  
+
+*! All environment variables described above can also be set using **environment.properties**.*
 
 ### Output example
 curl -i http://172.17.0.22:8081/eurekaapps

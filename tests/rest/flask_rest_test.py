@@ -17,7 +17,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.0.8"
+    expected_version = "4.0.9"
     cleanup_count_safe = 5
 
     def test_env_endpoint(self):
@@ -61,17 +61,49 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('timestamp'))
         self.assertIsNotNone(body.get('path'))
 
+    @parameterized.expand([
+        ("FOO1", "BAR10"),
+        ("FOO2", "BAR20")
+    ])
+    def test_env_load_from_props(self, env_var, expected_value):
+        response = requests.get(self.server + "/env/" + env_var)
+
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get("message"), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('description'), expected_value)
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
+
+    def test_setenv_endpoint_jsonwithvalues_p(self):
+        payload = {"a": "b", "FOO1": "BAR1"}
+        headers = {'Content-type': 'application/json'}
+
+        response = requests.post(self.server + f"/env", data=json.dumps(payload),
+                                 headers=headers)
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body.get('description'), payload)
+        self.assertEqual(body.get("message"), ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('version'), self.expected_version)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertIsNotNone(body.get('timestamp'))
+        self.assertIsNotNone(body.get('path'))
+
     def test_getenv_endpoint_n(self):
         env_var = "alabalaportocala"
         response = requests.get(self.server + "/env/{}".format(env_var))
 
         body = response.json()
         headers = response.headers
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.GET_CONTAINER_ENV_VAR_FAILURE) % env_var.upper())
+                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+        self.assertEqual(body.get('description'), None)
         self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.GET_CONTAINER_ENV_VAR_FAILURE)
+        self.assertEqual(body.get('code'), Constants.SUCCESS)
         self.assertIsNotNone(body.get('timestamp'))
         self.assertIsNotNone(body.get('path'))
         self.assertEqual(len(headers.get('X-Request-ID')), 16)

@@ -31,8 +31,6 @@ ENV VARS_DIR /variables
 
 ENV SCRIPTS_DIR /scripts
 ENV OUT_DIR out
-ENV TEMPLATE docker-compose.j2
-ENV VARIABLES variables.yml
 
 ENV TZ UTC
 
