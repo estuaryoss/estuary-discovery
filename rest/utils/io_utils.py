@@ -1,8 +1,6 @@
 import errno
 import json
 import os
-import shutil
-import subprocess
 from pathlib import Path
 
 
@@ -34,17 +32,3 @@ class IOUtils:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
         with open(file, 'r') as f:
             return f.read()
-
-    @staticmethod
-    def zip_file(name, path):
-        file_path = Path(path)
-        if not file_path.exists():
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
-        shutil.make_archive("/tmp/{}".format(name), 'zip', path)
-
-    @staticmethod
-    def get_hostname_fqdn():
-        result = subprocess.Popen(["hostname", "--fqdn"], stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE)
-        [out, err] = result.communicate()
-        return [out.decode('utf-8'), err.decode('utf-8')]
