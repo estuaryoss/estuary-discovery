@@ -16,8 +16,6 @@ class EstuaryStackApps:
 
 
 class Constants:
-    DOCKER_PATH = "/tmp/"
-
     SUCCESS = 1000
     JINJA2_RENDER_FAILURE = 1001
     GET_EUREKA_APPS_FAILED = 1002
@@ -335,8 +333,9 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the agents with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
-                                     data=cmds[i], headers=headers)
+            response = requests.post(
+                f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
+                data=cmds[i], headers=headers)
             body = response.json()
             print(dump.dump_response(response))
             self.assertEqual(response.status_code, 200)
@@ -368,8 +367,9 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             }
 
             # send unicast message to the agents with the ip:port
-            response = requests.post(f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
-                                     data=cmds[i], headers=headers)
+            response = requests.post(
+                f"http://{self.discovery_ip}:{self.server_port}/agents/commanddetached/{test_id[i]}",
+                data=cmds[i], headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 0)

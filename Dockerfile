@@ -44,6 +44,6 @@ RUN chmod +x $SCRIPTS_DIR/*.sh
 WORKDIR $SCRIPTS_DIR
 
 RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
-RUN pip3 install uwsgi
+RUN pip3 install uwsgi==2.0.19.1
 
 CMD ["/scripts/main_flask.py"]

@@ -64,7 +64,7 @@ jobs:
         SCRIPTS_DIR: tests
       before_script:
         - docker-compose pull
-        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker-compose up -d
         - docker pull alpine:3.9.4
       script:
@@ -98,7 +98,7 @@ jobs:
         SCRIPTS_DIR: tests
       before_script:
         - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
-        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         #        - sudo sysctl -w vm.max_map_count=262144
         - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
         - sleep 120 #wait until efk stack is up and running
@@ -124,9 +124,9 @@ jobs:
         ISOLATED: true
         SCRIPTS_DIR: tests
       before_script:
-        - docker build -t dinutac/estuary-discovery:latest -f Dockerfile .
+        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
       script:
-        - docker run -d -p 8080:8080  dinutac/estuary-discovery:latest
+        - docker run -d -p 8080:8080  estuaryoss/discovery:latest
 
         - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
 
