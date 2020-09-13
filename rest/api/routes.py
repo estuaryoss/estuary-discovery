@@ -235,7 +235,7 @@ def get_tests():
 
     try:
         agent_apps = eureka_utils.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(agent_apps, headers=request.headers)
+        thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
         thread_utils.spawn_threads_get_test_info()
         tests = thread_utils.get_threads_response()
         response = Response(json.dumps(
@@ -260,7 +260,7 @@ def get_deployments():
 
     try:
         deployer_apps = eureka_utils.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(deployer_apps, headers=request.headers)
+        thread_utils = ThreadUtils(apps=deployer_apps, headers=request.headers)
         thread_utils.spawn_threads_get_deployment_info()
         deployments = thread_utils.get_threads_response()
         response = Response(json.dumps(
@@ -302,7 +302,7 @@ def agents_request(text):
             ip_port = request.headers.get(f"{header_key}").split(":")
             test_agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
                                           test_agent_apps))
-        thread_utils = ThreadUtils(test_agent_apps)
+        thread_utils = ThreadUtils(apps=test_agent_apps, headers={})
         thread_utils.spawn_threads_send_agent_request(request_object)
 
         response = Response(json.dumps(

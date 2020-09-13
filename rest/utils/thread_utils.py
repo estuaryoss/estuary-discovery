@@ -4,9 +4,9 @@ import threading
 import requests
 from requests_toolbelt.utils import dump
 
+from rest.api.constants.api_constants import ApiConstants
 from rest.api.responsehelpers.error_codes import ErrorCodes
 from rest.api.responsehelpers.http_response import HttpResponse
-from rest.api.constants.api_constants import ApiConstants
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s',
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 class ThreadUtils:
-    def __init__(self, apps, headers=dict()):
+    def __init__(self, apps, headers):
         self.apps = apps
         self.headers = headers
         self.response_list = []
@@ -22,7 +22,8 @@ class ThreadUtils:
     def get_threads_response(self):
         return self.response_list
 
-    def get_url(self, app):
+    @staticmethod
+    def get_url(app):
         return app.get('homePageUrl')
 
     def get_test_info(self, app):

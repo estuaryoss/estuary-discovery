@@ -248,7 +248,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_time_of_100_requests(self):
         repetitions = 100
         start = time.time()
-        for i in range(1, repetitions):
+        for _ in range(1, repetitions):
             response = requests.get(f"http://{self.discovery_ip}:{self.server_port}/eurekaapps")
             self.assertEqual(response.status_code, 200)
         end = time.time()
@@ -286,7 +286,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertGreater(len(body.get('description')[1]), 8)
 
     def test_get_agents_file_file_not_found(self):
-        expected = f"Exception([Errno 2] No such file or directory:"
+        expected = "Exception([Errno 2] No such file or directory:"
         headers = {
             'File-Path': '/dummy_path'
         }
