@@ -1,6 +1,4 @@
 class ApiConstants:
-    DOCKER_PATH = "/tmp/"
-
     SUCCESS = 1000
     JINJA2_RENDER_FAILURE = 1001
     GET_EUREKA_APPS_FAILED = 1002
@@ -12,6 +10,3 @@ class ApiConstants:
     DISCOVERY_ERROR = 1008
     UNAUTHORIZED = 1009
     TARGET_UNREACHABLE = 1010
-
-
-

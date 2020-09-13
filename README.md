@@ -51,8 +51,9 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
-
-    docker run -p 8080:8080 estuaryoss/netflix-eureka:1.9.25
+```bash
+docker run -p 8080:8080 estuaryoss/netflix-eureka:1.9.25
+```
 
 Start your container by specifying the eureka server in order to discover all other apps.  
 Optionally you can set PORT environment variable (default=8080).  
