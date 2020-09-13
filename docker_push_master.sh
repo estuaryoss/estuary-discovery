@@ -7,5 +7,5 @@ git reset --hard && git clean -dfx
 git checkout "${TRAVIS_BRANCH}"
 
 # alpine
-docker build . -t dinutac/estuary-discovery:latest
-docker push dinutac/estuary-discovery:latest
+docker build . -t estuaryoss/discovery:latest
+docker push estuaryoss/discovery:latest

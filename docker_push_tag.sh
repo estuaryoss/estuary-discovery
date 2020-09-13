@@ -7,5 +7,5 @@ git reset --hard && git clean -dfx
 git checkout tags/"${TRAVIS_TAG}" -b "${TRAVIS_TAG}"
 
 # alpine
-docker build . -t dinutac/estuary-discovery:"${TRAVIS_TAG}"
-docker push dinutac/estuary-discovery:"${TRAVIS_TAG}"
+docker build . -t estuaryoss/discovery:"${TRAVIS_TAG}"
+docker push estuaryoss/discovery:"${TRAVIS_TAG}"

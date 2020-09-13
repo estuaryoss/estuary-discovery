@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: estuary-discovery
-          image: dinutac/estuary-discovery:latest
+          image: estuaryoss/discovery:latest
 #          imagePullPolicy: Never
           command: ["bash", "-c", "sleep 30 && /scripts/main_flask.py"] #wait until eureka up
           env:
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: netflixoss-eureka
-          image: dinutac/netflixoss-eureka:1.9.25
+          image: estuaryoss/netflix-eureka:1.9.25
 ---
 kind: Service
 apiVersion: v1
