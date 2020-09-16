@@ -10,7 +10,6 @@ Estuary discovery service. Aggregator of the estuary-stack.
 -   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the agents  
 
 ## Coverage & code quality
-[![Coverage Status](https://coveralls.io/repos/github/estuaryoss/estuary-discovery/badge.svg?branch=master)](https://coveralls.io/github/estuaryoss/estuary-discovery?branch=master)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/fc69b90ee90546158876e5344d9c2af2)](https://www.codacy.com/gh/estuaryoss/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=estuaryoss/estuary-discovery&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/c0894a0a9785a3fb7afc/maintainability)](https://codeclimate.com/github/estuaryoss/estuary-discovery/maintainability)
 

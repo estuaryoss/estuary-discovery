@@ -7,9 +7,9 @@ docker build -t estuaryoss/discovery-centos:latest -f Dockerfiles/Dockerfile_cen
 docker push estuaryoss/discovery-centos:latest
 
 #for alpine clean everything
-#git reset --hard && git clean -dfx
-#git checkout "${TRAVIS_BRANCH}"
+git reset --hard && git clean -dfx
+git checkout "${TRAVIS_BRANCH}"
 
 #alpine
-#docker build . -t estuaryoss/discovery:latest
-#docker push estuaryoss/discovery:latest
+docker build . -t estuaryoss/discovery:latest
+docker push estuaryoss/discovery:latest
