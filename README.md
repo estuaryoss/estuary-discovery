@@ -15,7 +15,7 @@ Estuary discovery service. Aggregator of the estuary-stack.
 [![Maintainability](https://api.codeclimate.com/v1/badges/c0894a0a9785a3fb7afc/maintainability)](https://codeclimate.com/github/estuaryoss/estuary-discovery/maintainability)
 
 ## Linux status
-[![Build Status](https://travis-ci.org/estuaryoss/estuary-discovery.svg?branch=master)](https://travis-ci.org/estuaryoss/estuary-discovery)
+[![Build Status](https://travis-ci.com/estuaryoss/estuary-discovery.svg?token=UC9Z5nQSPmb5vK5QLpJh&branch=master)](https://travis-ci.com/estuaryoss/estuary-discovery)
 
 ## Windows status
 [![CircleCI](https://circleci.com/gh/estuaryoss/estuary-discovery.svg?style=svg)](https://circleci.com/gh/estuaryoss/estuary-discovery)

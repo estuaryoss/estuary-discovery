@@ -2,10 +2,14 @@
 
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-# for alpine clean everything
-git reset --hard && git clean -dfx
-git checkout "${TRAVIS_BRANCH}"
+#centos
+docker build -t estuaryoss/discovery-centos:latest -f Dockerfiles/Dockerfile_centos .
+docker push estuaryoss/discovery-centos:latest
 
-# alpine
-docker build . -t estuaryoss/discovery:latest
-docker push estuaryoss/discovery:latest
+#for alpine clean everything
+#git reset --hard && git clean -dfx
+#git checkout "${TRAVIS_BRANCH}"
+
+#alpine
+#docker build . -t estuaryoss/discovery:latest
+#docker push estuaryoss/discovery:latest

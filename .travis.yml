@@ -55,6 +55,32 @@ jobs:
       script:
         - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
 
+    #run executable tests - centos docker
+    - language: python
+      services: docker
+      env:
+        ISOLATED: true
+        NGROK_TOKEN: 1RER6BUC3QNNwYWY5LcIBjrv3A8_24QccmopTEQJGMErG9uzw
+        SKIP_ON_VM: true
+        SKIP_ON_CENTOS: true
+      before_script:
+        - pip3 install -r requirements.txt
+        - pyinstaller --onefile main_flask.py
+        - ls -lrt dist
+        - cp dist/main_flask main-linux
+      script:
+        - docker build -t estuaryoss/discovery-centos:latest -f Dockerfiles/Dockerfile_centos .
+        - docker run
+          -d
+          -p 8080:8080
+          --name estuary-discovery-centos
+          estuaryoss/discovery-centos:latest
+        - sleep 5
+        - docker logs estuary-discovery-centos
+        #  - ./ngrok.sh
+        #  - sleep 3600
+        - python3 -m unittest discover tests/rest "*_test.py"
+
     #run eureka registration tests
     - language: python
       python: 3.6
@@ -73,18 +99,18 @@ jobs:
         #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
         - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
         - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
-#        - docker exec -ti estuary-discovery bash -c "
-#          curl -i
-#          --request POST 'http://estuary-agent:8080/test/100'
-#          --header 'Accept:application/json'
-#          --header 'Content-Type:text/plain'
-#          --data 'sleep 3600'"
-#        - docker exec -ti estuary-discovery bash -c "
-#          curl -i
-#          --request POST 'http://estuary-agent2:8080/test/200'
-#          --header 'Accept:application/json'
-#          --header 'Content-Type:text/plain'
-#          --data 'sleep 3600'"
+        #        - docker exec -ti estuary-discovery bash -c "
+        #          curl -i
+        #          --request POST 'http://estuary-agent:8080/test/100'
+        #          --header 'Accept:application/json'
+        #          --header 'Content-Type:text/plain'
+        #          --data 'sleep 3600'"
+        #        - docker exec -ti estuary-discovery bash -c "
+        #          curl -i
+        #          --request POST 'http://estuary-agent2:8080/test/200'
+        #          --header 'Accept:application/json'
+        #          --header 'Content-Type:text/plain'
+        #          --data 'sleep 3600'"
         - sleep 40 # wait until deployments are up and running
         - docker ps
         - docker exec estuary-discovery python3 -m unittest discover /scripts/tests/rest_eureka "*_test.py"
@@ -116,7 +142,7 @@ jobs:
         - docker logs estuary-agent-java
         - python3 -m unittest discover $SCRIPTS_DIR/fluentd_efk "*_test.py"
 
-    #run docker tests
+    #run docker tests - alpine
     - language: python
       python: 3.6
       services: docker
@@ -127,9 +153,7 @@ jobs:
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
       script:
         - docker run -d -p 8080:8080  estuaryoss/discovery:latest
-
         - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
-
 
     - stage: deploy
       services: docker

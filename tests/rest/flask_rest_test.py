@@ -65,6 +65,7 @@ class FlaskServerTestCase(unittest.TestCase):
         ("FOO1", "BAR10"),
         ("FOO2", "BAR20")
     ])
+    @unittest.skipIf(os.environ.get('SKIP_ON_CENTOS') == "true", "skip on centos docker")
     def test_env_load_from_props(self, env_var, expected_value):
         response = requests.get(self.server + "/env/" + env_var)
 
@@ -188,6 +189,7 @@ class FlaskServerTestCase(unittest.TestCase):
     @unittest.skipIf(os.environ.get('TEMPLATES_DIR'),
                      "inputs/templates")  # when service runs on VM only this is skipped
     @unittest.skipIf(platform.system() == "Windows", "skip on Win")
+    @unittest.skipIf(os.environ.get('SKIP_ON_CENTOS') == "true", "skip on centos docker")
     def test_swagger_endpoint(self):
         response = requests.get(self.server + "/api/docs")
 
