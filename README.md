@@ -151,3 +151,4 @@ curl -i http://172.17.0.22:8081/eurekaapps
 [Estuary agent](https://github.com/estuaryoss/estuary-agent)  
 [Estuary discovery](https://github.com/estuaryoss/estuary-discovery)  
 [Estuary viewer](https://github.com/estuaryoss/estuary-viewer)  
+[Estuary CLI](https://github.com/estuaryoss/estuary-cli)  
