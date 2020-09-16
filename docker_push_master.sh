@@ -3,13 +3,12 @@
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 #centos
-\cp dist/start start.py
 docker build -t estuaryoss/discovery-centos:latest -f Dockerfiles/Dockerfile_centos .
 docker push estuaryoss/discovery-centos:latest
 
 #for alpine clean everything
-git reset --hard && git clean -dfx
-git checkout "${TRAVIS_BRANCH}"
+#git reset --hard && git clean -dfx
+#git checkout "${TRAVIS_BRANCH}"
 
 #alpine
 #docker build . -t estuaryoss/discovery:latest
