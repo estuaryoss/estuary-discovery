@@ -9,3 +9,4 @@ class EnvConstants:
     VARIABLES = "VARIABLES"
     WORKSPACE = "WORKSPACE"
     PORT = "PORT"
+    CERTS_DIR = "CERTS_DIR"

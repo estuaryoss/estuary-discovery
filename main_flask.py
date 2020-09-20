@@ -8,10 +8,10 @@ from rest.environment.environment import EnvironmentSingleton
 from rest.utils.env_startup import EnvStartupSingleton
 
 if __name__ == "__main__":
-    host = '0.0.0.0'
     port = EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.PORT)
-    fluentd_tag = "startup"
     message_dumper = MessageDumper()
+    host = '0.0.0.0'
+    fluentd_tag = "startup"
 
     if EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER):
         EurekaRegistrator(
@@ -27,4 +27,5 @@ if __name__ == "__main__":
 
     fluentd_service.emit(tag=fluentd_tag, msg=environ_dump)
 
-    app.run(host=host, port=port)
+    cert_path = EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.CERTS_DIR)
+    app.run(host=host, port=port, ssl_context=(f"{cert_path}/cert.pem", f"{cert_path}/key.pem"))

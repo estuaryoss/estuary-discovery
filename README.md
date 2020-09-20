@@ -102,6 +102,10 @@ curl -i -H 'Token:mysecret' http:localhost:8080/about
 Because discovery acts as an stack aggregator hitting agents or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
 
+### Certificate and private key folder
+For setting the certificate and the private key folder path use **CERTS_DIR** env variable.  
+In the folder you must have both files with the name *cert.pem* and *key.pem*.   
+
 ## Environment variables injection
 User defined environment variables will be stored in a 'virtual' environment. The extra env vars will be used by the process that executes system commands.  
 There are two ways to inject user defined environment variables.    

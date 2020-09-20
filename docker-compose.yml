@@ -3,7 +3,7 @@ version: "3.3"
 services:
   estuary-discovery:
     container_name: estuary-discovery
-    image: estuaryoss/discovery:latest
+    image: dinutac/estuary-discovery:latest
     hostname: estuary-discovery
     command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
@@ -17,7 +17,7 @@ services:
       - "8080"
 
   estuary-agent:
-    image: estuaryoss/agent:latest
+    image: dinutac/estuary-agent:latest
     hostname: estuary-agent
     command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
@@ -28,7 +28,7 @@ services:
       - "8080"
 
   estuary-agent2:
-    image: estuaryoss/agent:latest
+    image: dinutac/estuary-agent:latest
     hostname: estuary-agent2
     command: bash -c "sleep 30 && /scripts/main_flask.py"
     environment:
@@ -39,7 +39,7 @@ services:
       - "8080"
 
   estuary-deployer:
-    image: estuaryoss/deployer:latest
+    image: dinutac/estuary-deployer:latest
     hostname: estuary-deployer
     environment:
       limit: 'sky' # example env var inserted. you can read it with environ('limit')
@@ -54,7 +54,7 @@ services:
       - "8080"
 
   eureka-server:
-    image: estuaryoss/netflix-eureka:1.9.25
+    image: dinutac/estuary-netflixoss-eureka:1.9.25
     hostname: eureka-server
     #    ports:
     #      - "8080:8080"

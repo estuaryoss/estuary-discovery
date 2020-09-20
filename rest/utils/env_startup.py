@@ -34,5 +34,9 @@ class EnvStartupSingleton:
                 EnvConstants.FLUENTD_IP_PORT) else None,
             EnvConstants.HTTP_AUTH_TOKEN: self.__env.get_env_and_virtual_env().get(
                 EnvConstants.HTTP_AUTH_TOKEN).strip() if self.__env.get_env_and_virtual_env().get(
-                EnvConstants.HTTP_AUTH_TOKEN) else "None"
+                EnvConstants.HTTP_AUTH_TOKEN) else "None",
+            EnvConstants.CERTS_DIR: self.__env.get_env_and_virtual_env().get(
+                EnvConstants.CERTS_DIR).strip() if self.__env.get_env_and_virtual_env().get(
+                EnvConstants.CERTS_DIR) else "certs"
+
         }
