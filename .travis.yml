@@ -36,7 +36,7 @@ jobs:
         VARS_DIR: inputs/variables
         SCRIPTS_DIR: tests
         ISOLATED: true
-        REQUESTS_CA_BUNDLE="certs/cert.pem"
+        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_install:
         - pip3 install -r requirements.txt
       before_script:
@@ -64,7 +64,7 @@ jobs:
         NGROK_TOKEN: 1RER6BUC3QNNwYWY5LcIBjrv3A8_24QccmopTEQJGMErG9uzw
         SKIP_ON_VM: true
         SKIP_ON_CENTOS: true
-        REQUESTS_CA_BUNDLE="certs/cert.pem"
+        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_script:
         - pip3 install -r requirements.txt
         - pyinstaller --onefile main_flask.py
@@ -151,7 +151,7 @@ jobs:
       env:
         ISOLATED: true
         SCRIPTS_DIR: tests
-        REQUESTS_CA_BUNDLE="certs/cert.pem"
+        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_script:
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
       script:
