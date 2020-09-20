@@ -36,7 +36,7 @@ jobs:
           command: python -m unittest discover tests/rest "*_test.py"
           name: "run integration tests"
           environment:
-            REQUESTS_CA_BUNDLE: certs/cert.pem
+            CERTS_DIR: certs
       - store_artifacts:
           path: main-win.exe
 

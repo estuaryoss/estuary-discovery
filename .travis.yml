@@ -36,7 +36,6 @@ jobs:
         VARS_DIR: inputs/variables
         SCRIPTS_DIR: tests
         ISOLATED: true
-        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_install:
         - pip3 install -r requirements.txt
       before_script:
@@ -64,7 +63,6 @@ jobs:
         NGROK_TOKEN: 1RER6BUC3QNNwYWY5LcIBjrv3A8_24QccmopTEQJGMErG9uzw
         SKIP_ON_VM: true
         SKIP_ON_CENTOS: true
-        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_script:
         - pip3 install -r requirements.txt
         - pyinstaller --onefile main_flask.py
@@ -93,6 +91,7 @@ jobs:
       before_script:
         - docker-compose pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
+        - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
         - docker-compose up -d
         - docker pull alpine:3.9.4
       script:
@@ -127,6 +126,7 @@ jobs:
       before_script:
         - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
+        - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
         #        - sudo sysctl -w vm.max_map_count=262144
         - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
         - sleep 120 #wait until efk stack is up and running
@@ -151,7 +151,6 @@ jobs:
       env:
         ISOLATED: true
         SCRIPTS_DIR: tests
-        REQUESTS_CA_BUNDLE: certs/cert.pem
       before_script:
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
       script:
