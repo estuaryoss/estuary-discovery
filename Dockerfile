@@ -30,11 +30,14 @@ ENV PORT 8080
 ENV VARS_DIR /variables
 
 ENV SCRIPTS_DIR /scripts
+ENV HTTPS_DIR $SCRIPTS_DIR/https
 ENV OUT_DIR out
 
 ENV TZ UTC
 
 COPY ./ $SCRIPTS_DIR/
+COPY https/key.pem $HTTPS_DIR/
+COPY https/cert.pem $HTTPS_DIR/
 COPY ./inputs/templates/ $TEMPLATES_DIR/
 COPY ./inputs/variables/ $VARS_DIR/
 

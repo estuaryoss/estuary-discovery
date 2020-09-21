@@ -2,7 +2,7 @@ version: '2'
 services:
   estuary-discovery:
     container_name: estuary-discovery
-    image: estuaryoss/discovery:latest
+    image: dinutac/estuary-discovery:latest
     environment:
       FLUENTD_IP_PORT: fluentd:24224
     expose:
@@ -14,7 +14,7 @@ services:
 
   estuary-agent:
     container_name: estuary-agent
-    image: estuaryoss/agent:latest
+    image: dinutac/estuary-agent:latest
     environment:
       FLUENTD_IP_PORT: fluentd:24224
     expose:
@@ -26,7 +26,7 @@ services:
 
   estuary-agent-java:
     container_name: estuary-agent-java
-    image: estuaryoss/agent-java:latest
+    image: dinutac/estuary-agent-java:latest
     environment:
       FLUENTD_IP_PORT: fluentd:24224
     expose:

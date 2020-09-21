@@ -3,6 +3,7 @@ FROM centos:8
 ENV TZ UTC
 ENV PORT 8080
 ENV SCRIPTS_DIR /root/app
+ENV HTTPS_DIR /root/app/https
 ENV WORKSPACE $SCRIPTS_DIR
 ENV TEMPLATES_DIR $WORKSPACE/templates
 ENV VARS_DIR $WORKSPACE/variables
@@ -13,6 +14,8 @@ COPY inputs/templates/ $TEMPLATES_DIR/
 COPY inputs/variables/ $VARS_DIR/
 
 COPY main-linux $SCRIPTS_DIR
+COPY https/key.pem $HTTPS_DIR/
+COPY https/cert.pem $HTTPS_DIR/
 
 RUN chmod +x $SCRIPTS_DIR/main-linux
 

@@ -3,7 +3,7 @@
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 #centos
-docker build -t estuaryoss/discovery-centos:"${TRAVIS_TAG}" -f Dockerfiles/Dockerfile_centos .
+docker build -t estuaryoss/discovery-centos:"${TRAVIS_TAG}" -f Dockerfile_centos .
 docker push estuaryoss/discovery-centos:"${TRAVIS_TAG}"
 
 #for alpine clean everything
