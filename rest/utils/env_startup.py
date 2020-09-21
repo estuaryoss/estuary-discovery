@@ -35,8 +35,13 @@ class EnvStartupSingleton:
             EnvConstants.HTTP_AUTH_TOKEN: self.__env.get_env_and_virtual_env().get(
                 EnvConstants.HTTP_AUTH_TOKEN).strip() if self.__env.get_env_and_virtual_env().get(
                 EnvConstants.HTTP_AUTH_TOKEN) else "None",
-            EnvConstants.CERTS_DIR: self.__env.get_env_and_virtual_env().get(
-                EnvConstants.CERTS_DIR).strip() if self.__env.get_env_and_virtual_env().get(
-                EnvConstants.CERTS_DIR) else "certs"
-
+            EnvConstants.HTTPS_ENABLE: bool(self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_ENABLE).strip()) if self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_ENABLE) else False,
+            EnvConstants.HTTPS_CERT: self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_CERT).strip() if self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_CERT) else "https/cert.pem",
+            EnvConstants.HTTPS_KEY: self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_KEY).strip() if self.__env.get_env_and_virtual_env().get(
+                EnvConstants.HTTPS_KEY) else "https/key.pem"
         }
