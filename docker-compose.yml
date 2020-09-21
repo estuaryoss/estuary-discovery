@@ -54,7 +54,7 @@ services:
       - "8080"
 
   eureka-server:
-    image: dinutac/estuary-netflixoss-eureka:1.9.25
+    image: dinutac/netflixoss-eureka:1.9.25
     hostname: eureka-server
     #    ports:
     #      - "8080:8080"
