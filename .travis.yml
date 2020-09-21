@@ -89,6 +89,7 @@ jobs:
         ISOLATED: true
         SCRIPTS_DIR: tests
       before_script:
+        - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         - docker-compose pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
@@ -124,6 +125,7 @@ jobs:
         ISOLATED: true
         SCRIPTS_DIR: tests
       before_script:
+        - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
         - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
