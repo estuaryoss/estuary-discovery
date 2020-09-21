@@ -3,7 +3,7 @@
 echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 #centos
-docker build -t dinutac/estuary-discovery-centos:latest -f Dockerfiles/Dockerfile_centos .
+docker build -t dinutac/estuary-discovery-centos:latest -f Dockerfile_centos .
 docker push dinutac/estuary-discovery-centos:latest
 
 #for alpine clean everything

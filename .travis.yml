@@ -69,7 +69,7 @@ jobs:
         - ls -lrt dist
         - cp dist/main_flask main-linux
       script:
-        - docker build -t estuaryoss/discovery-centos:latest -f Dockerfiles/Dockerfile_centos .
+        - docker build -t estuaryoss/discovery-centos:latest -f Dockerfile_centos .
         - docker run
           -d
           -p 8080:8080
@@ -89,7 +89,7 @@ jobs:
         ISOLATED: true
         SCRIPTS_DIR: tests
       before_script:
-        - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
@@ -125,7 +125,7 @@ jobs:
         ISOLATED: true
         SCRIPTS_DIR: tests
       before_script:
-        - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
