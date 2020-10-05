@@ -4,7 +4,7 @@ info:
   description: |
     This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,
     manage test sessions by communicating with estuary agents.
-  version: "4.1.0"
+  version: "4.0.8"
   title: estuary-discovery
   termsOfService: http://swagger.io/terms/
   contact:
@@ -54,7 +54,7 @@ paths:
         description: List of env vars by key-value pair
         required: true
         schema:
-          $ref: '#/definitions/envvar'
+          $ref: '#/definitions/EnvVar'
       responses:
         200:
           description: Set environment variables response
@@ -164,7 +164,7 @@ paths:
         description: List of env vars by key-value pair
         required: false
         schema:
-          $ref: '#/definitions/envvar'
+          $ref: '#/definitions/EnvVar'
       responses:
         200:
           description: jinja2 rendered template response
@@ -270,8 +270,35 @@ paths:
           description: Aggregated response from the agents, response
         404:
           description: Aggregated response from the agents, failure
+  /deployers/{deployer_uri}:
+    get:
+      tags:
+        - estuary-discovery
+      summary: Broadcasts/Unicasts a request to the deployers connected to same Eureka domain. 
+      produces:
+        - application/json
+      parameters:
+      - in: header
+        name: Token
+        type: string
+        required: false
+      - name: deployer_uri
+        in: path
+        description: Broadcasts the request to the deployer. E.g. /ping. 
+        required: true
+        type: string
+      - name: IpAddr-Port
+        in: header
+        description: The ipAddr:port of the deployer unicast target, in this format with colon. If not used, then the request will be broadcast.
+        required: false
+        type: string
+      responses:
+        200:
+          description: Aggregated response from the deployers, success
+        404:
+          description: Aggregated response from the deployers, failure
 definitions:
-    envvar:
+    EnvVar:
       type: object
       example: '{"DATABASE" : "mysql56", "IMAGE":"latest"}'
 externalDocs:
