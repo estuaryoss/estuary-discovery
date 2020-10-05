@@ -314,7 +314,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[1].get('description').get('id'), test_id)
 
     def test_deployer_ping_broadcast_p(self):
-        response = requests.get(f"{self.home_url}:{self.server_port}/deployers/docker/ping")
+        response = requests.get(f"{self.home_url}:{self.server_port}/deployers/docker/about")
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
@@ -372,7 +372,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
             # send unicast message to the deployers with the ip:port
             response = requests.get(
-                f"{self.home_url}:{self.server_port}/deployers/docker/ping", headers=headers)
+                f"{self.home_url}:{self.server_port}/deployers/docker/about", headers=headers)
             body = response.json()
             print(dump.dump_response(response))
             self.assertEqual(response.status_code, 200)
