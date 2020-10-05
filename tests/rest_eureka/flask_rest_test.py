@@ -313,6 +313,13 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get('description').get('id'), test_id)
         self.assertEqual(body.get('description')[1].get('description').get('id'), test_id)
 
+    def test_deployer_ping_broadcast_p(self):
+        response = requests.get(f"{self.home_url}:{self.server_port}/deployers/docker/about")
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('description')), 1)
+        self.assertIn("deployer", body.get('description')[0].get('description'))
+
     def test_agent_teststart_unicast_p(self):
         test_id = ["1", "2"]
         cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
@@ -347,6 +354,30 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('description')), 2)
             self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id'),
                                        body.get('description')[1].get('description').get('id')])
+
+    def test_deployer_unicast_p(self):
+        # get eureka apps agent
+        response = requests.get(f"{self.home_url}:{self.server_port}/eurekaapps/deployer")
+        # print(dump.dump_response(response))
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('description')), 1)
+
+        # send unicast request and check the results
+        deployer_apps = body.get('description')
+        for i, item in enumerate(deployer_apps):
+            headers = {
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port'))
+            }
+
+            # send unicast message to the deployers with the ip:port
+            response = requests.get(
+                f"{self.home_url}:{self.server_port}/deployers/docker/about", headers=headers)
+            body = response.json()
+            print(dump.dump_response(response))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('description')), 1)
+            self.assertIn("deployer", body.get('description')[0].get('description'))
 
     def test_agent_teststart_unicast_wrong_ipport_p(self):
         test_id = ["1", "2"]
