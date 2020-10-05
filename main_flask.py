@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 
 from rest.api.constants.env_constants import EnvConstants
 from rest.api.eureka_registrator import EurekaRegistrator
@@ -8,6 +9,9 @@ from rest.environment.environment import EnvironmentSingleton
 from rest.utils.env_startup import EnvStartupSingleton
 
 if __name__ == "__main__":
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+
     port = EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.PORT)
     message_dumper = MessageDumper()
     host = '0.0.0.0'
