@@ -301,7 +301,7 @@ def agents_request(text):
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
             agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                          agent_apps))
+                                     agent_apps))
         thread_utils = ThreadUtils(apps=agent_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
@@ -316,6 +316,7 @@ def agents_request(text):
                                                      ErrorCodes.HTTP_CODE.get(ApiConstants.DISCOVERY_ERROR),
                                                      exception)), 404, mimetype="application/json")
     return response
+
 
 # aggregator of all deployers endpoints
 @app.route('/deployers/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -342,7 +343,7 @@ def deployers_request(text):
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
             deployer_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                          deployer_apps))
+                                        deployer_apps))
         thread_utils = ThreadUtils(apps=deployer_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
