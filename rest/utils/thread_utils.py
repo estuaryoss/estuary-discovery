@@ -104,7 +104,7 @@ class ThreadUtils:
 
         return response
 
-    def send_agent_request(self, app, request_object):
+    def send_request(self, app, request_object):
         resp = self.send_http_request(app, request_object=request_object)
 
         try:
@@ -117,8 +117,8 @@ class ThreadUtils:
 
         self.response_list.append(response)
 
-    def spawn_threads_send_agent_request(self, request_object):
-        threads = [threading.Thread(target=self.send_agent_request, args=(app, request_object,)) for app in
+    def spawn_threads_send_request(self, request_object):
+        threads = [threading.Thread(target=self.send_request, args=(app, request_object,)) for app in
                    self.apps]
         for thread in threads:
             thread.start()

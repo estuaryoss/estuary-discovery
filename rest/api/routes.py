@@ -297,13 +297,54 @@ def agents_request(text):
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})
-        test_agent_apps = eureka_service.get_type_eureka_apps(application)
+        agent_apps = eureka_service.get_type_eureka_apps(application)
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
-            test_agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                          test_agent_apps))
-        thread_utils = ThreadUtils(apps=test_agent_apps, headers={})
-        thread_utils.spawn_threads_send_agent_request(request_object)
+            agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
+                                          agent_apps))
+        thread_utils = ThreadUtils(apps=agent_apps, headers={})
+        thread_utils.spawn_threads_send_request(request_object)
+
+        response = Response(json.dumps(
+            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
+                          thread_utils.get_threads_response())), 200,
+            mimetype="application/json")
+
+    except Exception as e:
+        exception = "Exception({})".format(e.__str__())
+        response = Response(json.dumps(http.response(ApiConstants.DISCOVERY_ERROR,
+                                                     ErrorCodes.HTTP_CODE.get(ApiConstants.DISCOVERY_ERROR),
+                                                     exception)), 404, mimetype="application/json")
+    return response
+
+# aggregator of all deployers endpoints
+@app.route('/deployers/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def deployers_request(text):
+    text = text.strip()
+    http = HttpResponse()
+    eureka_service = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    header_key = 'IpAddr-Port'  # target specific deployer
+    application = "deployer"
+    try:
+        input_data = request.get_data()
+    except:
+        input_data = ""
+
+    try:
+        request_object = {
+            "uri": text.lstrip("/"),
+            "method": request.method,
+            "headers": request.headers,
+            "data": input_data
+        }
+        app.logger.debug({"msg": f"{request_object}"})
+        deployer_apps = eureka_service.get_type_eureka_apps(application)
+        if request.headers.get(f"{header_key}"):  # not mandatory
+            ip_port = request.headers.get(f"{header_key}").split(":")
+            deployer_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
+                                          deployer_apps))
+        thread_utils = ThreadUtils(apps=deployer_apps, headers={})
+        thread_utils.spawn_threads_send_request(request_object)
 
         response = Response(json.dumps(
             http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
