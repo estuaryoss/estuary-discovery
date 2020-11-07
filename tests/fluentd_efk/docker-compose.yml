@@ -43,7 +43,7 @@ services:
   estuary-agent-java:
     container_name: estuary-agent-java
     image: dinutac/estuary-agent-java:latest
-    entrypoint: bash -c "sleep 60 && java -jar /app/agent-4.1.0-SNAPSHOT-exec.jar --eureka.client.enabled=true"
+    entrypoint: bash -c "sleep 60 && java -jar /app/agent-4.2.0-SNAPSHOT-exec.jar --eureka.client.enabled=true"
     environment:
       FLUENTD_IP_PORT: fluentd:24224
       EUREKA_SERVER: http://eureka:8080/eureka/v2
@@ -53,7 +53,7 @@ services:
     expose:
       - "8080"
     ports:
-      - "8083:8080"
+      - "8083:8083"
     networks:
       - elastic
 
