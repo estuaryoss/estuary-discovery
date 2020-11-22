@@ -7,36 +7,15 @@ import requests
 from py_eureka_client import eureka_client
 from requests_toolbelt.utils import dump
 
+from rest.api.constants.api_constants import ApiCode
+from rest.api.responsehelpers.error_codes import ErrorMessage
+
 
 class EstuaryStackApps:
 
     @staticmethod
     def get_supported_apps():
         return ["estuary-agent", "estuary-deployer", "estuary-discovery"]
-
-
-class Constants:
-    SUCCESS = 1000
-    JINJA2_RENDER_FAILURE = 1001
-    GET_EUREKA_APPS_FAILED = 1002
-    GET_CONTAINER_ENV_VAR_FAILURE = 1003
-    GET_TESTS_FAILED = 1004
-    GET_DEPLOYMENTS_FAILED = 1005
-    GET_TEST_RESULTS_FAILED = 1006
-    HTTP_HEADER_NOT_PROVIDED = 1007
-
-
-class ErrorCodes:
-    HTTP_CODE = {
-        Constants.SUCCESS: "Success",
-        Constants.JINJA2_RENDER_FAILURE: "jinja2 render failed",
-        Constants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka server '%s'",
-        Constants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'",
-        Constants.GET_TESTS_FAILED: "Failed to get tests list",
-        Constants.GET_DEPLOYMENTS_FAILED: "Failed to get deployments list",
-        Constants.GET_TEST_RESULTS_FAILED: "Failed to get test results list",
-        Constants.HTTP_HEADER_NOT_PROVIDED: "Http header value not provided: '%s'",
-    }
 
 
 class EurekaClient:
@@ -74,7 +53,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')),
                          3)  # its 3 because we have only 3 keys: deployer, agent, discovery
@@ -94,7 +73,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description').get(self.agent_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("ipAddr"), self.deployer_ip)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("port"), self.server_port)
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_agent(self):
@@ -103,7 +82,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), self.no_of_agents)
         self.assertEqual(len(body.get('description')[0]), 6)
@@ -115,7 +94,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         # self.assertEqual(body.get('description')[0].get("statusPageUrl"),
         #                  f"http://{self.agent_ip}:{self.server_port}/ping")
         # self.assertEqual(body.get('description')[0].get("port"), self.server_port)
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_deployer(self):
@@ -124,7 +103,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), self.no_of_deployers)
         self.assertEqual(len(body.get('description')[0]), 6)
@@ -137,7 +116,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          f"http://{self.deployer_ip}:{self.server_port}/api/docs")
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
                          f"http://{self.deployer_ip}:{self.server_port}/api/docs")
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_discovery(self):
@@ -146,7 +125,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), self.no_of_discovery)
         self.assertEqual(len(body.get('description')[0]), 6)
@@ -159,7 +138,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          f"{self.home_url}:{self.server_port}/ping")
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
                          f"{self.home_url}:{self.server_port}/ping")
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_empty_list(self):
@@ -170,7 +149,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 0)
         # self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_gettests(self):
@@ -184,7 +163,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), 2)  # 2 tests active
         self.assertIn(f"{expected_ip}", body.get('description')[0].get("ip_port"))
@@ -192,7 +171,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIn(f"http://{expected_ip}", body.get('description')[1].get("homePageUrl"))
         self.assertIsInstance(body.get('description')[0].get("started"), bool)
         self.assertIsInstance(body.get('description')[1].get("started"), bool)
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_gettests_unauthorized(self):
@@ -214,7 +193,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(body.get('message'),
-                         ErrorCodes.HTTP_CODE.get(Constants.SUCCESS))
+                         ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(len(body.get('description')), 2)
         self.assertEqual(len(body.get('description')[0].get("id")), 16)  # deployment id is a 16 char word
@@ -227,7 +206,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
                          f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
         self.assertEqual(body.get('description')[1].get("homePageUrl"),
                          f"http://{expected_ip}:{expected_port}/")
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_getdeployments_unauthorized(self):
@@ -261,16 +240,16 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         response = requests.get(f"{self.home_url}:{self.server_port}/agents/file", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('description')[0].get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('description')[1].get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('description')[0].get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
-        self.assertEqual(body.get('description')[1].get('description'),
-                         ErrorCodes.HTTP_CODE.get(Constants.HTTP_HEADER_NOT_PROVIDED) % header_key)
+        self.assertIn(ErrorMessage.HTTP_CODE.get(ApiCode.HTTP_HEADER_NOT_PROVIDED.value) % header_key,
+                      body.get('description')[0].get('description'))
+        self.assertIn(ErrorMessage.HTTP_CODE.get(ApiCode.HTTP_HEADER_NOT_PROVIDED.value) % header_key,
+                      body.get('description')[1].get('description'))
+        self.assertIn(ErrorMessage.HTTP_CODE.get(ApiCode.HTTP_HEADER_NOT_PROVIDED.value) % header_key,
+                      body.get('description')[0].get('description'))
+        self.assertIn(ErrorMessage.HTTP_CODE.get(ApiCode.HTTP_HEADER_NOT_PROVIDED.value) % header_key,
+                      body.get('description')[1].get('description'))
         # self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), Constants.SUCCESS)
+        self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_get_agents_file_p(self):

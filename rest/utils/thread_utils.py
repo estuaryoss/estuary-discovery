@@ -4,13 +4,11 @@ import threading
 import requests
 from requests_toolbelt.utils import dump
 
-from rest.api.constants.api_constants import ApiConstants
-from rest.api.responsehelpers.error_codes import ErrorCodes
+from rest.api.constants.api_constants import ApiCode
+from rest.api.responsehelpers.error_codes import ErrorMessage
 from rest.api.responsehelpers.http_response import HttpResponse
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='(%(threadName)-10s) %(message)s',
-                    )
+logging.basicConfig(level=logging.DEBUG, format='(%(threadName)-10s) %(message)s')
 
 
 class ThreadUtils:
@@ -26,7 +24,7 @@ class ThreadUtils:
     def get_url(app):
         return app.get('homePageUrl')
 
-    def get_test_info(self, app):
+    def get_command_detached_info(self, app):
         request_object = {
             "uri": "commanddetached",
             "method": "GET",
@@ -48,7 +46,7 @@ class ThreadUtils:
             self.response_list.append(str(dump.dump_all(response)))
 
     def spawn_threads_get_test_info(self):
-        threads = [threading.Thread(target=self.get_test_info, args=(app,)) for app in self.apps]
+        threads = [threading.Thread(target=self.get_command_detached_info, args=(app,)) for app in self.apps]
         for thread in threads:
             thread.start()
         for thread in threads:
@@ -97,9 +95,9 @@ class ThreadUtils:
                                         timeout=3)
         except Exception as e:
             response = HttpResponse.response(
-                ApiConstants.TARGET_UNREACHABLE,
-                ErrorCodes.HTTP_CODE.get(
-                    ApiConstants.TARGET_UNREACHABLE) % f'{self.get_url(app)}{request_object.get("uri")}',
+                ApiCode.TARGET_UNREACHABLE.value,
+                ErrorMessage.HTTP_CODE.get(
+                    ApiCode.TARGET_UNREACHABLE.value) % f'{self.get_url(app)}{request_object.get("uri")}',
                 "Exception({})".format(e.__str__()))
 
         return response

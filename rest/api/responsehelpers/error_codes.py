@@ -1,17 +1,19 @@
-from rest.api.constants.api_constants import ApiConstants
+from rest.api.constants.api_constants import ApiCode
 
 
-class ErrorCodes:
+class ErrorMessage:
     HTTP_CODE = {
-        ApiConstants.SUCCESS: "Success",
-        ApiConstants.JINJA2_RENDER_FAILURE: "jinja2 render failed",
-        ApiConstants.GET_EUREKA_APPS_FAILED: "Failed to get apps from Eureka server '%s'",
-        ApiConstants.GET_CONTAINER_ENV_VAR_FAILURE: "Failed to get env var '%s'",
-        ApiConstants.GET_TESTS_FAILED: "Failed to get tests list",
-        ApiConstants.GET_DEPLOYMENTS_FAILED: "Failed to get deployments list",
-        ApiConstants.GET_TEST_RESULTS_FAILED: "Failed to get test results list",
-        ApiConstants.HTTP_HEADER_NOT_PROVIDED: "Http header value not provided: '%s'",
-        ApiConstants.DISCOVERY_ERROR: "Estuary discovery: error aggregating results",
-        ApiConstants.UNAUTHORIZED: "Unauthorized",
-        ApiConstants.TARGET_UNREACHABLE: "The requested target %s was unreachable",
+        ApiCode.SUCCESS.value: "Success",
+        ApiCode.JINJA2_RENDER_FAILURE.value: "Jinja2 render failed",
+        ApiCode.GET_EUREKA_APPS_FAILED.value: "Failed to get apps from Eureka server '%s'",
+        ApiCode.GET_CONTAINER_ENV_VAR_FAILURE.value: "Failed to get env var '%s'",
+        ApiCode.GET_COMMANDS_DETACHED_FAILED.value: "Failed to get the list of the commands running in background",
+        ApiCode.GET_DEPLOYMENTS_FAILED.value: "Failed to get deployments list",
+        ApiCode.GET_TEST_RESULTS_FAILED.value: "Failed rto get test results list",
+        ApiCode.HTTP_HEADER_NOT_PROVIDED.value: "Http header value not provided.value: '%s'",
+        ApiCode.DISCOVERY_ERROR.value: "Estuary discovery.value: error aggregating results",
+        ApiCode.UNAUTHORIZED.value: "Unauthorized",
+        ApiCode.TARGET_UNREACHABLE.value: "The requested target %s was unreachable",
+        ApiCode.INVALID_JSON_PAYLOAD.value: "The payload '%s' is not JSON",
+        ApiCode.SET_ENV_VAR_FAILURE.value: "Could not set env vars '%s'",
     }

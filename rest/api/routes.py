@@ -7,12 +7,13 @@ from fluent import sender
 
 from about import properties
 from rest.api import AppCreatorSingleton
-from rest.api.constants.api_constants import ApiConstants
+from rest.api.constants.api_constants import ApiCode
 from rest.api.constants.env_constants import EnvConstants
 from rest.api.constants.header_constants import HeaderConstants
+from rest.api.exception.api_exception import ApiException
 from rest.api.jinja2.render import Render
 from rest.api.loghelpers.message_dumper import MessageDumper
-from rest.api.responsehelpers.error_codes import ErrorCodes
+from rest.api.responsehelpers.error_codes import ErrorMessage
 from rest.api.responsehelpers.http_response import HttpResponse
 from rest.api.swagger import swagger_file_content
 from rest.environment.environment import EnvironmentSingleton
@@ -34,6 +35,14 @@ logger = \
 fluentd_service = Fluentd(logger)
 message_dumper = MessageDumper()
 env = EnvironmentSingleton.get_instance()
+
+
+@app.errorhandler(ApiException)
+def handle_api_error(e):
+    return Response(json.dumps(
+        HttpResponse().response(code=e.code, message=e.message,
+                                description="Exception({})".format(e.exception.__str__()))),
+        500, mimetype="application/json")
 
 
 @app.before_request
@@ -59,8 +68,8 @@ def before_request():
             headers = {
                 HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
             }
-            return Response(json.dumps(http.response(ApiConstants.UNAUTHORIZED,
-                                                     ErrorCodes.HTTP_CODE.get(ApiConstants.UNAUTHORIZED),
+            return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED.value,
+                                                     ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value),
                                                      "Invalid Token")), 401, mimetype="application/json",
                             headers=headers)
 
@@ -89,25 +98,22 @@ def get_swagger():
 
 @app.route('/ping')
 def ping():
-    http = HttpResponse()
-
     return Response(
-        json.dumps(http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), "pong")),
+        json.dumps(
+            HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), "pong")),
         200, mimetype="application/json")
 
 
 @app.route('/about')
 def about():
-    http = HttpResponse()
-
     return Response(json.dumps(
-        http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), properties["name"])), 200,
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                properties["name"])), 200,
         mimetype="application/json")
 
 
 @app.route('/render/<template>/<variables>', methods=['GET', 'POST'])
 def get_content_with_env(template, variables):
-    http = HttpResponse()
     env.set_env_var(EnvConstants.TEMPLATE, template.strip())
     env.set_env_var(EnvConstants.VARIABLES, variables.strip())
 
@@ -115,173 +121,139 @@ def get_content_with_env(template, variables):
         env_vars_attempted = request.get_json(force=True)
         for key, value in env_vars_attempted.items():
             env.set_env_var(key, value)
-    except:
-        pass
+    except Exception as e:
+        app.logger.debug(f"Exception: {e.__str__()}")
 
     try:
         r = Render(env.get_env_and_virtual_env().get(EnvConstants.TEMPLATE),
                    env.get_env_and_virtual_env().get(EnvConstants.VARIABLES))
         response = Response(r.rend_template(), 200, mimetype="text/plain")
     except Exception as e:
-        result = "Exception({})".format(e.__str__())
-        response = Response(json.dumps(
-            http.response(ApiConstants.JINJA2_RENDER_FAILURE,
-                          ErrorCodes.HTTP_CODE.get(ApiConstants.JINJA2_RENDER_FAILURE),
-                          result)), 404, mimetype="application/json")
+        raise ApiException(ApiCode.JINJA2_RENDER_FAILURE.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.JINJA2_RENDER_FAILURE.value), e)
 
     return response
 
 
 @app.route('/env')
 def get_vars():
-    http = HttpResponse()
-
     return Response(json.dumps(
-        http.response(code=ApiConstants.SUCCESS, message=ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
-                      description=env.get_env_and_virtual_env())),
-        200, mimetype="application/json")
+        HttpResponse().response(code=ApiCode.SUCCESS.value, message=ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                description=env.get_env_and_virtual_env())), 200, mimetype="application/json")
 
 
 @app.route('/env/<name>', methods=['GET'])
 def get_env(name):
-    http = HttpResponse()
-
     return Response(json.dumps(
-        http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
-                      env.get_env_and_virtual_env().get(name))), 200, mimetype="application/json")
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                env.get_env_and_virtual_env().get(name))), 200, mimetype="application/json")
 
 
 @app.route('/env', methods=['POST'])
 def set_env():
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
-    env_vars_added = {}
 
     try:
         env_vars_attempted = json.loads(input_data)
     except Exception as e:
-        return Response(json.dumps(http.response(code=ApiConstants.INVALID_JSON_PAYLOAD,
-                                                 message=ErrorCodes.HTTP_CODE.get(
-                                                     ApiConstants.INVALID_JSON_PAYLOAD) % str(
-                                                     input_data),
-                                                 description="Exception({0})".format(e.__str__()))), 404,
-                        mimetype="application/json")
+        raise ApiException(ApiCode.INVALID_JSON_PAYLOAD.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.INVALID_JSON_PAYLOAD.value) % str(input_data), e)
 
     try:
         for key, value in env_vars_attempted.items():
             env.set_env_var(key, value)
-
         env_vars_added = {key: value for key, value in env_vars_attempted.items() if key in env.get_virtual_env()}
     except Exception as e:
-        return Response(json.dumps(http.response(code=ApiConstants.SET_ENV_VAR_FAILURE,
-                                                 message=ErrorCodes.HTTP_CODE.get(
-                                                     ApiConstants.SET_ENV_VAR_FAILURE) % str(
-                                                     input_data),
-                                                 description="Exception({})".format(e.__str__()))), 404,
-                        mimetype="application/json")
+        raise ApiException(ApiCode.SET_ENV_VAR_FAILURE.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.SET_ENV_VAR_FAILURE.value) % str(input_data), e)
     return Response(
-        json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
-                          env_vars_added)),
-        200,
-        mimetype="application/json")
+        json.dumps(http.response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                 env_vars_added)), 200, mimetype="application/json")
 
 
 @app.route('/eurekaapps', methods=['GET'])
 def get_eureka_apps():
     http = HttpResponse()
-    eureka_utils = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
-        apps_list = eureka_utils.get_eureka_apps()
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), apps_list)), 200,
-            mimetype="application/json")
+        apps_list = eureka.get_eureka_apps()
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        response = Response(json.dumps(http.response(ApiConstants.GET_EUREKA_APPS_FAILED,
-                                                     ErrorCodes.HTTP_CODE.get(
-                                                         ApiConstants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
-                                                     exception)), 404, mimetype="application/json")
-    return response
+        raise ApiException(ApiCode.GET_EUREKA_APPS_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_EUREKA_APPS_FAILED.value) % eureka.get_eureka_host(),
+                           e)
+
+    return Response(
+        json.dumps(http.response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), apps_list)),
+        200,
+        mimetype="application/json")
 
 
-@app.route('/eurekaapps/<type>', methods=['GET'])
-def get_type_eureka_apps(type):
-    http = HttpResponse()
-    type = type.strip()
-    eureka_utils = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+@app.route('/eurekaapps/<eureka_app_name>', methods=['GET'])
+def get_eureka_apps_name(eureka_app_name):
+    eureka_app_name = eureka_app_name.strip()
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
-        apps_list = eureka_utils.get_type_eureka_apps(type)
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), apps_list)), 200,
-            mimetype="application/json")
+        apps_list = eureka.get_type_eureka_apps(eureka_app_name)
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        return Response(json.dumps(http.response(ApiConstants.GET_EUREKA_APPS_FAILED,
-                                                 ErrorCodes.HTTP_CODE.get(
-                                                     ApiConstants.GET_EUREKA_APPS_FAILED) % eureka_utils.get_eureka_host(),
-                                                 exception)), 404, mimetype="application/json")
-    return response
+        raise ApiException(ApiCode.GET_EUREKA_APPS_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_EUREKA_APPS_FAILED.value) % eureka.get_eureka_host(),
+                           e)
+    return Response(json.dumps(
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), apps_list)),
+        200,
+        mimetype="application/json")
 
 
 # aggregator of command detached info from the agent(s)
 @app.route('/commandsdetached', methods=['GET'])
-def get_tests():
-    http = HttpResponse()
+def get_commands_detached():
     application = "agent"
-    eureka_utils = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
-        agent_apps = eureka_utils.get_type_eureka_apps(application)
+        agent_apps = eureka.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
         thread_utils.spawn_threads_get_test_info()
-        tests = thread_utils.get_threads_response()
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), tests)), 200,
-            mimetype="application/json")
+        commands_detached = thread_utils.get_threads_response()
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        return Response(json.dumps(http.response(ApiConstants.GET_TESTS_FAILED,
-                                                 ErrorCodes.HTTP_CODE.get(
-                                                     ApiConstants.GET_TESTS_FAILED),
-                                                 exception)), 404, mimetype="application/json")
+        raise ApiException(ApiCode.GET_COMMANDS_DETACHED_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_DETACHED_FAILED.value), e)
 
-    return response
+    return Response(json.dumps(
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                commands_detached)), 200,
+        mimetype="application/json")
 
 
 # aggregator of the deployer(s) data.
 @app.route('/deployments', methods=['GET'])
 def get_deployments():
-    http = HttpResponse()
     application = "deployer"
-    eureka_utils = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
-        deployer_apps = eureka_utils.get_type_eureka_apps(application)
+        deployer_apps = eureka.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(apps=deployer_apps, headers=request.headers)
         thread_utils.spawn_threads_get_deployment_info()
         deployments = thread_utils.get_threads_response()
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS), deployments)), 200,
-            mimetype="application/json")
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        return Response(json.dumps(http.response(ApiConstants.GET_DEPLOYMENTS_FAILED,
-                                                 ErrorCodes.HTTP_CODE.get(
-                                                     ApiConstants.GET_DEPLOYMENTS_FAILED),
-                                                 exception)), 404, mimetype="application/json")
+        raise ApiException(ApiCode.GET_DEPLOYMENTS_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_DEPLOYMENTS_FAILED.value), e)
 
-    return response
+    return Response(json.dumps(
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), deployments)),
+        200,
+        mimetype="application/json")
 
 
 # aggregator of all agents endpoints
 @app.route('/agents/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def agents_request(text):
     text = text.strip()
-    http = HttpResponse()
-    eureka_service = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
     header_key = 'IpAddr-Port'  # target specific agent
     application = "agent"
     try:
@@ -297,7 +269,7 @@ def agents_request(text):
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})
-        agent_apps = eureka_service.get_type_eureka_apps(application)
+        agent_apps = eureka.get_type_eureka_apps(application)
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
             agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
@@ -305,25 +277,20 @@ def agents_request(text):
         thread_utils = ThreadUtils(apps=agent_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
-                          thread_utils.get_threads_response())), 200,
-            mimetype="application/json")
-
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        response = Response(json.dumps(http.response(ApiConstants.DISCOVERY_ERROR,
-                                                     ErrorCodes.HTTP_CODE.get(ApiConstants.DISCOVERY_ERROR),
-                                                     exception)), 404, mimetype="application/json")
-    return response
+        raise ApiException(ApiCode.DISCOVERY_ERROR.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.DISCOVERY_ERROR.value), e)
+
+    return Response(json.dumps(
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                thread_utils.get_threads_response())), 200, mimetype="application/json")
 
 
 # aggregator of all deployers endpoints
 @app.route('/deployers/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def deployers_request(text):
     text = text.strip()
-    http = HttpResponse()
-    eureka_service = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
+    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
     header_key = 'IpAddr-Port'  # target specific deployer
     application = "deployer"
     try:
@@ -339,7 +306,7 @@ def deployers_request(text):
             "data": input_data
         }
         app.logger.debug({"msg": f"{request_object}"})
-        deployer_apps = eureka_service.get_type_eureka_apps(application)
+        deployer_apps = eureka.get_type_eureka_apps(application)
         if request.headers.get(f"{header_key}"):  # not mandatory
             ip_port = request.headers.get(f"{header_key}").split(":")
             deployer_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
@@ -347,14 +314,10 @@ def deployers_request(text):
         thread_utils = ThreadUtils(apps=deployer_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
-        response = Response(json.dumps(
-            http.response(ApiConstants.SUCCESS, ErrorCodes.HTTP_CODE.get(ApiConstants.SUCCESS),
-                          thread_utils.get_threads_response())), 200,
-            mimetype="application/json")
-
     except Exception as e:
-        exception = "Exception({})".format(e.__str__())
-        response = Response(json.dumps(http.response(ApiConstants.DISCOVERY_ERROR,
-                                                     ErrorCodes.HTTP_CODE.get(ApiConstants.DISCOVERY_ERROR),
-                                                     exception)), 404, mimetype="application/json")
-    return response
+        raise ApiException(ApiCode.DISCOVERY_ERROR.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.DISCOVERY_ERROR.value), e)
+
+    return Response(json.dumps(
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                thread_utils.get_threads_response())), 200, mimetype="application/json")
