@@ -225,7 +225,7 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.get(self.server + "/render/{}/{}".format(template, variables))
 
         body = response.json()
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
         # self.assertEqual(expected, body.get("description"))
         self.assertIn(expected, body.get("description"))
 
@@ -239,7 +239,7 @@ class FlaskServerTestCase(unittest.TestCase):
         response = requests.get(self.server + "/render/{}/{}".format(template, variables))
 
         body = response.json()
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 500)
         self.assertIn(expected, body.get("description"))
 
     @parameterized.expand([

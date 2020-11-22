@@ -68,8 +68,8 @@ def before_request():
             headers = {
                 HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
             }
-            return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED,
-                                                     ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED),
+            return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED.value,
+                                                     ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value),
                                                      "Invalid Token")), 401, mimetype="application/json",
                             headers=headers)
 
@@ -127,11 +127,12 @@ def get_content_with_env(template, variables):
     try:
         r = Render(env.get_env_and_virtual_env().get(EnvConstants.TEMPLATE),
                    env.get_env_and_virtual_env().get(EnvConstants.VARIABLES))
+        response = Response(r.rend_template(), 200, mimetype="text/plain")
     except Exception as e:
         raise ApiException(ApiCode.JINJA2_RENDER_FAILURE.value,
                            ErrorMessage.HTTP_CODE.get(ApiCode.JINJA2_RENDER_FAILURE.value), e)
 
-    return Response(r.rend_template(), 200, mimetype="text/plain")
+    return response
 
 
 @app.route('/env')
