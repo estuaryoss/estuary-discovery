@@ -5,7 +5,7 @@ from flask import Response
 from flask import request
 from fluent import sender
 
-from about import properties
+from about import properties, about_system
 from rest.api import AppCreatorSingleton
 from rest.api.constants.api_constants import ApiCode
 from rest.api.constants.env_constants import EnvConstants
@@ -108,8 +108,7 @@ def ping():
 def about():
     return Response(json.dumps(
         HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
-                                properties["name"])), 200,
-        mimetype="application/json")
+                                about_system)), 200, mimetype="application/json")
 
 
 @app.route('/render/<template>/<variables>', methods=['GET', 'POST'])

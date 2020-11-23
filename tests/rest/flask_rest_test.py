@@ -115,7 +115,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('description'), service_name)
+        self.assertIsInstance(body.get('description'), dict)
         self.assertEqual(body.get('name'), service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         self.assertEqual(body.get('version'), self.expected_version)
@@ -134,7 +134,7 @@ class FlaskServerTestCase(unittest.TestCase):
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body.get('description'), service_name)
+        self.assertIsInstance(body.get('description'), dict)
         self.assertEqual(body.get('name'), service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         self.assertEqual(body.get('version'), self.expected_version)

@@ -13,4 +13,5 @@ Jinja2
 pyinstaller
 setuptools==44.0.0
 jproperties
+psutil
 # pypiwin32 #for windows pyinstalller
