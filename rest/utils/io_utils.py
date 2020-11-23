@@ -32,3 +32,7 @@ class IOUtils:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
         with open(file, 'r') as f:
             return f.read()
+
+    @staticmethod
+    def does_file_exist(file):
+        return Path(file).exists()
