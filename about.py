@@ -10,8 +10,7 @@ properties = {
     "description": "Discover estuary apps registered with Eureka. Control test sessions over estuary agents.",
     "author": "Catalin Dinuta",
     "platforms": ["Linux", "Mac", "Windows"],
-    "license": "Apache-2.0",
-    "port": 8080
+    "license": "Apache-2.0"
 }
 
 about_system = {
