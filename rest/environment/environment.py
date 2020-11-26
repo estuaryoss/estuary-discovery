@@ -6,8 +6,9 @@ from rest.api import AppCreatorSingleton
 
 
 class EnvironmentSingleton:
+    VIRTUAL_ENV_MAX_SIZE = 100
+
     __file = "environment.properties"
-    __VIRTUAL_ENV_MAX_SIZE = 50
     __instance = None
     __env = os.environ.copy()
     __virtual_env = {}
@@ -44,8 +45,16 @@ class EnvironmentSingleton:
             self.set_env_var(key, configs[key][0])
 
     def set_env_var(self, key, value):
-        if key not in self.__env and len(self.__virtual_env) <= self.__VIRTUAL_ENV_MAX_SIZE:
+        if key in self.get_virtual_env():
             self.__virtual_env[key] = value
+            return
+        if len(self.get_virtual_env()) <= self.VIRTUAL_ENV_MAX_SIZE:
+            self.__virtual_env[key] = value
+            return
+
+    def set_env_var(self, env_vars):
+        for key, value in env_vars.items():
+            self.set_env_var(key, value)
 
     def get_env(self):
         return self.__env
