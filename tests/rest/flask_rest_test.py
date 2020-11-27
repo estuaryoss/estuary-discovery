@@ -62,8 +62,8 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('path'))
 
     @parameterized.expand([
-        ("FOO1", "BAR10"),
-        ("FOO2", "BAR20")
+        ("k1", "BAR10"),
+        ("k2", "BAR20")
     ])
     @unittest.skipIf(os.environ.get('SKIP_ON_CENTOS') == "true", "skip on centos docker")
     def test_env_load_from_props(self, env_var, expected_value):
@@ -79,7 +79,7 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('path'))
 
     def test_setenv_endpoint_jsonwithvalues_p(self):
-        payload = {"a": "b", "FOO1": "BAR1"}
+        payload = {"a": "b", "k1": "BAR1"}
         headers = {'Content-type': 'application/json'}
 
         response = requests.post(self.server + f"/env", data=json.dumps(payload),
