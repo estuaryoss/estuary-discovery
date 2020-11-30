@@ -54,6 +54,7 @@ jobs:
         - ps -ef
       script:
         - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
+        - python3 -m unittest discover tests/unit "*_test.py"
 
     #run executable tests - centos docker
     - language: python
