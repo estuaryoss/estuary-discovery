@@ -2,7 +2,7 @@ version: '2'
 services:
   eureka:
     container_name: netflix-eureka
-    image: dinutac/netflixoss-eureka:latest
+    image: estuaryoss/netflix-eureka:latest
     expose:
       - "8080"
     ports:
@@ -13,7 +13,7 @@ services:
   estuary-discovery:
     container_name: estuary-discovery
     hostname: estuary-discovery
-    image: dinutac/estuary-discovery:4.2.0
+    image: estuaryoss/discovery:4.2.0
     command: bash -c "sleep 60 && /scripts/main_flask.py"
     environment:
       FLUENTD_IP_PORT: fluentd:24224
@@ -27,7 +27,7 @@ services:
   #  estuary-agent:
   #    container_name: estuary-agent
   #    hostname: estuary-agent
-  #    image: dinutac/estuary-agent:latest
+  #    image: estuaryoss/agent:latest
   #    command: bash -c "sleep 60 && /scripts/main_flask.py"
   #    environment:
   #      FLUENTD_IP_PORT: fluentd:24224
@@ -43,7 +43,7 @@ services:
   estuary-agent-java:
     container_name: estuary-agent-java
     hostname: estuary-agent-java
-    image: dinutac/estuary-agent-java:latest
+    image: estuaryoss/agent-java:latest
     entrypoint: bash -c "sleep 60 && java -jar /app/agent-exec.jar --eureka.client.enabled=true"
     environment:
       spring_profiles_active: test
@@ -60,7 +60,7 @@ services:
   estuary-agent-go:
     container_name: estuary-agent-go
     hostname: estuary-agent-go
-    image: dinutac/estuary-agent-go:latest
+    image: estuaryoss/agent-go:latest
     entrypoint: bash -c "sleep 60 && go run Main.go"
     environment:
       FLUENTD_IP_PORT: fluentd:24224
@@ -74,7 +74,7 @@ services:
       - elastic
 
       #  estuary-viewer:
-      #    image: dinutac/estuary-viewer:latest
+      #    image: estuaryoss/viewer:latest
       #    hostname: estuary-viewer
       #    entrypoint: bash -c "echo VUE_APP_ESTUARY_DISCOVERY=http://192.168.0.11:8081 > /home/node/app/.env; echo VUE_APP_HTTP_AUTH_TOKEN=None >> /home/node/app/.env; /home/node/app/start.sh"
       #    container_name: estuary-viewer

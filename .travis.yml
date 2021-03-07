@@ -93,7 +93,7 @@ jobs:
         - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
-        - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
+        - docker tag estuaryoss/discovery:latest estuaryoss/discovery:latest # <-- remove this when migrating
         - docker-compose up -d
         - docker pull alpine:3.9.4
       script:
@@ -129,7 +129,7 @@ jobs:
         - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
-        - docker tag estuaryoss/discovery:latest dinutac/estuary-discovery:latest # <-- remove this when migrating
+        - docker tag estuaryoss/discovery:latest estuaryoss/discovery:latest # <-- remove this when migrating
         #        - sudo sysctl -w vm.max_map_count=262144
         - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
         - sleep 120 #wait until efk stack is up and running
