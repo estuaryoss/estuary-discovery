@@ -299,7 +299,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
         self.assertEqual(body.get('description')[0].get('description'), test_id)
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
