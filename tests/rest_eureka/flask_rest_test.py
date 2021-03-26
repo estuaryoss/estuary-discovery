@@ -49,7 +49,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(len(up_services), 3)
 
     def test_geteureka_apps(self):
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps", headers=headers)
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -78,7 +81,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_agent(self):
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-agent")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-agent", headers=headers)
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -99,7 +105,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_deployer(self):
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-deployer")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-deployer", headers=headers)
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -121,7 +130,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('timestamp'))
 
     def test_geteureka_apps_discovery(self):
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-discovery")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-discovery", headers=headers)
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -144,7 +156,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_geteureka_apps_empty_list(self):
         app = "whatever"
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/{app}")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/{app}", headers=headers)
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -225,8 +240,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_time_of_10_requests(self):
         repetitions = 10
         start = time.time()
+        headers = {
+            'Token': 'None'
+        }
         for _ in range(1, repetitions):
-            response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps")
+            response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps", headers=headers)
             self.assertEqual(response.status_code, 200)
         end = time.time()
         print(f"made {repetitions} get eureka apps repetitions in {end - start} s")
@@ -234,7 +252,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_get_agents_file_missing_file_path_n(self):
         header_key = 'File-Path'
         headers = {
-            'whatever': '100'
+            'whatever': '100',
+            'Token': 'None'
         }
         response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers)
         body = response.json()
@@ -247,7 +266,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_agents_file_p(self):
         headers = {
-            'File-Path': '/etc/hostname'
+            'File-Path': '/etc/hostname',
+            'Token': 'None'
         }
         response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers)
         body = response.json()
@@ -258,7 +278,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_get_agents_file_file_not_found(self):
         expected = "no such file"
         headers = {
-            'File-Path': '/dummy_path'
+            'File-Path': '/dummy_path',
+            'Token': 'None'
         }
         response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers)
         body = response.json()
@@ -269,8 +290,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_agent_teststart_broadcast_p(self):
         cmds = "ls -lrt\n"
         test_id = "100"
+        headers = {
+            'Token': 'None'
+        }
         response = requests.post(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached/{test_id}",
-                                 data=cmds)
+                                 data=cmds, headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
@@ -282,7 +306,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get('description').get('id'), test_id)
 
     def test_deployer_ping_broadcast_p(self):
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/deployers/docker/about")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/deployers/docker/about", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
@@ -293,7 +320,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
 
         # get eureka apps agent
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers)
         # print(dump.dump_response(response))
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -303,7 +333,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         agent_apps = body.get('description')
         for i, item in enumerate(agent_apps):
             headers = {
-                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port'))
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port')),
+                'Token': 'None'
             }
 
             # send unicast message to the agents with the ip:port
@@ -316,7 +347,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('description')), 1)
             self.assertEqual(body.get('description')[0].get('description'), test_id[i])
 
-            response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached")
+            headers = {
+                'Token': 'None'
+            }
+            response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached", headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 1)
@@ -324,7 +358,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_deployer_unicast_p(self):
         # get eureka apps agent
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/deployer")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/deployer", headers=headers)
         # print(dump.dump_response(response))
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -334,7 +371,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         deployer_apps = body.get('description')
         for i, item in enumerate(deployer_apps):
             headers = {
-                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port'))
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port')),
+                'Token': 'None'
             }
 
             # send unicast message to the deployers with the ip:port
@@ -351,7 +389,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
 
         # get eureka apps agent
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent")
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
@@ -360,7 +401,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         agent_apps = body.get('description')
         for i, item in enumerate(agent_apps):
             headers = {
-                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr') + "dummy", item.get('port'))
+                'IpAddr-Port': '{}:{}'.format(item.get('ipAddr') + "dummy", item.get('port')),
+                'Token': 'None'
             }
 
             # send unicast message to the agents with the ip:port
@@ -370,8 +412,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 0)
-
-            response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached")
+            headers = {
+                'Token': 'None'
+            }
+            response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached", headers=headers)
             body = response.json()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 1)
