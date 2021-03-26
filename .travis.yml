@@ -22,9 +22,9 @@ jobs:
         - pip3 install -r requirements.txt
         - pip3 install coveralls
       before_script:
-        - py.test $SCRIPTS_DIR/render_test.py --cov=rest/api/jinja2
+        - py.test tests/render_test.py --cov=rest/api/jinja2
       script:
-        - python3 -m unittest discover . "render_test.py"
+        - python3 -m unittest discover tests "render_test.py"
       after_script:
         - coveralls
 
@@ -66,18 +66,17 @@ jobs:
         SKIP_ON_CENTOS: true
       before_script:
         - pip3 install -r requirements.txt
-        - pyinstaller --onefile main_flask.py
+        - pyinstaller --onefile --clean main_flask.py
         - ls -lrt dist
-        - cp dist/main_flask main-linux
       script:
-        - docker build -t estuaryoss/discovery-centos:latest -f Dockerfile_centos .
+        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker run
           -d
           -p 8080:8080
-          --name estuary-discovery-centos
-          estuaryoss/discovery-centos:latest
+          --name estuary-discovery
+          estuaryoss/discovery:latest
         - sleep 5
-        - docker logs estuary-discovery-centos
+        - docker logs estuary-discovery
         #  - ./ngrok.sh
         #  - sleep 3600
         - python3 -m unittest discover tests/rest "*_test.py"
@@ -93,7 +92,6 @@ jobs:
         - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose pull
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
-        - docker tag estuaryoss/discovery:latest estuaryoss/discovery:latest # <-- remove this when migrating
         - docker-compose up -d
         - docker pull alpine:3.9.4
       script:
@@ -119,46 +117,33 @@ jobs:
         - docker exec estuary-discovery python3 -m unittest discover /scripts/tests/rest_eureka "*_test.py"
 
     #run fluentd EFK tests
-    - language: python
-      python: 3.6
-      services: docker
-      env:
-        ISOLATED: true
-        SCRIPTS_DIR: tests
-      before_script:
-        - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
-        - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
-        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
-        - docker tag estuaryoss/discovery:latest estuaryoss/discovery:latest # <-- remove this when migrating
-        #        - sudo sysctl -w vm.max_map_count=262144
-        - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
-        - sleep 120 #wait until efk stack is up and running
-        - docker ps
-      script:
-        - curl -i http://localhost:8081/about #discovery
-        - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
-        - curl -i http://localhost:8082/about #agent
-        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #agent unauth
-        - curl -i --header 'Token:None' http://localhost:8083/about #agent-java
-        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #agent-java unauth
-        - sleep 30
-        - docker logs estuary-discovery
-        - docker logs estuary-agent
-        - docker logs estuary-agent-java
-        - python3 -m unittest discover $SCRIPTS_DIR/fluentd_efk "*_test.py"
-
-    #run docker tests - alpine
-    - language: python
-      python: 3.6
-      services: docker
-      env:
-        ISOLATED: true
-        SCRIPTS_DIR: tests
-      before_script:
-        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
-      script:
-        - docker run -d -p 8080:8080  estuaryoss/discovery:latest
-        - python3 -m unittest discover $SCRIPTS_DIR/rest "*_test.py"
+    #    - language: python
+    #      python: 3.6
+    #      services: docker
+    #      env:
+    #        ISOLATED: true
+    #        SCRIPTS_DIR: tests
+    #      before_script:
+    #        - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
+    #        - docker-compose -f tests/fluentd_efk/docker-compose.yml pull
+    #        - docker build -t estuaryoss/discovery:latest -f Dockerfile .
+    #        - docker tag estuaryoss/discovery:latest estuaryoss/discovery:latest # <-- remove this when migrating
+    #        #        - sudo sysctl -w vm.max_map_count=262144
+    #        - docker-compose -f tests/fluentd_efk/docker-compose.yml up --build -d
+    #        - sleep 120 #wait until efk stack is up and running
+    #        - docker ps
+    #      script:
+    #        - curl -i http://localhost:8081/about #discovery
+    #        - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
+    #        - curl -i http://localhost:8082/about #agent
+    #        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #agent unauth
+    #        - curl -i --header 'Token:None' http://localhost:8083/about #agent-java
+    #        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #agent-java unauth
+    #        - sleep 30
+    #        - docker logs estuary-discovery
+    #        - docker logs estuary-agent
+    #        - docker logs estuary-agent-java
+    #        - python3 -m unittest discover $SCRIPTS_DIR/fluentd_efk "*_test.py"
 
     - stage: deploy
       services: docker

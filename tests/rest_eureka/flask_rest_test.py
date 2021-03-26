@@ -40,7 +40,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     deployer_ip = "estuary-deployer"
     server_port = "8080"  # all have 8080
     no_of_deployers = 1
-    no_of_agents = 2
+    no_of_agents = 1
     no_of_discovery = 1
 
     def test_eureka_registration(self):
