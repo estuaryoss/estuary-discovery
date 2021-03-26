@@ -115,7 +115,7 @@ jobs:
         #          --data 'sleep 3600'"
         - sleep 40 # wait until deployments are up and running
         - docker ps
-        - docker exec estuary-discovery python3 -m unittest discover /scripts/tests/rest_eureka "*_test.py"
+        - python3 -m unittest discover tests/rest_eureka "*_test.py"
 
     #run fluentd EFK tests
     #    - language: python
