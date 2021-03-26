@@ -34,6 +34,7 @@ class EurekaClient:
 
 class FlaskServerEurekaTestCase(unittest.TestCase):
     discovery_ip = "estuary-discovery"
+    home_url_int = f"http://{discovery_ip}"
     home_url = "http://localhost"
     agent_ip = "estuary-agent"
     deployer_ip = "estuary-deployer"
@@ -45,7 +46,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_eureka_registration(self):
         up_services = EurekaClient("http://localhost:8080/eureka/v2").get_apps()
-        self.assertEqual(len(up_services), 4)
+        self.assertEqual(len(up_services), 3)
 
     def test_geteureka_apps(self):
         response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps")
@@ -64,11 +65,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("app"), self.discovery_ip)
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("homePageUrl"),
-                         f"{self.home_url}:{self.server_port}/")
+                         f"{self.home_url_int}:{self.server_port}/")
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("statusPageUrl"),
-                         f"{self.home_url}:{self.server_port}/ping")
+                         f"{self.home_url_int}:{self.server_port}/ping")
         self.assertEqual(body.get('description').get(self.discovery_ip)[0].get("healthCheckUrl"),
-                         f"{self.home_url}:{self.server_port}/ping")
+                         f"{self.home_url_int}:{self.server_port}/ping")
         self.assertIn(self.agent_ip, body.get('description').get(self.agent_ip)[0].get("ipAddr"))
         self.assertEqual(body.get('description').get(self.agent_ip)[0].get("port"), self.server_port)
         self.assertEqual(body.get('description').get(self.deployer_ip)[0].get("ipAddr"), self.deployer_ip)
@@ -133,11 +134,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("port"), self.server_port)
         self.assertEqual(body.get('description')[0].get("app"), self.discovery_ip)
         self.assertEqual(body.get('description')[0].get("homePageUrl"),
-                         f"{self.home_url}:{self.server_port}/")
+                         f"{self.home_url_int}:{self.server_port}/")
         self.assertEqual(body.get('description')[0].get("healthCheckUrl"),
-                         f"{self.home_url}:{self.server_port}/ping")
+                         f"{self.home_url_int}:{self.server_port}/ping")
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
-                         f"{self.home_url}:{self.server_port}/ping")
+                         f"{self.home_url_int}:{self.server_port}/ping")
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
@@ -165,12 +166,10 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('message'),
                          ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         # self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(len(body.get('description')), 2)  # 2 tests active
+        self.assertEqual(len(body.get('description')), 1)  # 1 test active
         self.assertIn(f"{expected_ip}", body.get('description')[0].get("ip_port"))
         self.assertIn(f"http://{expected_ip}", body.get('description')[0].get("homePageUrl"))
-        self.assertIn(f"http://{expected_ip}", body.get('description')[1].get("homePageUrl"))
         self.assertIsInstance(body.get('description')[0].get("started"), bool)
-        self.assertIsInstance(body.get('description')[1].get("started"), bool)
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
@@ -257,7 +256,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertGreater(len(body.get('description')[0]), 8)
 
     def test_get_agents_file_file_not_found(self):
-        expected = "Exception"
+        expected = "no such file"
         headers = {
             'File-Path': '/dummy_path'
         }
@@ -287,7 +286,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
-        self.assertIn("deployer", body.get('description')[0].get('description'))
+        self.assertIn("system", body.get('description')[0].get('description'))
 
     def test_agent_teststart_unicast_p(self):
         test_id = ["1", "2"]
@@ -320,9 +319,8 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached")
             body = response.json()
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(body.get('description')), 2)
-            self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id'),
-                                       body.get('description')[1].get('description').get('id')])
+            self.assertEqual(len(body.get('description')), 1)
+            self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id')])
 
     def test_deployer_unicast_p(self):
         # get eureka apps agent
@@ -346,7 +344,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             print(dump.dump_response(response))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(body.get('description')), 1)
-            self.assertIn("deployer", body.get('description')[0].get('description'))
+            self.assertIn("system", body.get('description')[0].get('description'))
 
     def test_agent_teststart_unicast_wrong_ipport_p(self):
         test_id = ["1", "2"]
@@ -356,7 +354,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent")
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(body.get('description')), 2)
+        self.assertEqual(len(body.get('description')), 1)
 
         # send unicast teststart request and check the results
         agent_apps = body.get('description')
@@ -376,7 +374,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached")
             body = response.json()
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(body.get('description')), 2)
+            self.assertEqual(len(body.get('description')), 1)
 
 
 if __name__ == '__main__':

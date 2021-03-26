@@ -10,7 +10,7 @@ class ErrorMessage:
         ApiCode.GET_COMMANDS_DETACHED_FAILED.value: "Failed to get the list of the commands running in background",
         ApiCode.GET_DEPLOYMENTS_FAILED.value: "Failed to get deployments list",
         ApiCode.GET_TEST_RESULTS_FAILED.value: "Failed rto get test results list",
-        ApiCode.HTTP_HEADER_NOT_PROVIDED.value: "Http header value not provided.value: '%s'",
+        ApiCode.HTTP_HEADER_NOT_PROVIDED.value: "Http header value not provided: '%s'",
         ApiCode.DISCOVERY_ERROR.value: "Estuary discovery.value: error aggregating results",
         ApiCode.UNAUTHORIZED.value: "Unauthorized",
         ApiCode.TARGET_UNREACHABLE.value: "The requested target %s was unreachable",
