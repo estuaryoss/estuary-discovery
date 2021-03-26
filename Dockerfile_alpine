@@ -1,5 +1,5 @@
 ###########################################
-## alpine image not maintained anymore. obsolete ######
+####### only for testing purposes ######
 ###########################################
 
 FROM alpine:3.11.6
