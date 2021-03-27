@@ -2,7 +2,7 @@ version: '2'
 services:
   eureka:
     container_name: netflix-eureka
-    image: estuaryoss/netflix-eureka:latest
+    image: estuaryoss/netflix-eureka:1.10.5
     expose:
       - "8080"
     ports:
@@ -13,8 +13,8 @@ services:
   estuary-discovery:
     container_name: estuary-discovery
     hostname: estuary-discovery
-    image: estuaryoss/discovery:4.2.0
-    command: bash -c "sleep 60 && /scripts/main_flask.py"
+    image: estuaryoss/discovery:latest
+    command: bash -c "sleep 60 && /root/app/main-linux"
     environment:
       FLUENTD_IP_PORT: fluentd:24224
       EUREKA_SERVER: http://eureka:8080/eureka/v2

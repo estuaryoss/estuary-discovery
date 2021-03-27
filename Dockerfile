@@ -1,52 +1,22 @@
-FROM alpine:3.11.6
-
-RUN apk add --no-cache python3 bash curl && \
-    pip3 install --upgrade pip==20.3 setuptools==46.2.0 --no-cache
-
-RUN apk add --no-cache \
-    python3-dev \
-    libffi-dev \
-    openssl-dev \
-    gcc \
-    libc-dev \
-    make
-
-## Cleanup
-RUN rm -rf /var/cache/apk/*
-
-# Create a shared data volume
-# create an empty file, otherwise the volume will
-# belong to root.
-RUN mkdir /data/
-
-## Expose some volumes
-VOLUME ["/data"]
-VOLUME ["/variables"]
-
-ENV TEMPLATES_DIR /data
-ENV HTTP_AUTH_TOKEN None
-ENV PORT 8080
-
-ENV VARS_DIR /variables
-
-ENV SCRIPTS_DIR /scripts
-ENV HTTPS_DIR $SCRIPTS_DIR/https
-ENV OUT_DIR out
+FROM centos:8
 
 ENV TZ UTC
-
-COPY ./ $SCRIPTS_DIR/
-COPY https/key.pem $HTTPS_DIR/
-COPY https/cert.pem $HTTPS_DIR/
-COPY ./inputs/templates/ $TEMPLATES_DIR/
-COPY ./inputs/variables/ $VARS_DIR/
-
-RUN chmod +x $SCRIPTS_DIR/*.py
-RUN chmod +x $SCRIPTS_DIR/*.sh
+ENV PORT 8080
+ENV SCRIPTS_DIR /root/app
+ENV HTTPS_DIR /root/app/https
+ENV WORKSPACE $SCRIPTS_DIR
+ENV TEMPLATES_DIR $WORKSPACE/templates
+ENV VARS_DIR $WORKSPACE/variables
 
 WORKDIR $SCRIPTS_DIR
 
-RUN pip3 install -r $SCRIPTS_DIR/requirements.txt
-RUN pip3 install uwsgi==2.0.19.1
+COPY inputs/templates/ $TEMPLATES_DIR/
+COPY inputs/variables/ $VARS_DIR/
 
-CMD ["/scripts/main_flask.py"]
+COPY dist/main_flask $SCRIPTS_DIR/main-linux
+COPY https/key.pem $HTTPS_DIR/
+COPY https/cert.pem $HTTPS_DIR/
+
+RUN chmod +x $SCRIPTS_DIR/main-linux
+
+CMD ["/root/app/main-linux"]

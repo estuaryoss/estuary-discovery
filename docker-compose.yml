@@ -5,36 +5,27 @@ services:
     container_name: estuary-discovery
     image: estuaryoss/discovery:latest
     hostname: estuary-discovery
-    command: bash -c "sleep 30 && /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /root/app/main-linux"
     environment:
       #      FLUENTD_IP_PORT: 192.168.100.12:24224
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP_PORT: estuary-discovery:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
-    #    ports:
-    #      - "8090:8080"
+      HTTP_AUTH_TOKEN: "None"
+    ports:
+      - "8081:8080"
 
-    expose:
-      - "8080"
-
-  estuary-agent:
-    image: estuaryoss/agent:latest
-    hostname: estuary-agent
-    command: bash -c "sleep 30 && /scripts/main_flask.py"
-    environment:
-      limit: 'sky' #example env var inserted. you can read it with environ('limit') in your jinja2 template
-      EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
-      APP_IP_PORT: estuary-agent:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
     expose:
       - "8080"
 
   estuary-agent2:
-    image: estuaryoss/agent:latest
+    image: estuaryoss/agent-go:latest
     hostname: estuary-agent2
-    command: bash -c "sleep 30 && /scripts/main_flask.py"
+    command: bash -c "sleep 30 && ./estuary-agent-go"
     environment:
       limit: 'sky' #example env var inserted. you can read it with environ('limit') in your jinja2 template
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP_PORT: estuary-agent2:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
+      HTTP_AUTH_TOKEN: "None"
     expose:
       - "8080"
 
@@ -47,6 +38,7 @@ services:
       EUREKA_SERVER: "http://eureka-server:8080/eureka/v2" #your eureka server
       #      APP_APPEND_ID: SR # this suffix will be added to the deployer service in order to differentiate between different services mapped on VM with specific resources
       APP_IP_PORT: "estuary-deployer:8080" #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
+      HTTP_AUTH_TOKEN: "None"
     command: bash -c "sleep 30 && /scripts/main_flask.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # works on win also as long as you don't enable tcp daemon on 2375/2376
@@ -56,7 +48,7 @@ services:
   eureka-server:
     image: estuaryoss/netflix-eureka:1.10.5
     hostname: eureka-server
-    #    ports:
-    #      - "8080:8080"
+    ports:
+      - "8080:8080"
     expose:
       - "8080"
