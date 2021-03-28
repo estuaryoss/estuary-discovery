@@ -17,6 +17,7 @@ class Eureka:
                 apps_list[app_name].append({
                     "ipAddr": str(instance.ipAddr),
                     "port": str(instance.port.port),
+                    "securePort": str(instance.securePort.port),
                     "app": app_name,
                     "homePageUrl": str(instance.homePageUrl),
                     "healthCheckUrl": str(instance.healthCheckUrl),

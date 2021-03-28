@@ -27,6 +27,7 @@ class EurekaRegistrator:
         eureka_client.init(eureka_server=f"{self.host}",
                            app_name=f"{properties['name']}{deployment_id}",
                            instance_port=app_port,
+                           instance_secure_port=app_port,
                            instance_ip=app_ip,
                            home_page_url=f"{protocol}://{app_ip}:{app_port}{pre_url}",
                            health_check_url=f"{protocol}://{app_ip}:{app_port}{pre_url}ping",
