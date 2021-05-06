@@ -39,14 +39,14 @@ services:
       #      APP_APPEND_ID: SR # this suffix will be added to the deployer service in order to differentiate between different services mapped on VM with specific resources
       APP_IP_PORT: "estuary-deployer:8080" #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
       HTTP_AUTH_TOKEN: "None"
-    command: bash -c "sleep 30 && /scripts/main_flask.py"
+    command: bash -c "sleep 30 && /root/deployer/main-linux"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock # works on win also as long as you don't enable tcp daemon on 2375/2376
     expose:
       - "8080"
 
   eureka-server:
-    image: estuaryoss/netflix-eureka:1.10.5
+    image: estuaryoss/netflix-eureka:1.10.8
     hostname: eureka-server
     ports:
       - "8080:8080"

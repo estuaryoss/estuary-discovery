@@ -19,8 +19,8 @@ spec:
       containers:
         - name: estuary-discovery
           image: estuaryoss/discovery:latest
-#          imagePullPolicy: Never
-          command: ["bash", "-c", "sleep 30 && /scripts/main_flask.py"] #wait until eureka up
+          #          imagePullPolicy: Never
+          command: [ "bash", "-c", "sleep 30 && /root/app/main-linux" ] #wait until eureka up
           env:
             - name: EUREKA_SERVER
               value: "http://netflixoss-eureka:8080/eureka/v2"
