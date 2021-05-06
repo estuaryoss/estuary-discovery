@@ -13,7 +13,7 @@ WORKDIR $SCRIPTS_DIR
 COPY inputs/templates/ $TEMPLATES_DIR/
 COPY inputs/variables/ $VARS_DIR/
 
-COPY dist/main_flask $SCRIPTS_DIR/main-linux
+COPY dist/main $SCRIPTS_DIR/main-linux
 COPY https/key.pem $HTTPS_DIR/
 COPY https/cert.pem $HTTPS_DIR/
 

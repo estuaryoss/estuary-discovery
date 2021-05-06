@@ -28,7 +28,7 @@ services:
   #    container_name: estuary-agent
   #    hostname: estuary-agent
   #    image: estuaryoss/agent:latest
-  #    command: bash -c "sleep 60 && /scripts/main_flask.py"
+  #    command: bash -c "sleep 60 && /scripts/main.py"
   #    environment:
   #      FLUENTD_IP_PORT: fluentd:24224
   #      EUREKA_SERVER: http://eureka:8080/eureka/v2

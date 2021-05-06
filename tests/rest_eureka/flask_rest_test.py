@@ -121,11 +121,11 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("port"), self.server_port)
         self.assertEqual(body.get('description')[0].get("app"), self.deployer_ip)
         self.assertEqual(body.get('description')[0].get("homePageUrl"),
-                         f"http://{self.deployer_ip}:{self.server_port}/")
+                         f"http://{self.deployer_ip}:{self.server_port}/docker/")
         self.assertEqual(body.get('description')[0].get("healthCheckUrl"),
-                         f"http://{self.deployer_ip}:{self.server_port}/api/docs")
+                         f"http://{self.deployer_ip}:{self.server_port}/docker/ping")
         self.assertEqual(body.get('description')[0].get("statusPageUrl"),
-                         f"http://{self.deployer_ip}:{self.server_port}/api/docs")
+                         f"http://{self.deployer_ip}:{self.server_port}/docker/about")
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
@@ -214,12 +214,12 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertEqual(body.get('description')[0].get("ip_port"),
                          f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
         self.assertEqual(body.get('description')[0].get("homePageUrl"),
-                         f"http://{expected_ip}:{expected_port}/")
+                         f"http://{expected_ip}:{expected_port}/docker/")
         self.assertEqual(len(body.get('description')[1].get("id")), 16)  # deployment id is a 16 char word
         self.assertEqual(body.get('description')[1].get("ip_port"),
                          f"{expected_ip}:{expected_port}")  # deployment id is a 16 char word
         self.assertEqual(body.get('description')[1].get("homePageUrl"),
-                         f"http://{expected_ip}:{expected_port}/")
+                         f"http://{expected_ip}:{expected_port}/docker/")
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
         self.assertIsNotNone(body.get('timestamp'))
 
@@ -312,7 +312,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'Token': 'None'
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/deployers/docker/about", headers=headers)
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/deployers/about", headers=headers)
         body = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(body.get('description')), 1)
@@ -380,7 +380,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
             # send unicast message to the deployers with the ip:port
             response = requests.get(
-                f"{self.home_url}:{self.server_port_ext}/deployers/docker/about", headers=headers)
+                f"{self.home_url}:{self.server_port_ext}/deployers/about", headers=headers)
             body = response.json()
             print(dump.dump_response(response))
             self.assertEqual(response.status_code, 200)

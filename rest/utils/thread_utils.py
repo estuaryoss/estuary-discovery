@@ -54,7 +54,7 @@ class ThreadUtils:
 
     def get_request_get_deployment_info(self, app):
         request_object = {
-            "uri": "docker/deployments",
+            "uri": "deployments",
             "method": "GET",
             "headers": self.headers,
             "data": None
