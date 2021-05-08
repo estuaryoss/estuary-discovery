@@ -91,18 +91,43 @@ def after_request(http_response):
 
 
 @app.route('/apidocs')
-def send_swagger():
+def swaggerui_index():
     return render_template('swaggerui.html')
 
 
+@app.route('/viewer')
+def viewer_index():
+    return render_template('index.html')
+
+
+@app.route('/js/<path:path>')
+def viewer_js(path):
+    return send_from_directory('templates/js', path)
+
+
+@app.route('/css/<path:path>')
+def viewer_css(path):
+    return send_from_directory('templates/css', path)
+
+
+@app.route('/img/<path:path>')
+def viewer_img(path):
+    return send_from_directory('templates/img', path)
+
+
+@app.route('/fonts/<path:path>')
+def viewer_fonts(path):
+    return send_from_directory('templates/fonts', path)
+
+
 @app.route('/swaggerui/<path:path>')
-def send_resources(path):
+def swaggerui_resurces(path):
     return send_from_directory('templates/swaggerui', path)
 
 
 @app.route('/swagger/swagger.json')
-def get_swagger():
-    return render_template('swagger.json')
+def get_swagger_json():
+    return render_template('swaggerui/swagger.json')
 
 
 @app.route('/ping')
