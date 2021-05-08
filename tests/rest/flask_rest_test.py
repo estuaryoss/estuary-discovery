@@ -196,17 +196,14 @@ class FlaskServerTestCase(unittest.TestCase):
 
         body = response.text
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(body.find("html") >= 0)
-        self.assertTrue(body.find("Estuary Deployer(s)") >= 0)
-        self.assertTrue(body.find("Estuary Agent(s)") >= 0)
-        self.assertTrue(body.find("Estuary Discovery(s)") >= 0)
+        self.assertTrue(body.find("Estuary Viewer") >= 0)
 
-    def test_swagger_json_endpoint(self):
-        response = requests.get(self.server + "/swagger/swagger.json")
-
-        # body = yaml.safe_load(response.text)
-        self.assertEqual(response.status_code, 200)
-        # self.assertTrue(len(body.get('paths')) == 14)
+    # def test_swagger_json_endpoint(self):
+    #     response = requests.get(self.server + "/swagger/swagger.json")
+    #
+    #     # body = yaml.safe_load(response.text)
+    #     self.assertEqual(response.status_code, 200)
+    #     # self.assertTrue(len(body.get('paths')) == 14)
 
     @parameterized.expand([
         ("json.j2", "json.json"),
