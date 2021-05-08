@@ -66,7 +66,7 @@ jobs:
         SKIP_ON_CENTOS: true
       before_script:
         - pip3 install -r requirements.txt
-        - pyinstaller --onefile --clean main.py
+        - pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
         - ls -lrt dist
       script:
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
@@ -91,7 +91,7 @@ jobs:
       before_script:
         - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose pull
-        - pyinstaller --onefile --clean main.py
+        - pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker-compose up -d
         - docker pull alpine:3.9.4

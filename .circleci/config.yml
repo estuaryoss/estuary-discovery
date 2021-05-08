@@ -17,7 +17,7 @@ jobs:
           command: pip install pypiwin32
           name: "install pypiwin32"
       - run:
-          command: pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
+          command: pyinstaller --onefile --clean --add-data rest\api\templates\**;rest\api\templates\ main.py
           name: "build main-win"
       - run:
           command: Copy-Item "dist\main.exe" -Destination "main-win.exe"
@@ -30,7 +30,7 @@ jobs:
             VARS_DIR: inputs/variables
             TEMPLATES_DIR: inputs/templates
       - run:
-          command: ping -n 5 127.0.0.1
+          command: ping -n 10 127.0.0.1
           name: "wait some time"
       - run:
           command: python -m unittest discover tests/rest "*_test.py"
