@@ -39,7 +39,7 @@ jobs:
       before_install:
         - pip3 install -r requirements.txt
       before_script:
-        - pyinstaller --onefile main.py
+        - pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
         - ls -lrt dist
         - cp dist/main main-linux
         - chmod +x main-linux
@@ -150,7 +150,7 @@ jobs:
       services: docker
       before_deploy:
         - pip3 install -r requirements.txt
-        - pyinstaller --onefile main.py
+        - pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
         - ls -lrt dist
         - cp dist/main main-linux
         - ls -lrt
