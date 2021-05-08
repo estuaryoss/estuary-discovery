@@ -42,7 +42,7 @@ pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templat
 ```
 
 ## Use cases
--   Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
+-   Input for Estuary Viewer: deployments / tests / infrastructure registered in Eureka
 -   L7 RESTApi broadcasts to the Agents: start test/ get test status / get test results  
 -   Rapid listing of apps registered with Eureka.
 -   Other integrations
