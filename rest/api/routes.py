@@ -1,7 +1,7 @@
 import json
 from secrets import token_hex
 
-from flask import Response
+from flask import Response, render_template, send_from_directory
 from flask import request
 from fluent import sender
 
@@ -15,7 +15,6 @@ from rest.api.jinja2.render import Render
 from rest.api.loghelpers.message_dumper import MessageDumper
 from rest.api.responsehelpers.error_codes import ErrorMessage
 from rest.api.responsehelpers.http_response import HttpResponse
-from rest.api.swagger import swagger_file_content
 from rest.environment.environment import EnvironmentSingleton
 from rest.service.eureka import Eureka
 from rest.service.fluentd import Fluentd
@@ -64,7 +63,7 @@ def before_request():
             EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.HTTP_AUTH_TOKEN)):
         # options is for preflight CORS
         # swagger should be permitted
-        if not ("/api/docs" in request_uri or "/swagger/swagger.yml" in request_uri or request.method == 'OPTIONS'):
+        if not ("/apidocs" in request_uri or "/swagger/swagger.json" in request_uri or request.method == 'OPTIONS'):
             headers = {
                 HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
             }
@@ -91,9 +90,44 @@ def after_request(http_response):
     return http_response
 
 
-@app.route('/swagger/swagger.yml')
-def get_swagger():
-    return Response(swagger_file_content, 200, mimetype="application/json")
+@app.route('/apidocs')
+def swaggerui_index():
+    return render_template('swaggerui.html')
+
+
+@app.route('/viewer')
+def viewer_index():
+    return render_template('index.html')
+
+
+@app.route('/js/<path:path>')
+def viewer_js(path):
+    return send_from_directory('templates/js', path)
+
+
+@app.route('/css/<path:path>')
+def viewer_css(path):
+    return send_from_directory('templates/css', path)
+
+
+@app.route('/img/<path:path>')
+def viewer_img(path):
+    return send_from_directory('templates/img', path)
+
+
+@app.route('/fonts/<path:path>')
+def viewer_fonts(path):
+    return send_from_directory('templates/fonts', path)
+
+
+@app.route('/swaggerui/<path:path>')
+def swaggerui_resurces(path):
+    return send_from_directory('templates/swaggerui', path)
+
+
+@app.route('/swagger/swagger.json')
+def get_swagger_json():
+    return render_template('swaggerui/swagger.json')
 
 
 @app.route('/ping')

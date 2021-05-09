@@ -3,7 +3,6 @@ import logging
 from flask import Flask
 from flask_cors import CORS
 
-from rest.api.definitions import swaggerui_blueprint, SWAGGER_URL
 from rest.api.flask_config import Config
 
 
@@ -22,7 +21,6 @@ class AppCreatorSingleton:
         self.app = Flask(__name__, instance_relative_config=False)
         self.app.config.from_object(Config)
         CORS(self.app)
-        self.app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
         self.app.logger.setLevel(logging.DEBUG)
 
         if AppCreatorSingleton.__instance is not None:

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import platform
 import unittest
 
 import requests
@@ -17,7 +16,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.2.2"
+    expected_version = "4.2.3"
     cleanup_count_safe = 5
 
     def test_env_endpoint(self):
@@ -185,23 +184,26 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertIsNotNone(body.get('path'))
         self.assertEqual(headers.get('X-Request-ID'), xid)
 
-    @unittest.skipIf(os.environ.get('TEMPLATES_DIR'),
-                     "inputs/templates")  # when service runs on VM only this is skipped
-    @unittest.skipIf(platform.system() == "Windows", "skip on Win")
-    @unittest.skipIf(os.environ.get('SKIP_ON_CENTOS') == "true", "skip on centos docker")
     def test_swagger_endpoint(self):
-        response = requests.get(self.server + "/api/docs")
+        response = requests.get(self.server + "/apidocs")
 
         body = response.text
         self.assertEqual(response.status_code, 200)
         self.assertTrue(body.find("html") >= 0)
 
-    def test_swagger_yml_endpoint(self):
-        response = requests.get(self.server + "/swagger/swagger.yml")
+    def test_viewer_endpoint(self):
+        response = requests.get(self.server + "/viewer")
 
-        # body = yaml.safe_load(response.text)
+        body = response.text
         self.assertEqual(response.status_code, 200)
-        # self.assertTrue(len(body.get('paths')) == 14)
+        self.assertTrue(body.find("Estuary Viewer") >= 0)
+
+    # def test_swagger_json_endpoint(self):
+    #     response = requests.get(self.server + "/swagger/swagger.json")
+    #
+    #     # body = yaml.safe_load(response.text)
+    #     self.assertEqual(response.status_code, 200)
+    #     # self.assertTrue(len(body.get('paths')) == 14)
 
     @parameterized.expand([
         ("json.j2", "json.json"),

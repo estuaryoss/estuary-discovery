@@ -35,8 +35,14 @@ curl -i http://localhost:8080/eurekaapps/estuary #all apps containing estuary
 curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by your app name  
  ```
 
+## Compilation - pyinstaller
+
+```shell
+pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
+```
+
 ## Use cases
--   Estuary-viewer stats: deployments / tests / infrastructure registered in Eureka
+-   Input for Estuary Viewer: deployments / tests / infrastructure registered in Eureka
 -   L7 RESTApi broadcasts to the Agents: start test/ get test status / get test results  
 -   Rapid listing of apps registered with Eureka.
 -   Other integrations
