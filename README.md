@@ -38,7 +38,7 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 ## Compilation - pyinstaller
 
 ```shell
-pyinstaller --onefile --clean --add-data="rest/api/templates/**:rest/api/templates/" main.py
+pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
 ```
 
 ## Use cases

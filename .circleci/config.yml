@@ -17,7 +17,7 @@ jobs:
           command: pip install pypiwin32
           name: "install pypiwin32"
       - run:
-          command: pyinstaller --onefile --clean --add-data "rest\api\templates\**;rest\api\templates\" main.py
+          command: pyinstaller --onefile --clean --add-data "rest\api\templates\;rest\api\templates\" main.py
           name: "build main-win"
       - run:
           command: Copy-Item "dist\main.exe" -Destination "main-win.exe"
