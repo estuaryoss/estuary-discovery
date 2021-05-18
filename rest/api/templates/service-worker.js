@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.b3939230f30021c8c1e3e048e79accf5.js"
+  "/precache-manifest.a9d58d30a51f93de4ec537fb3f037771.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "estuary-viewer"});
