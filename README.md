@@ -94,6 +94,9 @@ Run example:
 ### Authentication
 For auth set HTTP_AUTH_TOKEN env variable.  
 
+[!!!]() Use this env variable to secure the service. [!!!]()
+
+
 Run example:
 ```shell script
 docker run \
