@@ -287,7 +287,8 @@ def get_deployments():
 def agents_request(text):
     text = text.strip()
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
-    header_key = 'IpAddr-Port'  # target specific agent
+    ip_addr_port_header_key = 'IpAddr-Port'  # target specific agent
+    home_page_url_header_key = 'HomePageUrl'  # target specific agent
     application = "agent"
     try:
         input_data = request.get_data()
@@ -303,10 +304,13 @@ def agents_request(text):
         }
         app.logger.debug({"msg": f"{request_object}"})
         agent_apps = eureka.get_type_eureka_apps(application)
-        if request.headers.get(f"{header_key}"):  # not mandatory
-            ip_port = request.headers.get(f"{header_key}").split(":")
+        if request.headers.get(f"{ip_addr_port_header_key}"):  # not mandatory
+            ip_port = request.headers.get(f"{ip_addr_port_header_key}").split(":")
             agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
                                      agent_apps))
+        if request.headers.get(f"{home_page_url_header_key}"):  # not mandatory
+            home_page_url = request.headers.get(f"{home_page_url_header_key}")
+            agent_apps = list(filter(lambda x: x.get('homePageUrl') == home_page_url, agent_apps))
         thread_utils = ThreadUtils(apps=agent_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
@@ -324,7 +328,8 @@ def agents_request(text):
 def deployers_request(text):
     text = text.strip()
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
-    header_key = 'IpAddr-Port'  # target specific deployer
+    ip_addr_port_header_key = 'IpAddr-Port'  # target specific deployer
+    home_page_url_header_key = 'HomePageUrl'  # target specific agent
     application = "deployer"
     try:
         input_data = request.get_data()
@@ -340,10 +345,13 @@ def deployers_request(text):
         }
         app.logger.debug({"msg": f"{request_object}"})
         deployer_apps = eureka.get_type_eureka_apps(application)
-        if request.headers.get(f"{header_key}"):  # not mandatory
-            ip_port = request.headers.get(f"{header_key}").split(":")
+        if request.headers.get(f"{ip_addr_port_header_key}"):  # not mandatory
+            ip_port = request.headers.get(f"{ip_addr_port_header_key}").split(":")
             deployer_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
                                         deployer_apps))
+        if request.headers.get(f"{home_page_url_header_key}"):  # not mandatory
+            home_page_url = request.headers.get(f"{home_page_url_header_key}")
+            deployer_apps = list(filter(lambda x: x.get('homePageUrl') == home_page_url, deployer_apps))
         thread_utils = ThreadUtils(apps=deployer_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 

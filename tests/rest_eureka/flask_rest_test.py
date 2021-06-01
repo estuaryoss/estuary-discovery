@@ -359,6 +359,47 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertEqual(len(body.get('description')), 1)
             self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id')])
 
+    def test_agent_teststart_unicast_by_home_page_url(self):
+        test_id = ["1", "2"]
+        cmds = ["echo {}".format(test_id[0]), "echo {}".format(test_id[1])]
+
+        # get eureka apps agent
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers)
+        # print(dump.dump_response(response))
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('description')), 1)
+
+        # send unicast teststart request and check the results
+        agent_apps = body.get('description')
+        for i, item in enumerate(agent_apps):
+            headers = {
+                'HomePageUrl': item.get('homePageUrl'),
+                'Token': 'None'
+            }
+
+            # send unicast message to the agents with the ip:port
+            response = requests.post(
+                f"{self.home_url}:{self.server_port_ext}/agents/commanddetached/{test_id[i]}",
+                data=cmds[i], headers=headers)
+            body = response.json()
+            print(dump.dump_response(response))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('description')), 1)
+            self.assertEqual(body.get('description')[0].get('description'), test_id[i])
+
+            headers = {
+                'Token': 'None'
+            }
+            response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commanddetached", headers=headers)
+            body = response.json()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('description')), 1)
+            self.assertIn(test_id[i], [body.get('description')[0].get('description').get('id')])
+
     def test_deployer_unicast_p(self):
         # get eureka apps agent
         headers = {
@@ -375,6 +416,34 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         for i, item in enumerate(deployer_apps):
             headers = {
                 'IpAddr-Port': '{}:{}'.format(item.get('ipAddr'), item.get('port')),
+                'Token': 'None'
+            }
+
+            # send unicast message to the deployers with the ip:port
+            response = requests.get(
+                f"{self.home_url}:{self.server_port_ext}/deployers/about", headers=headers)
+            body = response.json()
+            print(dump.dump_response(response))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(body.get('description')), 1)
+            self.assertIn("system", body.get('description')[0].get('description'))
+
+    def test_deployer_unicast_by_home_page_url(self):
+        # get eureka apps agent
+        headers = {
+            'Token': 'None'
+        }
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/deployer", headers=headers)
+        # print(dump.dump_response(response))
+        body = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(body.get('description')), 1)
+
+        # send unicast request and check the results
+        deployer_apps = body.get('description')
+        for i, item in enumerate(deployer_apps):
+            headers = {
+                'HomePageUrl': item.get('homePageUrl'),
                 'Token': 'None'
             }
 
