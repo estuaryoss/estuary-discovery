@@ -100,6 +100,11 @@ def viewer_index():
     return render_template('index.html')
 
 
+@app.route('/')
+def root():
+    return render_template('index.html')
+
+
 @app.route('/js/<path:path>')
 def viewer_js(path):
     return send_from_directory('templates/js', path)

@@ -16,7 +16,7 @@ class FlaskServerTestCase(unittest.TestCase):
     server = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
 
-    expected_version = "4.2.3"
+    expected_version = "4.2.4"
     cleanup_count_safe = 5
 
     def test_env_endpoint(self):
