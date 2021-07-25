@@ -6,7 +6,7 @@ from rest.utils.io_utils import IOUtils
 
 properties = {
     "name": "estuary-discovery",
-    "version": "4.2.3",
+    "version": "4.2.4",
     "description": "Discover estuary apps registered with Eureka. Control test sessions over estuary agents.",
     "author": "Catalin Dinuta",
     "platforms": ["Linux", "Mac", "Windows"],
