@@ -7,7 +7,7 @@ class ErrorMessage:
         ApiCode.JINJA2_RENDER_FAILURE.value: "Jinja2 render failed",
         ApiCode.GET_EUREKA_APPS_FAILED.value: "Failed to get apps from Eureka server '%s'",
         ApiCode.GET_CONTAINER_ENV_VAR_FAILURE.value: "Failed to get env var '%s'",
-        ApiCode.GET_COMMANDS_DETACHED_FAILED.value: "Failed to get the list of the commands running in background",
+        ApiCode.GET_COMMANDS_FAILED.value: "Failed to get the list of the commands running in background",
         ApiCode.GET_DEPLOYMENTS_FAILED.value: "Failed to get deployments list",
         ApiCode.GET_TEST_RESULTS_FAILED.value: "Failed rto get test results list",
         ApiCode.HTTP_HEADER_NOT_PROVIDED.value: "Http header value not provided: '%s'",

@@ -1,4 +1,4 @@
-FROM centos:8
+FROM ubuntu:20.04
 
 ENV TZ UTC
 ENV PORT 8080

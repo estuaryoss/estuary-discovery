@@ -24,11 +24,11 @@ class ThreadUtils:
     def get_url(app):
         return app.get('homePageUrl')
 
-    def get_command_detached_info(self, app):
+    def __get_commands_info(self, app, uri):
         request_object = {
-            "uri": "commanddetached",
+            "uri": uri,
             "method": "GET",
-            "headers": self.headers,  # forward headers if set like X-Request-ID or Token
+            "headers": self.headers,  # forward headers if set like X-Request-ID or Authorization
             "data": None
         }
 
@@ -36,46 +36,25 @@ class ThreadUtils:
 
         if response.status_code == 200:
             try:
-                test_info = response.json().get('description')
-                test_info["homePageUrl"] = app.get('homePageUrl')
-                test_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
-                self.response_list.append(test_info)
+                commands_info = response.json()
+                commands_info["homePageUrl"] = app.get('homePageUrl')
+                commands_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
+                self.response_list.append(commands_info)
             except:
                 self.response_list.append(str(dump.dump_all(response)))
         else:
             self.response_list.append(str(dump.dump_all(response)))
 
-    def spawn_threads_get_test_info(self):
-        threads = [threading.Thread(target=self.get_command_detached_info, args=(app,)) for app in self.apps]
+    def spawn_threads_get_active_commands_info(self):
+        threads = [threading.Thread(target=self.__get_commands_info, args=(app, "commands",)) for app in self.apps]
         for thread in threads:
             thread.start()
         for thread in threads:
             thread.join()
 
-    def get_request_get_deployment_info(self, app):
-        request_object = {
-            "uri": "deployments",
-            "method": "GET",
-            "headers": self.headers,
-            "data": None
-        }
-
-        response = self.send_http_request(app, request_object=request_object)
-
-        if response.status_code == 200:
-            try:
-                deployment_info = response.json().get('description')
-                for deployment in deployment_info:
-                    deployment["homePageUrl"] = app.get('homePageUrl')
-                    deployment["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
-                    self.response_list.append(deployment)
-            except:
-                self.response_list.append(str(dump.dump_all(response)))
-        else:
-            self.response_list.append(str(dump.dump_all(response)))
-
-    def spawn_threads_get_deployment_info(self):
-        threads = [threading.Thread(target=self.get_request_get_deployment_info, args=(app,)) for app in self.apps]
+    def spawn_threads_get_finished_commands_info(self):
+        threads = [threading.Thread(target=self.__get_commands_info, args=(app, "commandsfinished",)) for app in
+                   self.apps]
         for thread in threads:
             thread.start()
         for thread in threads:

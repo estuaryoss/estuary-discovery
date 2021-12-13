@@ -1,52 +1,40 @@
 version: "3.3"
 
 services:
-  estuary-discovery:
+  discovery:
     container_name: estuary-discovery
     image: estuaryoss/discovery:latest
     hostname: estuary-discovery
-    command: bash -c "sleep 30 && /root/app/main-linux"
+    command: bash -c "sleep 20 && /root/app/main-linux"
     environment:
       #      FLUENTD_IP_PORT: 192.168.100.12:24224
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP_PORT: estuary-discovery:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
-      HTTP_AUTH_TOKEN: "None"
+      HTTP_AUTH_USER: "admin"
+      HTTP_AUTH_PASSWORD: "estuaryoss123!"
     ports:
       - "8081:8080"
 
     expose:
       - "8080"
 
-  estuary-agent2:
-    image: estuaryoss/agent-go:latest
-    hostname: estuary-agent2
-    command: bash -c "sleep 30 && ./estuary-agent-go"
+  agent:
+    image: estuaryoss/agent-java:latest
+    hostname: estuary-agent
+    entrypoint: bash -c "sleep 20 && java -jar -Deureka.client.enabled=true agent-exec.jar"
     environment:
-      limit: 'sky' #example env var inserted. you can read it with environ('limit') in your jinja2 template
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
-      APP_IP_PORT: estuary-agent2:8080 #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
-      HTTP_AUTH_TOKEN: "None"
-    expose:
-      - "8080"
-
-  estuary-deployer:
-    image: estuaryoss/deployer:latest
-    hostname: estuary-deployer
-    environment:
-      limit: 'sky' # example env var inserted. you can read it with environ('limit')
-      MAX_DEPLOYMENTS: 3 # how many deployments to be done. Useful for VMs where user knows how much resources a docker-compose env use.
-      EUREKA_SERVER: "http://eureka-server:8080/eureka/v2" #your eureka server
-      #      APP_APPEND_ID: SR # this suffix will be added to the deployer service in order to differentiate between different services mapped on VM with specific resources
-      APP_IP_PORT: "estuary-deployer:8080" #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
-      HTTP_AUTH_TOKEN: "None"
-    command: bash -c "sleep 30 && /root/deployer/main-linux"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # works on win also as long as you don't enable tcp daemon on 2375/2376
+      APP_IP: estuary-agent #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
+      PORT: 8080
+      HTTP_AUTH_USER: "admin" #change it with env vars
+      HTTP_AUTH_PASSWORD: "estuaryoss123!" #change it with env vars
+    ports:
+      - "8082:8080"
     expose:
       - "8080"
 
   eureka-server:
-    image: estuaryoss/netflix-eureka:1.10.8
+    image: estuaryoss/netflix-eureka:1.10.11
     hostname: eureka-server
     ports:
       - "8080:8080"

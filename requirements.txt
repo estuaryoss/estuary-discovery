@@ -1,4 +1,6 @@
 flask
+flask_cors
+flask_httpauth
 PyYAML
 requests
 parameterized
@@ -7,11 +9,10 @@ pytest-cov
 flask_swagger_ui
 requests_toolbelt
 py_eureka_client==0.10.0
-flask_cors
 fluent-logger
 Jinja2
-pyinstaller
 setuptools==44.0.0
 jproperties
 psutil
+pyinstaller
 # pypiwin32 #for windows pyinstalller

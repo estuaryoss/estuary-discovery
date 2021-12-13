@@ -98,9 +98,6 @@ jobs:
       script:
         - sleep 70
         - docker ps
-        #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
-        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
-        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
         #        - docker exec -ti estuary-discovery bash -c "
         #          curl -i
         #          --request POST 'http://estuary-agent:8080/test/100'
@@ -135,11 +132,7 @@ jobs:
     #        - docker ps
     #      script:
     #        - curl -i http://localhost:8081/about #discovery
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
     #        - curl -i http://localhost:8082/about #agent
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #agent unauth
-    #        - curl -i --header 'Token:None' http://localhost:8083/about #agent-java
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #agent-java unauth
     #        - sleep 30
     #        - docker logs estuary-discovery
     #        - docker logs estuary-agent
