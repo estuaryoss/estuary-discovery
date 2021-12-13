@@ -15,4 +15,5 @@ setuptools==44.0.0
 jproperties
 psutil
 pyinstaller
+six
 # pypiwin32 #for windows pyinstalller
