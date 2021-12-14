@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
+  win: circleci/windows@2.4.1
 
 jobs:
   build-and-test:
@@ -11,13 +11,19 @@ jobs:
     steps:
       - checkout
       - run:
-          command: pip3 install -r requirements.txt
+          command: pip --version
+          name: "pip version"
+      - run:
+          command: pip install -r requirements.txt
           name: "install requirements"
       - run:
-          command: pip3 install pypiwin32
+          command: pip install pypiwin32
           name: "install pypiwin32"
       - run:
-          command: python3 -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api/templates/" main.py
+          command: python --version
+          name: "python version"
+      - run:
+          command: python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api/templates/" main.py
           name: "build main-win"
       - run:
           command: Copy-Item "dist\main.exe" -Destination "main-win.exe"
@@ -33,7 +39,7 @@ jobs:
           command: ping -n 10 127.0.0.1
           name: "wait some time"
       - run:
-          command: python3 -m unittest discover tests/rest "*_test.py"
+          command: python -m unittest discover tests/rest "*_test.py"
           name: "run integration tests"
           environment:
             ENABLE_HTTPS: false
