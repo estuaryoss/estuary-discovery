@@ -1,6 +1,6 @@
 dist: xenial
 language: python
-python: 3.6
+python: 3.9
 script: skip
 os: linux
 
@@ -12,7 +12,7 @@ jobs:
     - stage: test
     #run unit tests for render
     - language: python
-      python: 3.6
+      python: 3.9
       env:
         TEMPLATES_DIR: inputs/templates
         VARS_DIR: inputs/variables
@@ -21,6 +21,7 @@ jobs:
       before_install:
         - pip3 install -r requirements.txt
         - pip3 install coveralls
+        - pip3 install --ignore-installed six
       before_script:
         - py.test tests/render_test.py --cov=rest/api/jinja2
       script:
@@ -30,7 +31,7 @@ jobs:
 
       #run self contained flask app
     - language: python
-      python: 3.6
+      python: 3.9
       env:
         TEMPLATES_DIR: inputs/templates
         VARS_DIR: inputs/variables
@@ -38,8 +39,9 @@ jobs:
         ISOLATED: true
       before_install:
         - pip3 install -r requirements.txt
+        - pip3 install --ignore-installed six
       before_script:
-        - pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+        - python3 -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
         - ls -lrt dist
         - cp dist/main main-linux
         - chmod +x main-linux
@@ -66,7 +68,8 @@ jobs:
         SKIP_ON_CENTOS: true
       before_script:
         - pip3 install -r requirements.txt
-        - pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+        - pip3 install --ignore-installed six
+        - python3 -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
         - ls -lrt dist
       script:
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
@@ -83,7 +86,7 @@ jobs:
 
     #run eureka registration tests
     - language: python
-      python: 3.6
+      python: 3.9
       services: docker
       env:
         ISOLATED: true
@@ -91,16 +94,15 @@ jobs:
       before_script:
         - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
         - docker-compose pull
-        - pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+        - pip3 install -r requirements.txt
+        - pip3 install --ignore-installed six
+        - python3 -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
         - docker build -t estuaryoss/discovery:latest -f Dockerfile .
         - docker-compose up -d
         - docker pull alpine:3.9.4
       script:
         - sleep 70
         - docker ps
-        #  - generate 2 deployments and 1 test run. estuary deployer has curl installed
-        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
-        - docker exec -ti estuary-discovery bash -c "curl -i --request POST http://estuary-deployer:8080/docker/deployments/alpine.yml/variables.yml"
         #        - docker exec -ti estuary-discovery bash -c "
         #          curl -i
         #          --request POST 'http://estuary-agent:8080/test/100'
@@ -119,7 +121,7 @@ jobs:
 
     #run fluentd EFK tests
     #    - language: python
-    #      python: 3.6
+    #      python: 3.9
     #      services: docker
     #      env:
     #        ISOLATED: true
@@ -135,11 +137,7 @@ jobs:
     #        - docker ps
     #      script:
     #        - curl -i http://localhost:8081/about #discovery
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8081/about #discovery unauth
     #        - curl -i http://localhost:8082/about #agent
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8082/about #agent unauth
-    #        - curl -i --header 'Token:None' http://localhost:8083/about #agent-java
-    #        - curl -i --header 'Token:invalidToken' http://localhost:8083/about #agent-java unauth
     #        - sleep 30
     #        - docker logs estuary-discovery
     #        - docker logs estuary-agent
@@ -150,7 +148,8 @@ jobs:
       services: docker
       before_deploy:
         - pip3 install -r requirements.txt
-        - pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+        - pip3 install --ignore-installed six
+        - python3 -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
         - ls -lrt dist
         - cp dist/main main-linux
         - ls -lrt

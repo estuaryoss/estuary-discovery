@@ -2,7 +2,7 @@ version: '2'
 services:
   eureka:
     container_name: netflix-eureka
-    image: estuaryoss/netflix-eureka:1.10.5
+    image: estuaryoss/netflix-eureka:1.10.11
     expose:
       - "8080"
     ports:
@@ -51,25 +51,10 @@ services:
       EUREKA_SERVER: http://eureka:8080/eureka/v2
       APP_IP: 192.168.0.11
       PORT: 8083 # <--
-      HTTP_AUTH_TOKEN: None
+      HTTP_AUTH_USER: "admin"
+      HTTP_AUTH_PASSWORD: "estuaryoss123!"
     ports:
       - "8083:8083"
-    networks:
-      - elastic
-
-  estuary-agent-go:
-    container_name: estuary-agent-go
-    hostname: estuary-agent-go
-    image: estuaryoss/agent-go:latest
-    entrypoint: bash -c "sleep 60 && go run Main.go"
-    environment:
-      FLUENTD_IP_PORT: fluentd:24224
-      EUREKA_SERVER: http://eureka:8080/eureka/v2
-      APP_IP_PORT: 192.168.0.11:8084
-      PORT: 8084
-      HTTP_AUTH_TOKEN: "None"
-    ports:
-      - "8084:8084"
     networks:
       - elastic
 

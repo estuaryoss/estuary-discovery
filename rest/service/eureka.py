@@ -19,6 +19,7 @@ class Eureka:
                     "port": str(instance.port.port),
                     "securePort": str(instance.securePort.port),
                     "app": app_name,
+                    "metadata": instance.metadata,
                     "homePageUrl": str(instance.homePageUrl),
                     "healthCheckUrl": str(instance.healthCheckUrl),
                     "statusPageUrl": str(instance.statusPageUrl)

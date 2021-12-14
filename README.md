@@ -1,13 +1,10 @@
 <h1 align="center"><img src="./docs/images/banner_discovery.png" alt="Testing as a service"></h1>
 
-Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src="https://lh3.googleusercontent.com/Y2_nyEd0zJftXnlhQrWoweEvAy4RzbpDah_65JGQDKo9zCcBxHVpajYgXWFZcXdKS_o=s180-rw" height="40" width="40" align="center"></a>   
-
-## Estuary discovery
-Estuary discovery service. Aggregator of the estuary-stack. 
+## Estuary Discovery
+Estuary Discovery service. Aggregator of the Estuary-Stack. 
 -   Reads the apps/services registered in Eureka  
--   Reads the tests from estuary-agent(s) registered in Eureka  
--   Reads the deployments from estuary-deployer(s) registered in Eureka.  
--   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the agents  
+-   Reads the commands from Estuary-Agent(s) registered in Eureka  
+-   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the Agents  
 
 ## Coverage & code quality
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/fc69b90ee90546158876e5344d9c2af2)](https://www.codacy.com/gh/estuaryoss/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=estuaryoss/estuary-discovery&amp;utm_campaign=Badge_Grade)
@@ -38,7 +35,10 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 ## Compilation - pyinstaller
 
 ```shell
-pyinstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+python -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
+```
+```cmd
+python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api/templates/" main.py
 ```
 
 ## Use cases
@@ -92,7 +92,7 @@ Run example:
     estuaryoss/discovery:<tag>
 
 ### Authentication
-For auth set HTTP_AUTH_TOKEN env variable.  
+For auth set HTTP_AUTH_USER & HTTP_AUTH_PASSWORD env variables.  
 
 [!!!]() Use this env variable to secure the service. [!!!]()
 
@@ -100,15 +100,16 @@ For auth set HTTP_AUTH_TOKEN env variable.
 Run example:
 ```shell script
 docker run \
--e HTTP_AUTH_TOKEN=mysecret
+-e HTTP_AUTH_USER=admin \
+-e HTTP_AUTH_PASSWORD=estuaryoss123! \
 -p 8080:8080
 estuaryoss/discovery:<tag>
 ```
 Then, access the Http Api. Call example:
 ```shell script
-curl -i -H 'Token:mysecret' http:localhost:8080/about
+curl -i -u admin:estuaryoss123! http:localhost:8080/about
 ```  
-Because discovery acts as an stack aggregator hitting agents or deployers endpoints, you must use the same HTTP_AUTH_TOKEN 
+Because discovery acts as an stack aggregator hitting agents, you must use the same HTTP_AUTH_USER & HTTP_AUTH_PASSWORD   
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
 
 ### Enable HTTPS
@@ -159,8 +160,9 @@ curl -i http://172.17.0.22:8081/eurekaapps
 }
 ```
 
+Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src="https://lh3.googleusercontent.com/Y2_nyEd0zJftXnlhQrWoweEvAy4RzbpDah_65JGQDKo9zCcBxHVpajYgXWFZcXdKS_o=s180-rw" height="40" width="40" align="center"></a>   
+
 ## Estuary stack
-[Estuary deployer](https://github.com/estuaryoss/estuary-deployer)  
 [Estuary agent](https://github.com/estuaryoss/estuary-agent)  
 [Estuary discovery](https://github.com/estuaryoss/estuary-discovery)  
 [Estuary viewer](https://github.com/estuaryoss/estuary-viewer)  

@@ -3,7 +3,10 @@ from secrets import token_hex
 
 from flask import Response, render_template, send_from_directory
 from flask import request
+from flask_httpauth import HTTPBasicAuth
 from fluent import sender
+from werkzeug.exceptions import Unauthorized, abort
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from about import properties, about_system
 from rest.api import AppCreatorSingleton
@@ -22,6 +25,7 @@ from rest.utils.env_startup import EnvStartupSingleton
 from rest.utils.thread_utils import ThreadUtils
 
 app = AppCreatorSingleton.get_instance().get_app()
+auth = HTTPBasicAuth()
 
 logger = \
     sender.FluentSender(tag=properties.get('name'),
@@ -34,6 +38,33 @@ logger = \
 fluentd_service = Fluentd(logger)
 message_dumper = MessageDumper()
 env = EnvironmentSingleton.get_instance()
+
+users = {
+    EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.HTTP_AUTH_USER):
+        generate_password_hash(
+            EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.HTTP_AUTH_PASSWORD))
+}
+
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in users and \
+            check_password_hash(users.get(username), password):
+        return username
+    else:
+        abort(401)
+
+
+@app.errorhandler(Unauthorized)
+def unauthorized(e):
+    http = HttpResponse()
+    headers = {
+        HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
+    }
+    return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED.value,
+                                             ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value),
+                                             e.__str__())), 401, mimetype="application/json",
+                    headers=headers)
 
 
 @app.errorhandler(ApiException)
@@ -48,7 +79,6 @@ def handle_api_error(e):
 def before_request():
     ctx = app.app_context()
     ctx.g.xid = token_hex(8)
-    http = HttpResponse()
     request_uri = request.full_path
 
     # add here your custom header to be logged with fluentd
@@ -59,18 +89,6 @@ def before_request():
 
     response = fluentd_service.emit(tag="api", msg=message_dumper.dump(request=request))
     app.logger.debug(response)
-    if not str(request.headers.get(HeaderConstants.TOKEN)) == str(
-            EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.HTTP_AUTH_TOKEN)):
-        # options is for preflight CORS
-        # swagger should be permitted
-        if not ("/apidocs" in request_uri or "/swagger/swagger.json" in request_uri or request.method == 'OPTIONS'):
-            headers = {
-                HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
-            }
-            return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED.value,
-                                                     ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value),
-                                                     "Invalid Token")), 401, mimetype="application/json",
-                            headers=headers)
 
 
 @app.after_request
@@ -91,51 +109,67 @@ def after_request(http_response):
 
 
 @app.route('/apidocs')
-def swaggerui_index():
+@auth.login_required
+def apidocs_index():
     return render_template('swaggerui.html')
 
 
 @app.route('/viewer')
+@auth.login_required
 def viewer_index():
     return render_template('index.html')
 
 
 @app.route('/')
+@auth.login_required
 def root():
     return render_template('index.html')
 
 
 @app.route('/js/<path:path>')
+@auth.login_required
 def viewer_js(path):
     return send_from_directory('templates/js', path)
 
 
 @app.route('/css/<path:path>')
+@auth.login_required
 def viewer_css(path):
     return send_from_directory('templates/css', path)
 
 
 @app.route('/img/<path:path>')
+@auth.login_required
 def viewer_img(path):
     return send_from_directory('templates/img', path)
 
 
 @app.route('/fonts/<path:path>')
+@auth.login_required
 def viewer_fonts(path):
     return send_from_directory('templates/fonts', path)
 
 
 @app.route('/swaggerui/<path:path>')
-def swaggerui_resurces(path):
+@auth.login_required
+def swagger_ui(path):
+    return send_from_directory('templates/swaggerui', path)
+
+
+@app.route('/resources/<path:path>')
+@auth.login_required
+def swagger_ui_resources(path):
     return send_from_directory('templates/swaggerui', path)
 
 
 @app.route('/swagger/swagger.json')
+@auth.login_required
 def get_swagger_json():
     return render_template('swaggerui/swagger.json')
 
 
 @app.route('/ping')
+@auth.login_required
 def ping():
     return Response(
         json.dumps(
@@ -144,6 +178,7 @@ def ping():
 
 
 @app.route('/about')
+@auth.login_required
 def about():
     return Response(json.dumps(
         HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
@@ -151,6 +186,7 @@ def about():
 
 
 @app.route('/render/<template>/<variables>', methods=['GET', 'POST'])
+@auth.login_required
 def get_content_with_env(template, variables):
     env.set_env_var(EnvConstants.TEMPLATE, template.strip())
     env.set_env_var(EnvConstants.VARIABLES, variables.strip())
@@ -174,6 +210,7 @@ def get_content_with_env(template, variables):
 
 
 @app.route('/env')
+@auth.login_required
 def get_vars():
     return Response(json.dumps(
         HttpResponse().response(code=ApiCode.SUCCESS.value, message=ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
@@ -181,6 +218,7 @@ def get_vars():
 
 
 @app.route('/env/<name>', methods=['GET'])
+@auth.login_required
 def get_env(name):
     return Response(json.dumps(
         HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
@@ -188,6 +226,7 @@ def get_env(name):
 
 
 @app.route('/env', methods=['POST'])
+@auth.login_required
 def set_env():
     http = HttpResponse()
     input_data = request.data.decode("UTF-8", "replace").strip()
@@ -211,6 +250,7 @@ def set_env():
 
 
 @app.route('/eurekaapps', methods=['GET'])
+@auth.login_required
 def get_eureka_apps():
     http = HttpResponse()
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
@@ -229,6 +269,7 @@ def get_eureka_apps():
 
 
 @app.route('/eurekaapps/<eureka_app_name>', methods=['GET'])
+@auth.login_required
 def get_eureka_apps_name(eureka_app_name):
     eureka_app_name = eureka_app_name.strip()
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
@@ -245,20 +286,21 @@ def get_eureka_apps_name(eureka_app_name):
         mimetype="application/json")
 
 
-# aggregator of command detached info from the agent(s)
-@app.route('/commandsdetached', methods=['GET'])
-def get_commands_detached():
+# aggregator of active commands for the Agents
+@app.route('/commands', methods=['GET'])
+@auth.login_required
+def get_active_commands():
     application = "agent"
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
         agent_apps = eureka.get_type_eureka_apps(application)
         thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
-        thread_utils.spawn_threads_get_test_info()
+        thread_utils.spawn_threads_get_active_commands_info()
         commands_detached = thread_utils.get_threads_response()
     except Exception as e:
-        raise ApiException(ApiCode.GET_COMMANDS_DETACHED_FAILED.value,
-                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_DETACHED_FAILED.value), e)
+        raise ApiException(ApiCode.GET_COMMANDS_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_FAILED.value), e)
 
     return Response(json.dumps(
         HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
@@ -266,31 +308,33 @@ def get_commands_detached():
         mimetype="application/json")
 
 
-# aggregator of the deployer(s) data.
-@app.route('/deployments', methods=['GET'])
-def get_deployments():
-    application = "deployer"
+# aggregator of finished commands for the Agents
+@app.route('/commandsfinished', methods=['GET'])
+@auth.login_required
+def get_finished_commands():
+    application = "agent"
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
 
     try:
-        deployer_apps = eureka.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(apps=deployer_apps, headers=request.headers)
-        thread_utils.spawn_threads_get_deployment_info()
-        deployments = thread_utils.get_threads_response()
+        agent_apps = eureka.get_type_eureka_apps(application)
+        thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
+        thread_utils.spawn_threads_get_finished_commands_info()
+        commands_detached = thread_utils.get_threads_response()
     except Exception as e:
-        raise ApiException(ApiCode.GET_DEPLOYMENTS_FAILED.value,
-                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_DEPLOYMENTS_FAILED.value), e)
+        raise ApiException(ApiCode.GET_COMMANDS_FAILED.value,
+                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_FAILED.value), e)
 
     return Response(json.dumps(
-        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), deployments)),
-        200,
+        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                commands_detached)), 200,
         mimetype="application/json")
 
 
 # aggregator of all agents endpoints
 @app.route('/agents/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@auth.login_required
 def agents_request(text):
-    text = text.strip()
+    path = text.strip()
     eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
     ip_addr_port_header_key = 'IpAddr-Port'  # target specific agent
     home_page_url_header_key = 'HomePageUrl'  # target specific agent
@@ -302,7 +346,7 @@ def agents_request(text):
 
     try:
         request_object = {
-            "uri": text.lstrip("/"),
+            "uri": path.lstrip("/"),
             "method": request.method,
             "headers": request.headers,
             "data": input_data
@@ -317,47 +361,6 @@ def agents_request(text):
             home_page_url = request.headers.get(f"{home_page_url_header_key}")
             agent_apps = list(filter(lambda x: x.get('homePageUrl') == home_page_url, agent_apps))
         thread_utils = ThreadUtils(apps=agent_apps, headers={})
-        thread_utils.spawn_threads_send_request(request_object)
-
-    except Exception as e:
-        raise ApiException(ApiCode.DISCOVERY_ERROR.value,
-                           ErrorMessage.HTTP_CODE.get(ApiCode.DISCOVERY_ERROR.value), e)
-
-    return Response(json.dumps(
-        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
-                                thread_utils.get_threads_response())), 200, mimetype="application/json")
-
-
-# aggregator of all deployers endpoints
-@app.route('/deployers/<path:text>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def deployers_request(text):
-    text = text.strip()
-    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
-    ip_addr_port_header_key = 'IpAddr-Port'  # target specific deployer
-    home_page_url_header_key = 'HomePageUrl'  # target specific agent
-    application = "deployer"
-    try:
-        input_data = request.get_data()
-    except:
-        input_data = ""
-
-    try:
-        request_object = {
-            "uri": text.lstrip("/"),
-            "method": request.method,
-            "headers": request.headers,
-            "data": input_data
-        }
-        app.logger.debug({"msg": f"{request_object}"})
-        deployer_apps = eureka.get_type_eureka_apps(application)
-        if request.headers.get(f"{ip_addr_port_header_key}"):  # not mandatory
-            ip_port = request.headers.get(f"{ip_addr_port_header_key}").split(":")
-            deployer_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                        deployer_apps))
-        if request.headers.get(f"{home_page_url_header_key}"):  # not mandatory
-            home_page_url = request.headers.get(f"{home_page_url_header_key}")
-            deployer_apps = list(filter(lambda x: x.get('homePageUrl') == home_page_url, deployer_apps))
-        thread_utils = ThreadUtils(apps=deployer_apps, headers={})
         thread_utils.spawn_threads_send_request(request_object)
 
     except Exception as e:

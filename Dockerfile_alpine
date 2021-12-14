@@ -28,7 +28,8 @@ VOLUME ["/data"]
 VOLUME ["/variables"]
 
 ENV TEMPLATES_DIR /data
-ENV HTTP_AUTH_TOKEN None
+ENV HTTP_AUTH_USER admin
+ENV HTTP_AUTH_PASSWORD estuaryoss123!
 ENV PORT 8080
 
 ENV VARS_DIR /variables
