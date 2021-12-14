@@ -8,12 +8,11 @@ python-coveralls
 pytest-cov
 flask_swagger_ui
 requests_toolbelt
-py_eureka_client==0.10.0
+py_eureka_client
 fluent-logger
 Jinja2
-setuptools==44.0.0
 jproperties
 psutil
+setuptools
 pyinstaller
-six
 # pypiwin32 #for windows pyinstalller

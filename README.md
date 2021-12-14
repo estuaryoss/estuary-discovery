@@ -3,7 +3,7 @@
 ## Estuary Discovery
 Estuary Discovery service. Aggregator of the Estuary-Stack. 
 -   Reads the apps/services registered in Eureka  
--   Reads the tests from Estuary-Agent(s) registered in Eureka  
+-   Reads the commands from Estuary-Agent(s) registered in Eureka  
 -   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the Agents  
 
 ## Coverage & code quality
