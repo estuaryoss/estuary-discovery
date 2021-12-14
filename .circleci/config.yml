@@ -23,7 +23,7 @@ jobs:
           command: Copy-Item "dist\main.exe" -Destination "main-win.exe"
           name: "copy main-win"
       - run:
-          command: Start-Process .\main-win.exe
+          command: .\main-win.exe
           name: "start main-win"
           environment:
             PORT: 8080

@@ -18,7 +18,6 @@ class FlaskServerTestCase(unittest.TestCase):
     username = "admin"
     password = "estuaryoss123!"
     expected_version = "4.2.5"
-    cleanup_count_safe = 5
 
     def test_env_endpoint(self):
         response = requests.get(self.service + "/env", auth=(self.username, self.password))
