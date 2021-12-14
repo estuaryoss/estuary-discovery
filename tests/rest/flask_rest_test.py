@@ -15,6 +15,7 @@ from rest.api.responsehelpers.error_codes import ErrorMessage
 class FlaskServerTestCase(unittest.TestCase):
     service = "http://localhost:8080"
     # server = "http://" + os.environ.get('SERVER')
+    service_name = "Estuary-Discovery"
     username = "admin"
     password = "estuaryoss123!"
     expected_version = "4.2.5"
@@ -109,12 +110,11 @@ class FlaskServerTestCase(unittest.TestCase):
 
     def test_about_endpoint(self):
         response = requests.get(self.service + "/about", auth=(self.username, self.password))
-        service_name = "estuary-discovery"
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(body.get('description'), dict)
-        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('name'), self.service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
@@ -128,12 +128,11 @@ class FlaskServerTestCase(unittest.TestCase):
             'X-Request-ID': xid
         }
         response = requests.get(self.service + "/about", headers=headers, auth=(self.username, self.password))
-        service_name = "estuary-discovery"
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(body.get('description'), dict)
-        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('name'), self.service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), ApiCode.SUCCESS.value)
@@ -144,12 +143,11 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_about_endpoint_unauthorized(self):
         headers = {}
         response = requests.get(self.service + "/about", headers=headers, auth=(self.username, "invalidPasswd"))
-        service_name = "estuary-discovery"
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 401)
         self.assertIn("401 Unauthorized", body.get('description'))
-        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('name'), self.service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), ApiCode.UNAUTHORIZED.value)
@@ -170,12 +168,11 @@ class FlaskServerTestCase(unittest.TestCase):
             'X-Request-ID': xid
         }
         response = requests.get(self.service + "/about", headers=headers, auth=(self.username, "invalidPasswd"))
-        service_name = "estuary-discovery"
         body = response.json()
         headers = response.headers
         self.assertEqual(response.status_code, 401)
         self.assertIn("401 Unauthorized", body.get('description'))
-        self.assertEqual(body.get('name'), service_name)
+        self.assertEqual(body.get('name'), self.service_name)
         self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value))
         self.assertEqual(body.get('version'), self.expected_version)
         self.assertEqual(body.get('code'), ApiCode.UNAUTHORIZED.value)
