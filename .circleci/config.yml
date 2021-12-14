@@ -20,6 +20,9 @@ jobs:
           command: pip install pypiwin32
           name: "install pypiwin32"
       - run:
+          command: pip install --ignore-installed six
+          name: "install six"
+      - run:
           command: python --version
           name: "python version"
       - run:
