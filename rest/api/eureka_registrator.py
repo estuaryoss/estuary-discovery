@@ -22,7 +22,7 @@ class EurekaRegistrator:
                            instance_port=app_port,
                            instance_secure_port=app_port,
                            instance_ip=app_ip,
-                           home_page_url=f"{protocol}://{app_ip}:{app_port}",
+                           home_page_url=f"{protocol}://{app_ip}:{app_port}/",
                            health_check_url=f"{protocol}://{app_ip}:{app_port}/ping",
                            status_page_url=f"{protocol}://{app_ip}:{app_port}/ping"
                            )
