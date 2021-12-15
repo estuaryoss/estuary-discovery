@@ -24,8 +24,10 @@ spec:
           env:
             - name: EUREKA_SERVER
               value: "http://netflixoss-eureka:8080/eureka/v2"
-            - name: APP_IP_PORT
-              value: "estuary-discovery:8080"
+            - name: APP_IP
+              value: "estuary-discovery"
+            - name: PORT
+                value: "8080"
           ports:
             - containerPort: 8080
 ---

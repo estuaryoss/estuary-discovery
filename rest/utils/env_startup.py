@@ -20,9 +20,9 @@ class EnvStartupSingleton:
 
     def get_config_env_vars(self):
         return {
-            EnvConstants.APP_IP_PORT: self.__env.get_env_and_virtual_env().get(
-                EnvConstants.APP_IP_PORT).strip().lower() if self.__env.get_env_and_virtual_env().get(
-                EnvConstants.APP_IP_PORT) else None,
+            EnvConstants.APP_IP: self.__env.get_env_and_virtual_env().get(
+                EnvConstants.APP_IP).strip().lower() if self.__env.get_env_and_virtual_env().get(
+                EnvConstants.APP_IP) else "localhost",
             EnvConstants.PORT: int(self.__env.get_env_and_virtual_env().get(
                 EnvConstants.PORT).strip()) if self.__env.get_env_and_virtual_env().get(
                 EnvConstants.PORT) is not None else 8080,

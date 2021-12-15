@@ -5,7 +5,6 @@ from flask import Response, render_template, send_from_directory
 from flask import request
 from flask_httpauth import HTTPBasicAuth
 from fluent import sender
-from werkzeug.exceptions import Unauthorized, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from about import properties, about_system
@@ -51,20 +50,6 @@ def verify_password(username, password):
     if username in users and \
             check_password_hash(users.get(username), password):
         return username
-    else:
-        abort(401)
-
-
-@app.errorhandler(Unauthorized)
-def unauthorized(e):
-    http = HttpResponse()
-    headers = {
-        HeaderConstants.X_REQUEST_ID: message_dumper.get_header(HeaderConstants.X_REQUEST_ID)
-    }
-    return Response(json.dumps(http.response(ApiCode.UNAUTHORIZED.value,
-                                             ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value),
-                                             e.__str__())), 401, mimetype="application/json",
-                    headers=headers)
 
 
 @app.errorhandler(ApiException)
@@ -283,50 +268,6 @@ def get_eureka_apps_name(eureka_app_name):
     return Response(json.dumps(
         HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value), apps_list)),
         200,
-        mimetype="application/json")
-
-
-# aggregator of active commands for the Agents
-@app.route('/commands', methods=['GET'])
-@auth.login_required
-def get_active_commands():
-    application = "agent"
-    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
-
-    try:
-        agent_apps = eureka.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
-        thread_utils.spawn_threads_get_active_commands_info()
-        commands_detached = thread_utils.get_threads_response()
-    except Exception as e:
-        raise ApiException(ApiCode.GET_COMMANDS_FAILED.value,
-                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_FAILED.value), e)
-
-    return Response(json.dumps(
-        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
-                                commands_detached)), 200,
-        mimetype="application/json")
-
-
-# aggregator of finished commands for the Agents
-@app.route('/commandsfinished', methods=['GET'])
-@auth.login_required
-def get_finished_commands():
-    application = "agent"
-    eureka = Eureka(EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER))
-
-    try:
-        agent_apps = eureka.get_type_eureka_apps(application)
-        thread_utils = ThreadUtils(apps=agent_apps, headers=request.headers)
-        thread_utils.spawn_threads_get_finished_commands_info()
-        commands_detached = thread_utils.get_threads_response()
-    except Exception as e:
-        raise ApiException(ApiCode.GET_COMMANDS_FAILED.value,
-                           ErrorMessage.HTTP_CODE.get(ApiCode.GET_COMMANDS_FAILED.value), e)
-
-    return Response(json.dumps(
-        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
-                                commands_detached)), 200,
         mimetype="application/json")
 
 

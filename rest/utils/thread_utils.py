@@ -2,7 +2,6 @@ import logging
 import threading
 
 import requests
-from requests_toolbelt.utils import dump
 
 from rest.api.constants.api_constants import ApiCode
 from rest.api.responsehelpers.error_codes import ErrorMessage
@@ -23,42 +22,6 @@ class ThreadUtils:
     @staticmethod
     def get_url(app):
         return app.get('homePageUrl')
-
-    def __get_commands_info(self, app, uri):
-        request_object = {
-            "uri": uri,
-            "method": "GET",
-            "headers": self.headers,  # forward headers if set like X-Request-ID or Authorization
-            "data": None
-        }
-
-        response = self.send_http_request(app, request_object=request_object)
-
-        if response.status_code == 200:
-            try:
-                commands_info = response.json()
-                commands_info["homePageUrl"] = app.get('homePageUrl')
-                commands_info["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
-                self.response_list.append(commands_info)
-            except:
-                self.response_list.append(str(dump.dump_all(response)))
-        else:
-            self.response_list.append(str(dump.dump_all(response)))
-
-    def spawn_threads_get_active_commands_info(self):
-        threads = [threading.Thread(target=self.__get_commands_info, args=(app, "commands",)) for app in self.apps]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
-
-    def spawn_threads_get_finished_commands_info(self):
-        threads = [threading.Thread(target=self.__get_commands_info, args=(app, "commandsfinished",)) for app in
-                   self.apps]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
 
     def send_http_request(self, app, request_object):
         logging.debug({"url": f'{self.get_url(app)}{request_object.get("uri")}',
@@ -87,6 +50,8 @@ class ThreadUtils:
 
         try:
             response = resp.json()
+            response["homePageUrl"] = app.get('homePageUrl')
+            response["ip_port"] = f"{app.get('ipAddr')}:{app.get('port')}"
         except:
             try:
                 response = resp.text
