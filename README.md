@@ -23,7 +23,7 @@ Estuary Discovery service. Aggregator of the Estuary-Stack.
 [4.1.0](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.1.0)
 
 ## Postman collection
-[Collection](https://documenter.getpostman.com/view/2360061/SVmpY31g)
+The Postman collection is located in **docs** folder.
 
 ## Service HTTP GET examples
 ```bash
@@ -42,10 +42,9 @@ python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api
 ```
 
 ## Use cases
--   Input for Estuary Viewer: deployments / tests / infrastructure registered in Eureka
--   L7 RESTApi broadcasts to the Agents: start test/ get test status / get test results  
--   Rapid listing of apps registered with Eureka.
--   Other integrations
+-   Input for Estuary UI: commands / tests / service infrastructure registered in Eureka
+-   L7 RESTApi broadcasts to the Agents (commands/file upload & download)  
+-   Listings of Apps registered with Eureka.
 
 ## Service run
 
@@ -65,7 +64,8 @@ Optionally you can set PORT environment variable (default=8080).
 
     docker run \
     -e EUREKA_SERVER=http://10.10.15.30:8080/eureka/v2
-    -e APP_IP_PORT=10.10.15.25:8081
+    -e APP_IP=10.10.15.25
+    -e PORT=8081
     -p 8081:8080
     estuaryoss/discovery:<tag>
     
@@ -165,5 +165,5 @@ Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img s
 ## Estuary stack
 [Estuary agent](https://github.com/estuaryoss/estuary-agent)  
 [Estuary discovery](https://github.com/estuaryoss/estuary-discovery)  
-[Estuary viewer](https://github.com/estuaryoss/estuary-viewer)  
+[Estuary UI](https://github.com/estuaryoss/estuary-ui)  
 [Estuary CLI](https://github.com/estuaryoss/estuary-cli)  

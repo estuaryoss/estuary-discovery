@@ -128,7 +128,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_finished_commands(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/commandsfinished", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commandsfinished", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
 
@@ -145,15 +145,15 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_commands_unauthorized(self):
         headers = {}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/commands", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commands", headers=headers,
                                 auth=(self.username, "invalidPasswd"))
         headers = response.headers
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
-    def test_time_of_10_requests(self):
-        repetitions = 10
+    def test_time_of_x_requests(self):
+        repetitions = 5
         start = time.time()
         headers = {}
         for _ in range(1, repetitions):
@@ -201,7 +201,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIn(expected, body.get('description')[0].get('description'))
 
     def test_agent_command_start_broadcast_p(self):
-        cmd = "ls -lrt"
+        cmd = "echo 1"
         headers = {
             "Content-Type": "application/json"
         }
@@ -213,7 +213,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         self.assertIsInstance(body.get('description')[0].get('description').get('commands').get(cmd), dict)
 
     def test_agent_command_unicast_p(self):
-        cmd = "ls -lrt"
+        cmd = "echo 1"
 
         # get eureka apps agent
         headers = {
@@ -245,7 +245,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertIsInstance(body.get('description')[0].get('description').get('commands').get(cmd), dict)
 
     def test_agent_command_start_unicast_by_home_page_url(self):
-        cmd = "ls -lrt"
+        cmd = "echo 1"
 
         # get eureka apps agent
         headers = {
@@ -277,7 +277,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             self.assertIsInstance(body.get('description')[0].get('description').get('commands').get(cmd), dict)
 
     def test_agent_command_start_unicast_wrong_ip_port(self):
-        cmd = "ls -lrt"
+        cmd = "echo 1"
 
         # get eureka apps agent
         headers = {

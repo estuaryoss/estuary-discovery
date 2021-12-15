@@ -18,7 +18,7 @@ class FlaskServerTestCase(unittest.TestCase):
     service_name = "Estuary-Discovery"
     username = "admin"
     password = "estuaryoss123!"
-    expected_version = "4.2.5"
+    expected_version = "4.2.4"
 
     def test_env_endpoint(self):
         response = requests.get(self.service + "/env", auth=(self.username, self.password))
@@ -143,16 +143,10 @@ class FlaskServerTestCase(unittest.TestCase):
     def test_about_endpoint_unauthorized(self):
         headers = {}
         response = requests.get(self.service + "/about", headers=headers, auth=(self.username, "invalidPasswd"))
-        body = response.json()
+        body = response.text
         headers = response.headers
         self.assertEqual(response.status_code, 401)
-        self.assertIn("401 Unauthorized", body.get('description'))
-        self.assertEqual(body.get('name'), self.service_name)
-        self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value))
-        self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), ApiCode.UNAUTHORIZED.value)
-        self.assertIsNotNone(body.get('timestamp'))
-        self.assertIsNotNone(body.get('path'))
+        self.assertIn("Unauthorized", body)
         self.assertEqual(len(headers.get('X-Request-ID')), 16)
 
     def test_about_endpoint_options_must_be_auth(self):
@@ -168,16 +162,10 @@ class FlaskServerTestCase(unittest.TestCase):
             'X-Request-ID': xid
         }
         response = requests.get(self.service + "/about", headers=headers, auth=(self.username, "invalidPasswd"))
-        body = response.json()
+        body = response.text
         headers = response.headers
         self.assertEqual(response.status_code, 401)
-        self.assertIn("401 Unauthorized", body.get('description'))
-        self.assertEqual(body.get('name'), self.service_name)
-        self.assertEqual(body.get('message'), ErrorMessage.HTTP_CODE.get(ApiCode.UNAUTHORIZED.value))
-        self.assertEqual(body.get('version'), self.expected_version)
-        self.assertEqual(body.get('code'), ApiCode.UNAUTHORIZED.value)
-        self.assertIsNotNone(body.get('timestamp'))
-        self.assertIsNotNone(body.get('path'))
+        self.assertIn("Unauthorized", body)
         self.assertEqual(headers.get('X-Request-ID'), xid)
 
     def test_swagger_endpoint(self):

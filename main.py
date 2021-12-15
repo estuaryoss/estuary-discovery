@@ -20,7 +20,8 @@ if __name__ == "__main__":
     if EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER):
         EurekaRegistrator(
             EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.EUREKA_SERVER)).register_app(
-            EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.APP_IP_PORT))
+            EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.APP_IP),
+            EnvStartupSingleton.get_instance().get_config_env_vars().get(EnvConstants.PORT))
 
     environ_dump = message_dumper.dump_message(EnvironmentSingleton.get_instance().get_env_and_virtual_env())
     ip_port_dump = message_dumper.dump_message({"host": host, "port": port})

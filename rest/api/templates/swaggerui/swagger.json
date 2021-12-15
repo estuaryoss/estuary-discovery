@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This is discovery service. Estuary-discovery service will discover the apps registered with Eureka,\nmanage test sessions by communicating with estuary agents.\n",
-    "version": "4.2.5",
-    "title": "estuary-discovery",
+    "description": "This is Discovery service. Estuary Discovery list the apps registered with Eureka,\n executes commands by communicating with Estuary Agents.\n",
+    "version": "4.2.4",
+    "title": "Estuary-Discovery",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
       "email": "constantin.dinuta@gmail.com"
@@ -37,14 +37,6 @@
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "responses": {
           "200": {
             "description": "List of env vars in key value pairs"
@@ -60,12 +52,6 @@
           "application/json"
         ],
         "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
           {
             "in": "body",
             "name": "EnvVars",
@@ -97,12 +83,6 @@
         ],
         "parameters": [
           {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
-          {
             "name": "env_name",
             "in": "path",
             "description": "The name of the env var wanted",
@@ -126,14 +106,6 @@
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Ping endpoint which replies with pong. Useful for checking alive status"
@@ -150,7 +122,6 @@
         "produces": [
           "application/json"
         ],
-        "parameters": [],
         "responses": {
           "200": {
             "description": "Prints the name, version of the estuary-discovery application."
@@ -170,12 +141,6 @@
           "text/plain"
         ],
         "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
           {
             "name": "template",
             "in": "path",
@@ -214,12 +179,6 @@
           "text/plain"
         ],
         "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
           {
             "name": "template",
             "in": "path",
@@ -263,14 +222,6 @@
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Get apps response"
@@ -292,12 +243,6 @@
         ],
         "parameters": [
           {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
-          {
             "name": "type",
             "in": "path",
             "description": "All apps of a certain type. E.g agent/discovery/whatever. Returns empty list if nothing found.",
@@ -315,33 +260,6 @@
         }
       }
     },
-    "/commandsdetached": {
-      "get": {
-        "tags": [
-          "estuary-discovery"
-        ],
-        "summary": "Gets detached command info across all estuary-agents services.",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Get commands detached success"
-          },
-          "404": {
-            "description": "Get commands detached failure"
-          }
-        }
-      }
-    },
     "/agents/{agent_uri}": {
       "get": {
         "tags": [
@@ -353,12 +271,6 @@
         ],
         "parameters": [
           {
-            "name": "Token",
-            "in": "header",
-            "required": false,
-            "type": "string"
-          },
-          {
             "name": "agent_uri",
             "in": "path",
             "description": "Broadcasts the request to the agent. E.g. /ping.",
@@ -368,7 +280,7 @@
           {
             "name": "IpAddr-Port",
             "in": "header",
-            "description": "The ipAddr:port of the agent unicast target, in this format with colon. If not used, then the request will be broadcast.",
+            "description": "The IpAddr:Port of the Agent in case of unicast, in this format with colon. If not used, then the request will be broadcast.",
             "required": false,
             "type": "string"
           }

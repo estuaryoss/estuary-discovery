@@ -18,27 +18,12 @@ services:
     environment:
       FLUENTD_IP_PORT: fluentd:24224
       EUREKA_SERVER: http://eureka:8080/eureka/v2
-      APP_IP_PORT: 192.168.0.11:8081
+      APP_IP: 192.168.0.11
+      PORT: 8081
     ports:
       - "8081:8080"
     networks:
       - elastic
-
-  #  estuary-agent:
-  #    container_name: estuary-agent
-  #    hostname: estuary-agent
-  #    image: estuaryoss/agent:latest
-  #    command: bash -c "sleep 60 && /scripts/main.py"
-  #    environment:
-  #      FLUENTD_IP_PORT: fluentd:24224
-  #      EUREKA_SERVER: http://eureka:8080/eureka/v2
-  #      APP_IP_PORT: 192.168.0.11:8082
-  #    expose:
-  #      - "8080"
-  #    ports:
-  #      - "8082:8080"
-  #    networks:
-  #      - elastic
 
   estuary-agent-java:
     container_name: estuary-agent-java
