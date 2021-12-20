@@ -20,7 +20,7 @@ Estuary Discovery service. Aggregator of the Estuary-Stack.
 [alpine](https://hub.docker.com/r/estuaryoss/discovery) ![](https://img.shields.io/docker/pulls/estuaryoss/discovery.svg)
 
 ## Api docs
-[4.1.0](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.1.0)
+[4.2.4](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.2.4)
 
 ## Postman collection
 The Postman collection is located in **docs** folder.

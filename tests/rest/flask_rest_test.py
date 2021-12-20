@@ -175,13 +175,6 @@ class FlaskServerTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(body.find("html") >= 0)
 
-    def test_viewer_endpoint(self):
-        response = requests.get(self.service + "/viewer", auth=(self.username, self.password))
-
-        body = response.text
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(body.find("Estuary Viewer") >= 0)
-
     @parameterized.expand([
         ("json.j2", "json.json"),
         ("yml.j2", "yml.yml")

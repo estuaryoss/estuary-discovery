@@ -128,7 +128,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_finished_commands(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commandsfinished", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/commands/finished", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
 
