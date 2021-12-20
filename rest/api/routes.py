@@ -6,6 +6,7 @@ from flask import request
 from flask_httpauth import HTTPBasicAuth
 from fluent import sender
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import redirect
 
 from about import properties, about_system
 from rest.api import AppCreatorSingleton
@@ -95,55 +96,19 @@ def after_request(http_response):
 
 @app.route('/apidocs')
 @auth.login_required
-def apidocs_index():
+def apidocs():
     return render_template('swaggerui.html')
-
-
-@app.route('/viewer')
-@auth.login_required
-def viewer_index():
-    return render_template('index.html')
 
 
 @app.route('/')
 @auth.login_required
 def root():
-    return render_template('index.html')
-
-
-@app.route('/js/<path:path>')
-@auth.login_required
-def viewer_js(path):
-    return send_from_directory('templates/js', path)
-
-
-@app.route('/css/<path:path>')
-@auth.login_required
-def viewer_css(path):
-    return send_from_directory('templates/css', path)
-
-
-@app.route('/img/<path:path>')
-@auth.login_required
-def viewer_img(path):
-    return send_from_directory('templates/img', path)
-
-
-@app.route('/fonts/<path:path>')
-@auth.login_required
-def viewer_fonts(path):
-    return send_from_directory('templates/fonts', path)
+    return redirect('/apidocs')
 
 
 @app.route('/swaggerui/<path:path>')
 @auth.login_required
 def swagger_ui(path):
-    return send_from_directory('templates/swaggerui', path)
-
-
-@app.route('/resources/<path:path>')
-@auth.login_required
-def swagger_ui_resources(path):
     return send_from_directory('templates/swaggerui', path)
 
 
