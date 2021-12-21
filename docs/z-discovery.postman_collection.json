@@ -40,7 +40,7 @@
 			"response": []
 		},
 		{
-			"name": "{{SERVER}}:8080/eurekaapps",
+			"name": "{{SERVER}}:8080/eureka/apps",
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -79,20 +79,20 @@
 					}
 				],
 				"url": {
-					"raw": "{{SERVER}}:8081/eurekaapps",
+					"raw": "{{SERVER}}:8081/eureka/apps",
 					"host": [
 						"{{SERVER}}"
 					],
 					"port": "8081",
 					"path": [
-						"eurekaapps"
+						"eureka/apps"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "{{SERVER}}:8080/eurekaapps/estuary-deployer",
+			"name": "{{SERVER}}:8080/eureka/apps/estuary-agent",
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -131,13 +131,13 @@
 					}
 				],
 				"url": {
-					"raw": "{{SERVER}}:8081/eurekaapps/agent",
+					"raw": "{{SERVER}}:8081/eureka/apps/agent",
 					"host": [
 						"{{SERVER}}"
 					],
 					"port": "8081",
 					"path": [
-						"eurekaapps",
+						"eureka/apps",
 						"agent"
 					]
 				}

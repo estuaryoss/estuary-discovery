@@ -1,35 +1,44 @@
 <h1 align="center"><img src="./docs/images/banner_discovery.png" alt="Testing as a service"></h1>
 
 ## Estuary Discovery
-Estuary Discovery service. Aggregator of the Estuary-Stack. 
--   Reads the apps/services registered in Eureka  
--   Reads the commands from Estuary-Agent(s) registered in Eureka  
--   Controls test sessions by unicasting/broadcasting L7 HTTP messages to the Agents  
+
+Estuary Discovery service. Aggregator of the Estuary-Stack.
+
+- Reads the apps/services registered in Eureka
+- Reads the commands from Estuary-Agent(s) registered in Eureka
+- Controls test sessions by unicasting/broadcasting L7 HTTP messages to the Agents
 
 ## Coverage & code quality
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/fc69b90ee90546158876e5344d9c2af2)](https://www.codacy.com/gh/estuaryoss/estuary-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=estuaryoss/estuary-discovery&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/c0894a0a9785a3fb7afc/maintainability)](https://codeclimate.com/github/estuaryoss/estuary-discovery/maintainability)
 
 ## Linux status
+
 [![Build Status](https://travis-ci.com/estuaryoss/estuary-discovery.svg?token=UC9Z5nQSPmb5vK5QLpJh&branch=master)](https://travis-ci.com/estuaryoss/estuary-discovery)
 
 ## Windows status
+
 [![CircleCI](https://circleci.com/gh/estuaryoss/estuary-discovery.svg?style=svg)](https://circleci.com/gh/estuaryoss/estuary-discovery)
 
 ## Docker Hub
+
 [alpine](https://hub.docker.com/r/estuaryoss/discovery) ![](https://img.shields.io/docker/pulls/estuaryoss/discovery.svg)
 
 ## Api docs
+
 [4.2.4](https://app.swaggerhub.com/apis/dinuta/estuary-discovery/4.2.4)
 
 ## Postman collection
+
 The Postman collection is located in **docs** folder.
 
 ## Service HTTP GET examples
+
 ```bash
-curl -i http://localhost:8080/eurekaapps #all apps  
-curl -i http://localhost:8080/eurekaapps/estuary #all apps containing estuary  
-curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by your app name  
+curl -i http://localhost:8080/eureka/apps #all apps  
+curl -i http://localhost:8080/eureka/apps/estuary #all apps containing estuary  
+curl -i http://localhost:8080/eureka/apps/your_app_name #all apps designated by your app name  
  ```
 
 ## Compilation - pyinstaller
@@ -37,30 +46,35 @@ curl -i http://localhost:8080/eurekaapps/your_app_name #all apps designated by y
 ```shell
 python -m PyInstaller --onefile --clean --add-data="rest/api/templates/:rest/api/templates/" main.py
 ```
+
 ```cmd
 python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api/templates/" main.py
 ```
 
 ## Use cases
--   Input for Estuary UI: commands / tests / service infrastructure registered in Eureka
--   L7 RESTApi broadcasts to the Agents (commands/file upload & download)  
--   Listings of Apps registered with Eureka.
+
+- Input for Estuary UI: commands / tests / service infrastructure registered in Eureka
+- L7 RESTApi broadcasts to the Agents (commands/file upload & download)
+- Listings of Apps registered with Eureka.
 
 ## Service run
 
 ### Docker compose
+
     docker-compose up
-    
+
 ### Eureka registration
+
 Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
+
 ```bash
 docker run -p 8080:8080 estuaryoss/netflix-eureka:1.9.25
 ```
 
 Start your container by specifying the eureka server in order to discover all other apps.  
-Optionally you can set PORT environment variable (default=8080).  
+Optionally you can set PORT environment variable (default=8080).
 
     docker run \
     -e EUREKA_SERVER=http://10.10.15.30:8080/eureka/v2
@@ -68,20 +82,23 @@ Optionally you can set PORT environment variable (default=8080).
     -e PORT=8081
     -p 8081:8080
     estuaryoss/discovery:<tag>
-    
+
 ### Kubernetes
+
     kubectl apply -f k8sdeployment.yml
 
 ### Fluentd logging
+
 Please consult [Fluentd](https://github.com/fluent/fluentd) for logging setup.  
 Estuary-discovery tags all logs in format ```estuary-discovery.**```
 
-Matcher example:  
+Matcher example:
 
 ```xml
+
 <match estuary*.**>
-  @type stdout
-</match>
+        @type stdout
+        </match>
 ```
 
 Run example:
@@ -92,12 +109,13 @@ Run example:
     estuaryoss/discovery:<tag>
 
 ### Authentication
-For auth set HTTP_AUTH_USER & HTTP_AUTH_PASSWORD env variables.  
 
-[!!!]() Use this env variable to secure the service. [!!!]()
+For auth set HTTP_AUTH_USER & HTTP_AUTH_PASSWORD env variables.
 
+[!!!]() Use these env variables to secure the service. [!!!]()
 
 Run example:
+
 ```shell script
 docker run \
 -e HTTP_AUTH_USER=admin \
@@ -105,65 +123,87 @@ docker run \
 -p 8080:8080
 estuaryoss/discovery:<tag>
 ```
+
 Then, access the Http Api. Call example:
+
 ```shell script
 curl -i -u admin:estuaryoss123! http:localhost:8080/about
 ```  
-Because discovery acts as an stack aggregator hitting agents, you must use the same HTTP_AUTH_USER & HTTP_AUTH_PASSWORD   
-across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.    
+
+Because discovery acts as an stack aggregator hitting agents, you must use the same HTTP_AUTH_USER &
+HTTP_AUTH_PASSWORD   
+across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.
 
 ### Enable HTTPS
+
 Set **HTTPS_ENABLE** env var option to *true* or *false*.    
-Set the certificate and the private key path with **HTTPS_CERT** and **HTTPS_KEY** env variables. 
-If you do not set cert and private key file env vars, it defaults to a folder in the same path called *https*, and the default files *https/cert.pem* and *https/key.pem*. 
+Set the certificate and the private key path with **HTTPS_CERT** and **HTTPS_KEY** env variables. If you do not set cert
+and private key file env vars, it defaults to a folder in the same path called *https*, and the default files *
+https/cert.pem* and *https/key.pem*.
 
 ## Environment variables injection
-User defined environment variables will be stored in a 'virtual' environment. The extra env vars will be used by the process that executes system commands.  
-There are two ways to inject user defined environment variables.    
--   call POST on **/env** endpoint. The body will contain the env vars in JSON format. E.g. {"FOO1":"BAR1"}  
--   create an **environment.properties** file with the extra env vars needed and place it in the same path as the JAR. Example in this repo.  
+
+User defined environment variables will be stored in a 'virtual' environment. The extra env vars will be used by the
+process that executes system commands.  
+There are two ways to inject user defined environment variables.
+
+- call POST on **/env** endpoint. The body will contain the env vars in JSON format. E.g. {"FOO1":"BAR1"}
+- create an **environment.properties** file with the extra env vars needed and place it in the same path as the JAR.
+  Example in this repo.
 
 *! All environment variables described above can also be set using **environment.properties**.*
 
 ### Output example
-curl -i http://172.17.0.22:8081/eurekaapps
+
+curl -i http://172.17.0.22:8081/eureka/apps
+
 ```json
 {
-   "code" : 1000,
-   "description" : {
-      "estuary-agent" : [
-         {
-            "app" : "estuary-agent",
-            "healthCheckUrl" : "http://172.17.0.22:8082/ping",
-            "homePageUrl" : "http://172.17.0.22:8082/",
-            "ipAddr" : "172.17.0.22",
-            "port" : "8082",
-            "statusPageUrl" : "http://172.17.0.22:8082/ping"
-         }
-      ],
-      "estuary-discovery" : [
-         {
-            "app" : "estuary-discovery",
-            "healthCheckUrl" : "http://172.17.0.22:8081/ping",
-            "homePageUrl" : "http://172.17.0.22:8081/",
-            "ipAddr" : "172.17.0.22",
-            "port" : "8081",
-            "statusPageUrl" : "http://172.17.0.22:8081/ping"
-         }
-      ]
-   },
-   "message" : "Success",
-   "name" : "estuary-discovery",
-   "timestamp" : "2020-08-15 20:18:36.359046",
-   "path" : "/eurekaapps?",
-   "version" : "4.0.8"
+  "code": 1000,
+  "message": "Success",
+  "description": {
+    "estuary-discovery": [
+      {
+        "ipAddr": "localhost",
+        "port": "8081",
+        "securePort": "8081",
+        "app": "estuary-discovery",
+        "metadata": {
+          "management.port": "8081"
+        },
+        "homePageUrl": "http://localhost:8081/",
+        "healthCheckUrl": "http://localhost:8081/ping",
+        "statusPageUrl": "http://localhost:8081/ping"
+      }
+    ],
+    "estuary-agent-java": [
+      {
+        "ipAddr": "192.168.0.41",
+        "port": "8082",
+        "securePort": "443",
+        "app": "estuary-agent-java",
+        "metadata": {
+          "name": "Estuary-Agent",
+          "management.port": "8082"
+        },
+        "homePageUrl": "http://localhost:8082/",
+        "healthCheckUrl": "http://localhost:8082/actuator/health",
+        "statusPageUrl": "http://localhost:8082/actuator/info"
+      }
+    ]
+  },
+  "path": "/eureka/apps?",
+  "timestamp": "2021-12-19 12:03:51.375734",
+  "name": "Estuary-Discovery",
+  "version": "4.2.4"
 }
 ```
 
-Support project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src="https://lh3.googleusercontent.com/Y2_nyEd0zJftXnlhQrWoweEvAy4RzbpDah_65JGQDKo9zCcBxHVpajYgXWFZcXdKS_o=s180-rw" height="40" width="40" align="center"></a>   
+Support
+project: <a href="https://paypal.me/catalindinuta?locale.x=en_US"><img src="https://lh3.googleusercontent.com/Y2_nyEd0zJftXnlhQrWoweEvAy4RzbpDah_65JGQDKo9zCcBxHVpajYgXWFZcXdKS_o=s180-rw" height="40" width="40" align="center"></a>
 
 ## Estuary stack
+
 [Estuary agent](https://github.com/estuaryoss/estuary-agent)  
 [Estuary discovery](https://github.com/estuaryoss/estuary-discovery)  
-[Estuary UI](https://github.com/estuaryoss/estuary-ui)  
-[Estuary CLI](https://github.com/estuaryoss/estuary-cli)  
+[Estuary UI](https://github.com/estuaryoss/estuary-ui)   

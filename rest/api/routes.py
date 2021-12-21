@@ -199,7 +199,7 @@ def set_env():
                                  env_vars_added)), 200, mimetype="application/json")
 
 
-@app.route('/eurekaapps', methods=['GET'])
+@app.route('/eureka/apps', methods=['GET'])
 @auth.login_required
 def get_eureka_apps():
     http = HttpResponse()
@@ -218,7 +218,7 @@ def get_eureka_apps():
         mimetype="application/json")
 
 
-@app.route('/eurekaapps/<eureka_app_name>', methods=['GET'])
+@app.route('/eureka/apps/<eureka_app_name>', methods=['GET'])
 @auth.login_required
 def get_eureka_apps_name(eureka_app_name):
     eureka_app_name = eureka_app_name.strip()
