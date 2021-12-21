@@ -50,7 +50,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_eureka_apps(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps", headers=headers,
                                 auth=(self.username, self.password))
 
         body = response.json()
@@ -76,7 +76,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_eureka_apps_agent(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/estuary-agent", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/estuary-agent", headers=headers,
                                 auth=(self.username, self.password))
 
         body = response.json()
@@ -91,7 +91,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
 
     def test_get_eureka_apps_discovery(self):
         headers = {"Content-Type": "application/json"}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/discovery", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/discovery", headers=headers,
                                 auth=(self.username, self.password))
 
         body = response.json()
@@ -116,7 +116,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
     def test_get_eureka_apps_empty_list(self):
         app = "whatever"
         headers = {}
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/{app}", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/{app}", headers=headers,
                                 auth=(self.username, self.password))
 
         body = response.json()
@@ -157,7 +157,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         start = time.time()
         headers = {}
         for _ in range(1, repetitions):
-            response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps", headers=headers,
+            response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps", headers=headers,
                                     auth=(self.username, self.password))
             self.assertEqual(response.status_code, 200)
         end = time.time()
@@ -219,7 +219,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             "Content-Type": "application/json"
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/agent", headers=headers,
                                 auth=(self.username, self.password))
         # print(dump.dump_response(response))
         body = response.json()
@@ -251,7 +251,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             "Content-Type": "application/json"
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/agent", headers=headers,
                                 auth=(self.username, self.password))
         # print(dump.dump_response(response))
         body = response.json()
@@ -283,7 +283,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             "Content-Type": "application/json"
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eurekaapps/agent", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/eureka/apps/agent", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
         self.assertEqual(response.status_code, 200)

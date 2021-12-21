@@ -213,7 +213,7 @@
         }
       }
     },
-    "/eurekaapps": {
+    "/eureka/apps": {
       "get": {
         "tags": [
           "estuary-discovery"
@@ -232,7 +232,7 @@
         }
       }
     },
-    "/eurekaapps/{type}": {
+    "/eureka/apps/{type}": {
       "get": {
         "tags": [
           "estuary-discovery"
