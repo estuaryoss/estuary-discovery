@@ -34,7 +34,7 @@ class ThreadUtils:
                                         url=f'{self.get_url(app)}{request_object.get("uri")}',
                                         headers=request_object.get("headers"),
                                         data=request_object.get('data'),
-                                        timeout=3,
+                                        timeout=10,
                                         verify=False)
         except Exception as e:
             response = HttpResponse.response(
