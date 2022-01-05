@@ -11,6 +11,7 @@ services:
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP: estuary-discovery #your app details: the IP/hostname. needed for service discovery and spread of tests from the test client
       PORT: 8080 #your app details:  port. needed for service discovery and spread of tests from the test client
+      HTTPS_ENABLE: false
       HTTP_AUTH_USER: "admin"
       HTTP_AUTH_PASSWORD: "estuaryoss123!"
     ports:
@@ -27,6 +28,7 @@ services:
       EUREKA_SERVER: http://eureka-server:8080/eureka/v2 #your eureka server
       APP_IP: estuary-agent #your app details: where it is and on which port. needed for service discovery and spread of tests from the test client
       PORT: 8080
+      HTTPS_ENABLE: false
       HTTP_AUTH_USER: "admin" #change it with env vars
       HTTP_AUTH_PASSWORD: "estuaryoss123!" #change it with env vars
     ports:

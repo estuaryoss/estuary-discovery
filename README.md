@@ -6,7 +6,7 @@ Estuary Discovery service. Aggregator of the Estuary-Stack.
 
 - Reads the apps/services registered in Eureka
 - Reads the commands from Estuary-Agent(s) registered in Eureka
-- Controls test sessions by unicasting/broadcasting L7 HTTP messages to the Agents
+- Sends L7 HTTP messages (commands/environment set & read / file transfers) to the Agents
 
 ## Coverage & code quality
 
@@ -53,8 +53,8 @@ python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api
 
 ## Use cases
 
-- Input for Estuary UI: commands / tests / service infrastructure registered in Eureka
-- L7 RESTApi broadcasts to the Agents (commands/file upload & download)
+- Input for Estuary UI: commands / file transfers / service infrastructure registered in Eureka
+- L7 HTTP messages to the Agents (environment set / commands / file upload & download)
 - Listings of Apps registered with Eureka.
 
 ## Service run
@@ -65,7 +65,7 @@ python -m PyInstaller --onefile --clean --add-data="rest/api/templates/;rest/api
 
 ### Eureka registration
 
-Estuary discovery will boot and it will connect to the Eureka. Then it will be able to list all apps.
+Estuary discovery will boot, and it will connect to the Eureka. Then it will be able to list all apps.
 
 Start Eureka server with docker:
 
@@ -130,7 +130,7 @@ Then, access the Http Api. Call example:
 curl -i -u admin:estuaryoss123! http:localhost:8080/about
 ```  
 
-Because discovery acts as an stack aggregator hitting agents, you must use the same HTTP_AUTH_USER &
+Because discovery acts as a stack aggregator hitting agents, you must use the same HTTP_AUTH_USER &
 HTTP_AUTH_PASSWORD   
 across all stack, otherwise the aggregation won't work, because the headers are forwarded as they are sent.
 
