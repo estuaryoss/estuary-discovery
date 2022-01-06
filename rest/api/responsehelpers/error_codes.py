@@ -16,4 +16,5 @@ class ErrorMessage:
         ApiCode.TARGET_UNREACHABLE.value: "The requested target %s was unreachable",
         ApiCode.INVALID_JSON_PAYLOAD.value: "The payload '%s' is not JSON",
         ApiCode.SET_ENV_VAR_FAILURE.value: "Could not set env vars '%s'",
+        ApiCode.FOLDER_ZIP_FAILURE.value: "Failed to zip folder %s.",
     }

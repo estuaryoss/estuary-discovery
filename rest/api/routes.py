@@ -1,6 +1,7 @@
 import json
 from secrets import token_hex
 
+import flask
 from flask import Response, render_template, send_from_directory
 from flask import request
 from flask_httpauth import HTTPBasicAuth
@@ -22,6 +23,7 @@ from rest.environment.environment import EnvironmentSingleton
 from rest.service.eureka import Eureka
 from rest.service.fluentd import Fluentd
 from rest.utils.env_startup import EnvStartupSingleton
+from rest.utils.io_utils import IOUtils
 from rest.utils.thread_utils import ThreadUtils
 
 app = AppCreatorSingleton.get_instance().get_app()
@@ -259,20 +261,36 @@ def agents_request(text):
         }
         app.logger.debug({"msg": f"{request_object}"})
         agent_apps = eureka.get_type_eureka_apps(application)
+
         if request.headers.get(f"{ip_addr_port_header_key}"):  # not mandatory
-            ip_port = request.headers.get(f"{ip_addr_port_header_key}").split(":")
-            agent_apps = list(filter(lambda x: x.get('ipAddr') == ip_port[0] and x.get('port') == ip_port[1],
-                                     agent_apps))
+            ip_port_list = request.headers.get(f"{ip_addr_port_header_key}").split(",")
+            agent_apps = [app for app in agent_apps if f"{app.get('ipAddr')}:{app.get('port')}" in ip_port_list]
+
         if request.headers.get(f"{home_page_url_header_key}"):  # not mandatory
-            home_page_url = request.headers.get(f"{home_page_url_header_key}")
-            agent_apps = list(filter(lambda x: x.get('homePageUrl') == home_page_url, agent_apps))
-        thread_utils = ThreadUtils(apps=agent_apps, headers={})
-        thread_utils.spawn_threads_send_request(request_object)
+            home_page_url_list = request.headers.get(f"{home_page_url_header_key}").split(",")
+            agent_apps = [app for app in agent_apps if f"{app.get('homePageUrl')}" in home_page_url_list]
+
+        th_utils = ThreadUtils(apps=agent_apps, headers={})
+        th_utils.spawn_threads_send_request(request_object)
 
     except Exception as e:
         raise ApiException(ApiCode.DISCOVERY_ERROR.value,
                            ErrorMessage.HTTP_CODE.get(ApiCode.DISCOVERY_ERROR.value), e)
 
-    return Response(json.dumps(
-        HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
-                                thread_utils.get_threads_response())), 200, mimetype="application/json")
+    threads_response = th_utils.get_threads_response()
+
+    if th_utils.is_response_zip():
+        folder_path = f"{th_utils.download_folder}/{th_utils.get_source_zip_folder()}"
+        archive_path = f"{th_utils.download_folder}/{th_utils.get_source_zip_folder()}"
+        try:
+            IOUtils.zip_file(archive_path, folder_path)
+        except Exception as e:
+            raise ApiException(ApiCode.FOLDER_ZIP_FAILURE.value,
+                               ErrorMessage.HTTP_CODE.get(ApiCode.FOLDER_ZIP_FAILURE.value) % folder_path, e)
+        IOUtils.delete_file(folder_path)
+
+        return flask.send_file(f"{archive_path}.zip", mimetype='application/zip', as_attachment=True), 200
+
+    return Response(
+        json.dumps(HttpResponse().response(ApiCode.SUCCESS.value, ErrorMessage.HTTP_CODE.get(ApiCode.SUCCESS.value),
+                                           threads_response)), 200, mimetype="application/json")

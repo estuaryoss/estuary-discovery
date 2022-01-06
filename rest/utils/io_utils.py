@@ -1,10 +1,27 @@
 import errno
 import json
 import os
+import shutil
 from pathlib import Path
 
 
 class IOUtils:
+
+    @staticmethod
+    def zip_file(zip_path, source_path):
+        file_path = Path(source_path)
+        if not file_path.exists():
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file_path)
+        shutil.make_archive(zip_path, 'zip', f"{source_path}")
+
+    @staticmethod
+    def delete_file(file):
+        file_path = Path(file)
+        if file_path.is_file():
+            try:
+                file_path.unlink()
+            except Exception as e:
+                print(f"Failed to delete file {file}: {e.__str__()}")
 
     @staticmethod
     def create_dir(path, permissions=0o755):
@@ -12,8 +29,8 @@ class IOUtils:
             os.makedirs(path, permissions)
 
     @staticmethod
-    def write_to_file(file, content=""):
-        with open(file, 'w') as f:
+    def write_to_file(file, content):
+        with open(file, 'wb') as f:
             f.write(content)
 
     @staticmethod
