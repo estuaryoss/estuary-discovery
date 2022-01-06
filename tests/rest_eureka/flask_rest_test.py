@@ -168,7 +168,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
             "Content-Type": "application/json",
             'whatever': '100'
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file/read", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -181,7 +181,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'File-Path': '/etc/hostname'
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file/read", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
         self.assertEqual(response.status_code, 200)
@@ -193,7 +193,7 @@ class FlaskServerEurekaTestCase(unittest.TestCase):
         headers = {
             'File-Path': '/dummy_path'
         }
-        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file", headers=headers,
+        response = requests.get(f"{self.home_url}:{self.server_port_ext}/agents/file/read", headers=headers,
                                 auth=(self.username, self.password))
         body = response.json()
         self.assertEqual(response.status_code, 200)
